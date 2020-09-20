@@ -1,2 +1,3 @@
 # yogi-framework
-Cross-platform application development framework for distributed systems
+
+Multi-language application development framework for distributed systems

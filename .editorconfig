@@ -1,0 +1,39 @@
+root = true
+
+[*]
+indent_style = space
+indent_size = 2
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[CMakeLists.txt]
+indent_size = 4
+
+[*.cc,*.h,*.hh]
+indent_size = 2
+max_line_length = 120
+
+[yogi_core.h]
+max_line_length = 80
+
+[*.py]
+indent_size = 4
+max_line_length = 120
+
+[*.cs]
+indent_size = 4
+max_line_length = 120
+
+[*.json]
+indent_size = 2
+
+[*.yaml]
+indent_size = 2
+
+[*.sh]
+indent_size = 4
+
+[*.jinja2]
+indent_size = 2

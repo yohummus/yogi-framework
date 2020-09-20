@@ -1,0 +1,2099 @@
+/*
+{{ core_api.copyright | prefix_lines(' * ') }}
+ */
+
+#ifndef YOGI_CORE_H
+#define YOGI_CORE_H
+
+//! \file
+//! \brief Definition the public API of the Yogi Core library.
+
+//! @defgroup VS Version Macros
+//!
+//! Various macros describing the version of the header file. Note that those
+//! macros only denote the version of the header file which does not necessarily
+//! have to match the version of the actual library that is loaded at runtime.
+//!
+//! This header file constitutes the bindings for the C language and therefore,
+//! the version macros defined here denote the version of these bindings.
+//!
+//! @{
+
+#define YOGI_HDR_VERSION "{{ core_api.version.major }}.{{ core_api.version.minor }}.{{ core_api.version.patch }}{{ core_api.version.suffix }}"  ///< Whole version string
+#define YOGI_HDR_VERSION_MAJOR {{ core_api.version.major }}  ///< Major version number
+#define YOGI_HDR_VERSION_MINOR {{ core_api.version.minor }}  ///< Minor version number
+#define YOGI_HDR_VERSION_PATCH {{ core_api.version.patch }}  ///< Patch version number
+#define YOGI_HDR_VERSION_SUFFIX "{{ core_api.version.suffix }}"  ///< Version suffix (e.g. "-beta")
+
+//! @}
+//!
+//! @defgroup CV Constants
+//!
+//! Immutable values used in the library such as version numbers and default
+//! values for function calls. The values of the constants can be obtained via
+//! the YOGI_GetConstant() function.
+//!
+//! The type of each constant is denoted in brackets after its description.
+//!
+//! @{
+
+{% for name, props in core_api.constants.items() %}
+//! {{ props.help }}
+#define YOGI_CONST_{{ name }} {{ loop.index }}
+{% endfor %}
+
+//! @}
+//!
+//! @defgroup EC Error Codes
+//!
+//! Yogi error codes indicating failures are always < 0. A human-readable
+//! description can be obtained by calling YOGI_GetErrorString().
+//!
+//! @{
+
+{% for name, help in core_api.error_codes.items() %}
+//! {{ help }}
+#define YOGI_{{ '' if loop.first else 'ERR_' }}{{ name }} {{ -loop.index0 }}
+{% endfor %}
+
+//! @}
+//!
+//! @defgroup VB Log verbosity/severity
+//!
+//! Verbosity/severity levels for logging.
+//!
+//! @{
+
+{% for name, help in core_api.verbosity.items() -%}
+#define YOGI_VB_{{ name }} {{ loop.index0 - 1 }}   ///< {{ help }}
+{% endfor %}
+
+//! @}
+//!
+//! @defgroup BC Boolean Constants
+//!
+//! Definitions for true and false.
+//!
+//! @{
+
+#define YOGI_FALSE 0  ///< Represents a logical false
+#define YOGI_TRUE 1   ///< Represents a logical true
+
+//! @}
+//!
+//! @defgroup ST Stream Constants
+//!
+//! Constants for differentiating between stdout and stderr.
+//!
+//! @{
+
+{% for name, help in core_api.streams.items() -%}
+#define YOGI_ST_{{ name }} {{ loop.index0  }}   ///< {{ help }}
+{% endfor %}
+
+//! @}
+//!
+//! @defgroup SCM Schemas
+//!
+//! JSON Schemas used for describing and validating various forms of data such
+//! as configurations or results passed back to the library user (e.g. branch
+//! information). The schemas can be retrieved via YOGI_GetSchema().
+//!
+//! @{
+
+{% for name, help in core_api.schemas.items() %}
+//! {{ help }}
+#define YOGI_SCM_{{ name }} {{ loop.index0 }}
+{% endfor %}
+
+//! @}
+//!
+//! @defgroup SIG Signals
+//!
+//! Definitions of various signals.
+//!
+//! Signals in Yogi are intended to be used similar to POSIX signals. They have
+//! to be raised explicitly by the user (e.g. when receiving an actual POSIX
+//! signal like SIGINT) via YOGI_RaiseSignal(). A signal will be received by
+//! all signal sets containing that signal.
+//!
+//! @{
+
+{% for name, props in core_api.signals.items() %}
+  {%- if 'bit' in props -%}
+    #define YOGI_SIG_{{ name }} {{ props.bit | to_bit }}  ///< {{ props.help }}
+  {%- else %}
+    {{ props.help | prefix_lines('//! ') }}
+    #define YOGI_SIG_{{ name }} {{ props.combine | or_flags('YOGI_SIG_') }}
+  {% endif %}
+{% endfor %}
+
+//! @}
+//!
+//! @defgroup CFG Configuration Flags
+//!
+//! Flags used to change a configuration object's behaviour.
+//!
+//! @{
+
+{% for name, props in core_api.cfg_flags.items() %}
+{{ props.help | prefix_lines('//! ') }}
+#define YOGI_CFG_{{ name }} {{ props.bit | to_bit }}
+{% endfor %}
+
+//! @}
+//!
+//! @defgroup CLO Command Line Options
+//!
+//! Flags used to adjust how command line options are parsed.
+//!
+//! @{
+
+{% for name, props in core_api.clo_flags.items() %}
+  {{ props.help | prefix_lines('//! ') }}
+  {% if 'bit' in props -%}
+    #define YOGI_CLO_{{ name }} {{ props.bit | to_bit }}
+  {%- else -%}
+    #define YOGI_CLO_{{ name }} {{ props.combine | or_flags('YOGI_CLO_') }}
+  {% endif %}
+{% endfor %}
+
+//! @}
+//!
+//! @defgroup BEV Branch Events
+//!
+//! Definitions of various events that can be observed on a branch.
+//!
+//! @{
+
+{% for name, props in core_api.branch_events.items() %}
+  {{ props.help | prefix_lines('//! ') }}
+  {% if 'bit' in props -%}
+    #define YOGI_BEV_{{ name }} {{ props.bit | to_bit }}
+  {%- else -%}
+    #define YOGI_BEV_{{ name }} {{ props.combine | or_flags('YOGI_BEV_') }}
+  {% endif %}
+{% endfor %}
+
+//! @}
+//!
+//! @defgroup ENC Encoding Types
+//!
+//! Possible data/payload encoding types.
+//!
+//! @{
+
+{% for name, help in core_api.encoding_types.items() -%}
+#define YOGI_ENC_{{ name }} {{ loop.index0  }}   ///< {{ help }}
+{% endfor %}
+
+//! @}
+//!
+//! @defgroup MET HTTP request methods
+//!
+//! Request methods supported by the built-in web server.
+//!
+//! @{
+
+{% for name, props in core_api.http_methods.items() %}
+  {{ props.help | prefix_lines('//! ') }}
+  {% if 'bit' in props -%}
+    #define YOGI_MET_{{ name }} {{ props.bit | to_bit }}
+  {%- else -%}
+    #define YOGI_MET_{{ name }} {{ props.combine | or_flags('YOGI_MET_') }}
+  {% endif %}
+{% endfor %}
+
+//! @}
+//!
+//! @defgroup HTTP response status codes
+//!
+//! Status codes for responses to HTTP requests.
+//!
+//! @{
+
+{% for code, help in core_api.http_codes.items() -%}
+#define YOGI_HTTP_{{ code }} {{ code }}   ///< {{ help }}
+{% endfor %}
+
+//! @}
+//!
+//! @defgroup WPA Web process actions
+//!
+//! Actions on a web process, originating from a web client.
+//!
+//! @{
+
+{% for name, help in core_api.wp_actions.items() -%}
+#define YOGI_WPA_{{ name }} {{ loop.index0  }}   ///< {{ help }}
+{% endfor %}
+
+//! @}
+//!
+//! @defgroup WPU Web process updates
+//!
+//! Updates from a web process, originating from the web server.
+//!
+//! @{
+
+{% for name, help in core_api.wp_updates.items() -%}
+#define YOGI_WPU_{{ name }} {{ loop.index0  }}   ///< {{ help }}
+{% endfor %}
+
+//! @}
+
+#ifndef YOGI_API
+# ifdef _MSC_VER
+#   define YOGI_API __declspec(dllimport)
+# else
+#   define YOGI_API
+# endif
+#endif
+
+//! @defgroup FN Library Functions
+//!
+//! Description of the various library functions.
+//!
+//! @{
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/*!
+ * Get the version of the loaded library.
+ *
+ * The returned string is human-reable and in the same format as the
+ * #YOGI_HDR_VERSION macro. Note that those two strings do not necessarily have
+ * to match since the final executable can load a library with a version number
+ * different from the version number in the used header file.
+ *
+ * \returns Library version
+ */
+{{ core_api.functions | to_function_declaration('YOGI_GetVersion') }}
+
+/*!
+ * Checks if the bindings for Yogi used in a program are compatible with the
+ * loaded Yogi core library.
+ *
+ * This function should be used straight after loading the Yogi library in order
+ * to ensure that the user code is compatible with the library. All official
+ * Yogi bindings (yogi-cpp, yogi-python, etc.) perform this check automatically
+ * on startup and terminate the program if the library version is not compatible
+ * with the bindings.
+ *
+ * Bindings are compatible if and only if the major version numbers are
+ * identical and the minor version number of the bindings is greater or equal to
+ * the minor version number of the Yogi library.
+ *
+ * In case that the versions are not compatible, YOGI_GetLastErrorDetails()
+ * can be called to obtain a message desribing the version mismatch that an be
+ * shown to the user.
+ *
+ * Attention: Even though an error code will be returned if the versions are
+ *            incompatible or the supplied version string is invalid, the
+ *            returned value should be compared only against 0 (#YOGI_OK) since
+ *            error codes may change between versions!
+ *
+ * \param[in]  bindver Version of the bindings
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] if versions are not compatible
+ */
+ {{ core_api.functions | to_function_declaration('YOGI_CheckBindingsCompatibility') }}
+
+/*!
+ * Get a description of an error code.
+ *
+ * Returns a human-readable string describing the given error code. The returned
+ * string is always a valid, null-terminated and human-readable string, even if
+ * the supplied error code is not valid.
+ *
+ * \param[in] err Error code (see \ref EC)
+ *
+ * \returns Description of the error code
+ */
+ {{ core_api.functions | to_function_declaration('YOGI_GetErrorString') }}
+
+/*!
+ * Get error details of the result of this thread's last library call.
+ *
+ * Returns a human-readable string containing details about the last Yogi
+ * library call made by the calling thread. The returned string is always
+ * != NULL and null-terminated. If there is no detailed information available
+ * then this function returns an empty string. This function does NOT contain
+ * the general information obtained via YOGI_GetErrorString().
+ *
+ * \attention
+ *   The returned pointer is only valid within the calling thread and only
+ *   until it invokes another library function that returns an error code, even
+ *   if that library function returns #YOGI_OK.
+ *
+ * \returns Description of the result of this thread's last library call
+ */
+ {{ core_api.functions | to_function_declaration('YOGI_GetLastErrorDetails') }}
+
+/*!
+ * Get the value of a constant (see \ref CV).
+ *
+ * Depending on the type of constant, which can either be an integer number or a
+ * null-terminated string (see \ref CV), the target of the \p dest parameter
+ * will be set accordingly: For integer-type constants, \p dest will be treated
+ * as a pointer to an int and its target will be set to the value of the
+ * constant; for string-type constants, \p dest will be treated as a pointer to
+ * a char* string and its target will be set to the address of the string
+ * constant.
+ *
+ * \param[out] dest     Pointer to where the value will be written to
+ * \param[in]  constant The constant to retrieve (see \ref CV)
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+ {{ core_api.functions | to_function_declaration('YOGI_GetConstant') }}
+
+/*!
+ * Returns a built-in JSON Schema (see \ref SCM).
+ *
+ * The built-in schemas may contain references to other schemas. These
+ * references are based on the schema filenames as set in the $id property.
+ *
+ * The schema will be returned formatted and with whitespace.
+ *
+ * \note
+ *   This function always returns a valid, null-terminated string. If the
+ *   supplied \p schema is invalid then an empty string will be returned.
+ *
+ * \returns The schema as serialized JSON string
+ */
+ {{ core_api.functions | to_function_declaration('YOGI_GetSchema') }}
+
+/*!
+ * Get the current time.
+ *
+ * \param[out] timestamp Current time in nanoseconds since 01/01/1970 UTC.
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+ {{ core_api.functions | to_function_declaration('YOGI_GetCurrentTime') }}
+
+/*!
+ * Converts a timestamp into a string.
+ *
+ * The \p timefmt parameter describes the format of the conversion. The
+ * following placeholders are supported:
+ {% for placeholder, help in core_api.time_fmt_placeholders.items() -%}
+ *  - \c \{{ placeholder }}: {{ help }}
+ {% endfor -%}
+ *
+ * \note
+ *   The placeholder syntax is a modulo sign followed by a single character. Any
+ *   additional characters shown above are for Doxygen.
+ *
+ * If \p timefmt is set to NULL, then the timestamp will be formatted as an
+ * ISO-8601 string with up to milliseconds resolution, e.g.
+ * "2009-02-11T12:53:09.123Z".
+ *
+ * \attention
+ *   The target string \p str is only valid in the calling thread and until that
+ *   thread invokes another Yogi library function.
+ *
+ * \param[in]  timestamp Timestamp in nanoseconds since 01/01/1970 UTC
+ * \param[out] str       Pointer to set to the generated string
+ *                       (can be set to NULL)
+ * \param[in]  strsize   Where to write the size (including the trailing zero)
+ *                       of the generated string (can be set to NULL)
+ * \param[in]  timefmt   Format of the time string (set to NULL for default)
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+ {{ core_api.functions | to_function_declaration('YOGI_FormatTime') }}
+
+/*!
+ * Converts a string into a timestamp.
+ *
+ * The \p timefmt parameter describes the format of the conversion. The
+ * following placeholders are supported:
+ {% for placeholder, help in core_api.time_fmt_placeholders.items() -%}
+ *  - \c \{{ placeholder }}: {{ help }}
+ {% endfor -%}
+ *
+ * \note
+ *   The placeholder syntax is a modulo sign followed by a single character. Any
+ *   additional characters shown above are for Doxygen.
+ *
+ * If \p timefmt is set to NULL, then the timestamp will be parsed in the
+ * format "2009-02-11T12:53:09.123Z".
+ *
+ * \param[out] timestamp Resulting in nanoseconds since 01/01/1970 UTC
+ * \param[in]  str       String to parse
+ * \param[in]  timefmt   Format of the time string (set to NULL for default)
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_ParseTime') }}
+
+/*!
+ * Converts a duration into a string.
+ *
+ * The \p durfmt parameter describes the format of the conversion. The
+ * following placeholders are supported:
+ {% for placeholder, help in core_api.duration_fmt_placeholders.items() -%}
+ *  - \c \{{ placeholder }}: {{ help }}
+ {% endfor -%}
+ *
+ * The \p inffmt parameter describes the format to use for infinite durations.
+ * The following placeholders are supported:
+ *  - \c \%+: Plus sign if duration is positive and minus sign if it is negative
+ *  - \c \%-: Minus sign (only) if duration is negative
+ *
+ * \note
+ *   The placeholder syntax is a modulo sign followed by a single character. Any
+ *   additional characters shown above are for Doxygen.
+ *
+ * If \p durfmt is set to NULL, then the duration will be formatted in the
+ * format "-23d 04:19:33.123456789". If \p dur is -1 to indicate an infinite
+ * duration, then \p infstr will be copied to \p str. If \p infstr is set to
+ * NULL, then the format string "%-inf" will be used.
+ *
+ * \attention
+ *   The target string \p str is only valid in the calling thread and until that
+ *   thread invokes another Yogi library function.
+ *
+ * \param[in]  dur     Duration in nanoseconds (-1 for infinity or >= 0)
+ * \param[in]  neg     Duration is negative (#YOGI_TRUE or #YOGI_FALSE)
+ * \param[out] str     Pointer to set to the generated string
+ *                     (can be set to NULL)
+ * \param[in]  strsize Where to write the size (including the trailing zero) of
+ *                     the generated string (can be set to NULL)
+ * \param[in]  durfmt  Format of the duration string (set to NULL for default)
+ * \param[in]  inffmt  Format to use for infinity (set to NULL for default)
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_FormatDuration') }}
+
+/*!
+ * Creates a string describing an object.
+ *
+ * The \p objfmt parameter describes the format of the string. The following
+ * placeholders are supported:
+ {% for placeholder, help in core_api.object_fmt_placeholders.items() -%}
+ *  - \c {{ placeholder }}: {{ help }}
+ {% endfor -%}
+ *
+ * \note
+ *   The placeholder syntax is a dollar sign followed by a single character. Any
+ *   additional characters shown above are for Doxygen.
+ *
+ * If \p objfmt is set to NULL, then the object will be formatted in the format
+ * "Branch [44fdde]" with the hex value in brackets being the object's handle,
+ * i.e. the address of the \p obj pointer. If \p obj is NULL then \p nullstr
+ * will be copied to \p str. If \p nullstr is set to NULL, then the string
+ * "INVALID HANDLE" will be used.
+ *
+ * \attention
+ *   The target string \p str is only valid in the calling thread and until that
+ *   thread invokes another Yogi library function.
+ *
+ * \param[in]  obj     Handle of the object to print
+ * \param[out] str     Pointer to set to the generated string
+ *                     (can be set to NULL)
+ * \param[in]  strsize Where to write the size (including the trailing zero) of
+ *                     the generated string (can be set to NULL)
+ * \param[in]  objfmt  Format of the string (set to NULL for default)
+ * \param[in]  nullstr String to use if \p obj is NULL
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_FormatObject') }}
+
+/*!
+ * Configures logging to the console.
+ *
+ * This function supports colourizing the output if the terminal that the
+ * process is running in supports it. The color used for a log entry depends on
+ * the entry's severity. For example, errors will be printed in red and warnings
+ * in yellow.
+ *
+ * Writing to the console can be disabled by setting \p verbosity to
+ * #YOGI_VB_NONE.
+ *
+ * Each log entry contains the _component_ tag which describes which part of a
+ * program issued the log entry. For entries created by the library itself, this
+ * parameter is prefixed with the string "Yogi.", followed by the internal
+ * component name. For example, the component tag for a branch would be
+ * "Yogi.Branch".
+ *
+ * The \p timefmt parameter describes the textual format of a log entry's
+ * timestamp. The following placeholders are supported:
+ {% for placeholder, help in core_api.time_fmt_placeholders.items() -%}
+ *  - \c \{{ placeholder }}: {{ help }}
+ {% endfor -%}
+ *
+ * The \p fmt parameter describes the textual format of the complete log entry
+ * as it will appear on the console. The supported placeholders are:
+ {% for placeholder, help in core_api.log_fmt_placeholders.items() -%}
+ *  - \c {{ placeholder }}: {{ help }}
+ {% endfor -%}
+ *
+ * \note
+ *   The placeholder syntax is a modulo or dollar sign repectively, followed by
+ *   a single character. Any additional characters shown above are for Doxygen.
+ *
+ * \param[in] verbosity Maximum verbosity of messages to log
+ * \param[in] stream    The stream to use (#YOGI_ST_STDOUT or #YOGI_ST_STDERR)
+ * \param[in] color     Use colors in output (#YOGI_TRUE or #YOGI_FALSE)
+ * \param[in] timefmt   Format of the timestamp (set to NULL for default)
+ * \param[in] fmt       Format of a log entry (set to NULL for default)
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_ConfigureConsoleLogging') }}
+
+/*!
+ * Configures logging to a user-defined function.
+ *
+ * This function can be used to get notified whenever the Yogi library itself or
+ * the user produces log messages. These messages can then be processed further
+ * in user code.
+ *
+ * Only one callback function can be registered. Calling
+ * YOGI_ConfigureHookLogging() again will override the previous function.
+ * Setting \p fn to NULL or \p verbosity to #YOGI_VB_NONE will disable the hook.
+ *
+ * \note
+ *   The library will call \p fn from only one thread at a time, i.e. \p fn does
+ *   not have to be thread-safe.
+ *
+ * The parameters passed to \p fn are:
+ *  -# __severity__: Severity (verbosity) of the entry (see \ref VB)
+ *  -# __timestamp__: Timestamp of the entry in nanoseconds since 01/01/1970 UTC
+ *  -# __tid__: ID of the thread that created the entry
+ *  -# __file__: Source file name
+ *  -# __line__: Source file line number
+ *  -# __comp__: Component that created the entry
+ *  -# __msg__: Log message
+ *  -# __userarg__: Value of \p userarg
+ *
+ * \attention
+ *   The two string arguments *comp* and *msg* of \p fn are valid only while
+ *   \p fn is being executed. Do not access those variables at a later time!
+ *
+ * \param[in] verbosity Maximum verbosity of messages to call \p fn for
+ * \param[in] fn        Callback function
+ * \param[in] userarg   User-specified argument to be passed to \p fn
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_ConfigureHookLogging') }}
+
+/*!
+ * Configures logging to a file.
+ *
+ * This function opens a file to write library-internal and user logging
+ * information to. If the file with the given filename already exists then it
+ * will be overwritten.
+ *
+ * Writing to a log file can be disabled by setting \p filename to NULL or
+ * \p verbosity to #YOGI_VB_NONE.
+ *
+ * The \p timefmt and \p fmt parameters describe the textual format for a log
+ * entry. The \p filename parameter supports all placeholders that are valid
+ * for \p timefmt. See the YOGI_ConfigureConsoleLogging() function for supported
+ * placeholders.
+ *
+ * \note
+ *   The color-related placeholders are ignored when writing to log files.
+ *
+ * The \p genfn parameter can be used to obtain the filename generated by
+ * replacing the placeholders in the \p filename parameter.
+ *
+ * \attention
+ *   The generated filename string \p genfn is only valid in the calling thread
+ *   and until that thread invokes another Yogi library function.
+ *
+ * \param[in]  verbosity Maximum verbosity of messages to log to stderr
+ * \param[in]  filename  Path to the log file (see description for placeholders)
+ * \param[out] genfn     Pointer to a string pointer for retrieving the
+ *                       generated filename (can be set to NULL)
+ * \param[in]  genfnsize Where to write the size (including the trailing zero)
+ *                       of the generated filename to (can be set to NULL)
+ * \param[in]  timefmt   Format of the timestamp (set to NULL for default)
+ * \param[in]  fmt       Format of a log entry (set to NULL for default)
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_ConfigureFileLogging') }}
+
+/*!
+ * Creates a logger.
+ *
+ * A logger is an object used for generating log entries that are tagged with
+ * the logger's component tag. A logger's component tag does not have to be
+ * unique, i.e. multiple loggers can be created using identical \p component
+ * strings.
+ *
+ * The verbosity of new loggers is #YOGI_VB_INFO by default.
+ *
+ * \param[out] logger    Pointer to the logger handle
+ * \param[in]  component The component tag to use
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_LoggerCreate') }}
+
+/*!
+ * Gets the verbosity of a particular logger.
+ *
+ * The verbosity of a logger acts as a filter. Only messages with a verbosity
+ * less than or equal to the given value are being logged.
+ *
+ * \note
+ *   The verbosity of a logger affects only messages logged through that
+ *   particular logger, i.e. if two loggers have identical component tags their
+ *   verbosity settings are still independent from each other.
+ *
+ * \param[in]  logger    Logger handle (set to NULL for the App logger)
+ * \param[out] verbosity Pointer to where the verbosity level shall be written
+ *                       to (see \ref VB)
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_LoggerGetVerbosity') }}
+
+/*!
+ * Sets the verbosity of a particular logger.
+ *
+ * The verbosity of a logger acts as a filter. Only messages with a verbosity
+ * less than or equal to the given value are being logged.
+ *
+ * \note
+ *   The verbosity of a logger affects only messages logged through that
+ *   particular logger, i.e. if two loggers have identical component tags their
+ *   verbosity settings are still independent from each other.
+ *
+ * \param[in] logger    Logger handle (set to NULL for the App logger)
+ * \param[in] verbosity Maximum verbosity entries to be logged (see \ref VB)
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_LoggerSetVerbosity') }}
+
+/*!
+ * Sets the verbosity of all loggers matching a given component tag.
+ *
+ * This function finds all loggers whose component tag matches the regular
+ * expression given in the \p components parameter and sets their verbosity
+ * to \p verbosity.
+ *
+ * \param[in]  components Regex (ECMAScript) for the component tags to match
+ * \param[in]  verbosity  Maximum verbosity entries to be logged (see \ref VB)
+ * \param[out] count      Number of matching loggers (can be set to NULL)
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_LoggerSetComponentsVerbosity') }}
+
+/*!
+ * Creates a log entry.
+ *
+ * The entry can be generated using a specific logger or, by setting \p logger
+ * to NULL, the App logger will be used. The App logger is always present and
+ * uses the string "App" as the component tag.
+ *
+ * \param[in] logger   The logger to use (set to NULL for the App logger)
+ * \param[in] severity Severity (verbosity) of the entry (see \ref VB)
+ * \param[in] file     Source file name (can be set to NULL)
+ * \param[in] line     Source file line number (can be set to 0)
+ * \param[in] msg      Log message
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_LoggerLog') }}
+
+/*!
+ * Creates a configuration.
+ *
+ * A configuration represents a set of parameters that usually remain constant
+ * throughout the runtime of a program. Parameters can come from different
+ * sources such as the command line or a file. Configurations are used for
+ * other parts of the library such as application objects, however, they are
+ * also intended to store user-defined parameters.
+ *
+ * The \p flags parameter is used to change the behaviour of a configuration
+ * object in certain key areas (see \ref CFG).
+ *
+ * \param[out] config Pointer to the configuration handle
+ * \param[in]  flags  See \ref CFG for possible behaviour adjustments
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_ConfigurationCreate') }}
+
+/*!
+ * Updates a configuration from command line options.
+ *
+ * This function returns #YOGI_ERR_HELP_REQUESTED, the help/usage text can be
+ * obtained via YOGI_GetLastErrorDetails().
+ *
+ * Call YOGI_GetLastErrorDetails() to get a more detailed error description in
+ * case this function returns an error.
+ *
+ * \param[in]  config  The configuration to update
+ * \param[in]  argc    Number strings in \p argv
+ * \param[in]  argv    Strings given on the command line
+ * \param[in]  options Options to provide on the command line (see \ref CLO)
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_ConfigurationUpdateFromCommandLine') }}
+
+/*!
+ * Updates a configuration from a JSON-formatted string.
+ *
+ * Call YOGI_GetLastErrorDetails() to get a more detailed error description in
+ * case this function returns an error.
+ *
+ * \param[in]  config  The configuration to update
+ * \param[in]  json    Null-terminated, JSON-formatted string
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_ConfigurationUpdateFromJson') }}
+
+/*!
+ * Updates a configuration from a JSON file.
+ *
+ * Call YOGI_GetLastErrorDetails() to get a more detailed error description in
+ * case this function returns an error.
+ *
+ * \param[in]  config   The configuration to update
+ * \param[in]  filename Path to the JSON file
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_ConfigurationUpdateFromFile') }}
+
+/*!
+ * Dumps a configuration as a JSON-formatted string.
+ *
+ * If the configuration is larger than the space provided by \p json and
+ * \p jsonsize then this function returns #YOGI_ERR_BUFFER_TOO_SMALL, however,
+ * \p str will still be populated as much as possible (and null-terminated). In
+ * this case, \p json will *not* contain valid JSON data.
+ *
+ * \param[in]  config   The configuration
+ * \param[out] json     Pointer to set to the serialized JSON data
+ *                      (can be set to NULL)
+ * \param[in]  jsonsize Where to write the size (including the trailing zero) of
+ *                      the generated string (can be set to NULL)
+ * \param[in]  resvars  Set to #YOGI_TRUE to resolve any variables before
+ *                      writing the configuration to \p json and #YOGI_FALSE
+ *                      otherwise
+ * \param[in]  indent   Indentation size (number of space characters to use);
+ *                      -1 omits new lines as well
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_ConfigurationDump') }}
+
+/*!
+ * Writes a configuration to a file in JSON format.
+ *
+ * This is useful for debugging purposes.
+ *
+ * \param[in] config   The configuration
+ * \param[in] filename Path to the output file
+ * \param[in] resvars  Set to #YOGI_TRUE to resolve any variables before writing
+ *                     the configuration to the file and #YOGI_FALSE otherwise
+ * \param[in] indent   Indentation size (number of space characters to use);
+ *                     -1 omits new lines as well
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_ConfigurationWriteToFile') }}
+
+/*!
+ * Validates the configuration against a JSON Schema.
+ *
+ * The validation is based on JSON Schema draft-07, see http://json-schema.org/.
+ * The schema to validate \p config against has to be supplied in \p schema
+ * which needs to be a configuration object itself.
+ *
+ * Call YOGI_GetLastErrorDetails() to get a more detailed error description in
+ * case this function returns an error.
+ *
+ * \param[in]  config   The configuration to validate
+ * \param[in]  section  Section in \p config to validate (set to NULL for root);
+ *                      syntax is JSON pointer (RFC 6901)
+ * \param[in]  schema   The configuration containing the schema
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_ConfigurationValidate') }}
+
+/*!
+ * Creates a context for the execution of asynchronous operations.
+ *
+ * \param[out] context Pointer to the context handle
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_ContextCreate') }}
+
+/*!
+ * Runs the context's event processing loop to execute ready handlers.
+ *
+ * This function runs handlers (internal and user-supplied such as functions
+ * registered through YOGI_ContextPost()) that are ready to run, without
+ * blocking, until the YOGI_ContextStop() function has been called or there
+ * are no more ready handlers.
+ *
+ * This function must be called from outside any handler functions that are
+ * being executed through the context.
+ *
+ * \param[in]  context The context to use
+ * \param[out] count   Number of executed handlers (may be set to NULL)
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_ContextPoll') }}
+
+/*!
+ * Runs the context's event processing loop to execute at most one ready
+ * handler.
+ *
+ * This function runs at most one handler (internal and user-supplied such as
+ * functions registered through YOGI_ContextPost()) that is ready to run,
+ * without blocking.
+ *
+ * This function must be called from outside any handler functions that are
+ * being executed through the context.
+ *
+ * \param[in]  context The context to use
+ * \param[out] count   Number of executed handlers (may be set to NULL)
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_ContextPollOne') }}
+
+/*!
+ * Runs the context's event processing loop for the specified duration.
+ *
+ * This function blocks while running the context's event processing loop and
+ * calling dispatched handlers (internal and user-supplied such as functions
+ * registered through YOGI_ContextPost()) for the specified duration unless
+ * YOGI_ContextStop() is called within that time.
+ *
+ * This function must be called from outside any handler functions that are
+ * being executed through the context.
+ *
+ * \param[in]  context  The context to use
+ * \param[out] count    Number of executed handlers (may be set to NULL)
+ * \param[in]  duration Duration in nanoseconds (-1 for infinity)
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_ContextRun') }}
+
+/*!
+ * Runs the context's event processing loop for the specified duration to
+ * execute at most one handler.
+ *
+ * This function blocks while running the context's event processing loop and
+ * calling dispatched handlers (internal and user-supplied such as functions
+ * registered through YOGI_ContextPost()) for the specified duration until a
+ * single handler function has been executed, unless YOGI_ContextStop() is
+ * called within that time.
+ *
+ * This function must be called from outside any handler functions that are
+ * being executed through the context.
+ *
+ * \param[in]  context  The context to use
+ * \param[out] count    Number of executed handlers (may be set to NULL)
+ * \param[in]  duration Duration in nanoseconds (-1 for infinity)
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_ContextRunOne') }}
+
+/*!
+ * Starts an internal thread for running the context's event processing loop.
+ *
+ * This function starts a threads that runs the context's event processing loop
+ * in the background. It relieves the user from having to start a thread and
+ * calling the appropriate YOGI_ContextRun... or YOGI_ContextPoll... functions
+ * themself. The thread can be stopped using YOGI_ContextStop().
+ *
+ * This function must be called from outside any handler functions that are
+ * being executed through the context.
+ *
+ * \param[in] context The context to use
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_ContextRunInBackground') }}
+
+/*!
+ * Stops the context's event processing loop.
+ *
+ * This function signals the context to stop running its event processing loop.
+ * This causes YOGI_ContextRun... functions to return as soon as possible and it
+ * terminates the thread started via YOGI_ContextRunInBackground().
+ *
+ * \param[in] context The context to use
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_ContextStop') }}
+
+/*!
+ * Blocks until the context's event processing loop is being run or until the
+ * specified timeout is reached.
+ *
+ * If the \p duration parameter is set to 0 then the function works in polling
+ * mode.
+ *
+ * If the event processing loop has not been running after the specified
+ * timeout, then the #YOGI_ERR_TIMEOUT error is returned. This also applies when
+ * this function is used in polling mode as described above.
+ *
+ * This function must be called from outside any handler functions that are
+ * being executed through the context.
+ *
+ * \param[in] context  The context to use
+ * \param[in] duration Maximum time to wait in nanoseconds (-1 for infinity)
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_ContextWaitForRunning') }}
+
+/*!
+ * Blocks until no thread is running the context's event processing loop or
+ * until the specified timeout is reached.
+ *
+ * If the \p duration parameter is set to 0 then the function works in polling
+ * mode.
+ *
+ * If a thread is still running the event processing loop after the specified
+ * timeout, then the #YOGI_ERR_TIMEOUT error is returned. This also applies when
+ * this function is used in polling mode as described above.
+ *
+ * This function must be called from outside any handler functions that are
+ * being executed through the context.
+ *
+ * \param[in] context  The context to use
+ * \param[in] duration Maximum time to wait in nanoseconds (-1 for infinity)
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_ContextWaitForStopped') }}
+
+/*!
+ * Adds the given function to the context's event processing queue to be
+ * executed and returns immediately.
+ *
+ * The handler \p fn will only be executed after this function returns and only
+ * by a thread running the context's event processing loop. The only parameter
+ * for \p fn will be set to the value of the \p userarg parameter.
+ *
+ * \param[in] context The context to use
+ * \param[in] fn      The function to call from within the given context
+ * \param[in] userarg User-specified argument to be passed to \p fn
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_ContextPost') }}
+
+/*!
+ * Raises a signal.
+ *
+ * Signals in Yogi are intended to be used similar to POSIX signals. They have
+ * to be raised explicitly by the user (e.g. when receiving an actual POSIX
+ * signal like SIGINT) via this function. A signal will be received by all
+ * signal sets containing that signal.
+ *
+ * The \p sigarg parameter can be used to deliver user-defined data to the
+ * signal handlers. The cleanup handler \p fn will be called once all signal
+ * handlers have been called; it is intended to be used for memory management
+ * purposes. Once \p fn has been called, \p sigarg is not used any more and
+ * can be destroyed.
+ *
+ * \note
+ *   The cleanup handler \p fn can get called either from within the
+ *   YOGI_RaiseSignal() function or from any context within the program.
+ *
+ * \param[in] signal  The signal to raise (see \ref SIG)
+ * \param[in] sigarg  User-defined data to pass to the signal handlers
+ * \param[in] fn      Function to be called once all signal handlers have been
+ *                    executed (can be NULL)
+ * \param[in] userarg User-specified argument to be passed to \p fn
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_RaiseSignal') }}
+
+/*!
+ * Creates a new signal set.
+ *
+ * Signal sets are used to receive signals raised via YOGI_RaiseSignal().
+ * The signals are queued until they can be delivered by means of calls to
+ * YOGI_SignalSetAwaitSignalAsync().
+ *
+ * \param[out] sigset  Pointer to the signal set handle
+ * \param[in]  context The context to use
+ * \param[in]  signals The signals to listen for
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_SignalSetCreate') }}
+
+/*!
+ * Waits for a signal to be raised.
+ *
+ * The handler \p fn will be called after one of the signals in the signal set
+ * is caught. The parameters passed to \p fn are:
+ *  -# __res__: #YOGI_OK or error code in case of a failure (see \ref EC)
+ *  -# __sig__: The caught signal (see \ref SIG)
+ *  -# __sigarg__: User-defined parameter passed to YOGI_RaiseSignal()
+ *  -# __userarg__: Value of the user-specified \p userarg parameter
+ *
+ * \note
+ *   Calling this function on the same context again before the signal has been
+ *   caught will cause the previously registered handler function to be called
+ *   with the #YOGI_ERR_CANCELED error.
+ *
+ * \param[in] sigset  The signal set
+ * \param[in] fn      The function to call
+ * \param[in] userarg User-specified argument to be passed to \p fn
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_SignalSetAwaitSignalAsync') }}
+
+/*!
+ * Cancels waiting for a signal.
+ *
+ * Causes the handler function registered via YOGI_SignalSetAwaitSignalAsync()
+ * to be called with #YOGI_ERR_CANCELED.
+ *
+ * \note
+ *   If the receive handler has already been scheduled for execution, this
+ *   function will fail with the #YOGI_ERR_OPERATION_NOT_RUNNING error.
+ *
+ * \param[in] sigset The signal set
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_SignalSetCancelAwaitSignal') }}
+
+/*!
+ * Creates a new timer.
+ *
+ * \param[out] timer   Pointer to the timer handle
+ * \param[in]  context The context to use
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_TimerCreate') }}
+
+/*!
+ * Starts the given timer.
+ *
+ * If the timer is already running, the timer will be canceled first, as if
+ * YOGI_TimerCancel() were called explicitly.
+ *
+ * The parameters of the handler function \p fn are:
+ *  -# __res__: #YOGI_OK or error code in case of a failure (see \ref EC)
+ *  -# __userarg__: Value of the user-specified \p userarg parameter
+ *
+ * \param[in] timer    The timer to start
+ * \param[in] duration Duration in nanoseconds (-1 for infinity)
+ * \param[in] fn       The function to call after the given time passed
+ * \param[in] userarg  User-specified argument to be passed to \p fn
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_TimerStartAsync') }}
+
+/*!
+ * Cancels the given timer.
+ *
+ * Canceling a timer will result in the handler function registered via
+ * YOGI_TimerStartAsync() to be called with the #YOGI_ERR_CANCELED error as
+ * first parameter. Note that if the handler is already scheduled for executing,
+ * it will be called with #YOGI_OK instead.
+ *
+ * If the timer has not been started or it already expired, this function will
+ * return #YOGI_ERR_TIMER_EXPIRED.
+ *
+ * \param[in] timer The timer to cancel
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_TimerCancel') }}
+
+/*!
+ * Creates a new branch.
+ *
+ * A branch represents an entry point into a Yogi network. It advertises itself
+ * via IP broadcasts/multicasts with its unique ID and information required for
+ * establishing a connection. If a branch detects other branches on the network,
+ * it connects to them via TCP to retrieve further information such as their
+ * name, description and network name. If the network names match, two branches
+ * attempt to authenticate with each other by securely comparing passwords.
+ * Once authentication succeeds and there is no other known branch with the same
+ * path then the branches can actively communicate as part of the Yogi network.
+ *
+ * The branch is configured via the \p config parameter. The configuration
+ * object will only be used while constructing the branch, i.e. the branch will
+ * not keep any references to it. The supplied configuration must have the
+ * following structure:
+ *
+ * \code
+ *   {
+ *     "name":                   "Fan Controller",
+ *     "description":            "Controls a fan via PWM",
+ *     "path":                   "/Cooling System/Fan Controller",
+ *     "network_name":           "Hardware Control",
+ *     "network_password":       "secret",
+ *     "advertising_interfaces": ["localhost"],
+ *     "advertising_address":    "ff02::8000:2439",
+ *     "advertising_port":       13531,
+ *     "advertising_interval":   1.0,
+ *     "timeout":                3.0,
+ *     "ghost_mode":             false,
+ *     "tx_queue_size":          1000000,
+ *     "rx_queue_size":          100000
+ *   }
+ * \endcode
+ *
+ * All of the properties are optional and if unspecified (or set to _null_),
+ * their respective default values will be used (see \ref CV). The properties
+ * have the following meaning:
+ *  - __name__: Name of the branch.
+ *  - __description__: Description of the branch.
+ *  - __path__: Path of the branch in the network. Must start with a slash.
+ *  - __network_name__: Name of the network to join.
+ *  - __network_password__: Password for the network.
+ *  - __advertising_interfaces__: Network interfaces to use for advertising.
+ *    Valid strings are Unix device names ("eth0", "en5", "wlan0"), adapter
+ *    names on Windows ("Ethernet", "VMware Network Adapter WMnet1") or MAC
+ *    addresses ("11:22:33:44:55:66"). Furthermore, the special strings
+ *    "localhost" and "all" can be used to denote loopback and all available
+ *    interfaces respectively.
+ *  - __advertising_address__: Multicast address to use for advertising, e.g.
+ *    239.255.0.1 for IPv4 or ff02::8000:1234 for IPv6.
+ *  - __advertising_port__: Port to use for advertising.
+ *  - __advertising_interval__: Time between advertising messages. Must be at
+ *    least 1 ms.
+ *  - __timeout__: Amount of time of inactivity before a connection is
+ *    considered to be broken. Must be at least 1 ms.
+ *  - __ghost_mode__: Set to true to activate ghost mode.
+ *  - __tx_queue_size__: Size of the send queues for remote branches.
+ *  - __rx_queue_size__: Size of the receive queues for remote branches.
+ *
+ * Advertising and establishing connections can be limited to certain network
+ * interfaces via the _interface_ property. The default is to use all
+ * available interfaces.
+ *
+ * Setting the _ghost_mode_ property to _true_ prevents the branch from actively
+ * participating in the Yogi network, i.e. the branch will not advertise itself
+ * and it will not authenticate in order to join a network. However, the branch
+ * will temporarily connect to other branches in order to obtain more detailed
+ * information such as name, description, network name and so on. This is useful
+ * for obtaining information about active branches without actually becoming
+ * part of the Yogi network.
+ *
+ * \note
+ *   Even if the communication between branches is not encrypted, the
+ *   authentication process via passwords is always done in a secure manner.
+ *
+ * \attention
+ *   The _tx_queue_size_ and _rx_queue_size_ properties affect every branch
+ *   connection and can therefore consume a large amount of memory. For example,
+ *   in a network of 10 branches where these properties are set to 1 MB, the
+ *   resulting memory used for the queues would be 10 x 2 x 1 MB = 20 MB for
+ *   each of the 10 branches. This value grows with the number of branches
+ *   squared.
+ *
+ * \param[out] branch   Pointer to the branch handle
+ * \param[in]  context  The context to use
+ * \param[in]  config   Branch properties (set to NULL to use defaults)
+ * \param[in]  section  Section in \p config to use (set to NULL for root);
+ *                      syntax is JSON pointer (RFC 6901)
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_BranchCreate') }}
+
+/*!
+ * Retrieves information about a local branch.
+ *
+ * This function writes the branch's UUID (16 bytes) in binary form to \p uuid.
+ * Any further information is written to \p json in JSON format. The function
+ * call fails with the #YOGI_ERR_BUFFER_TOO_SMALL error if the produced JSON
+ * string does not fit into \p json, i.e. if \p jsonsize is too small. However,
+ * in that case, the first \p jsonsize - 1 characters and a trailing zero will
+ * be written to \p json.
+ *
+ * The produced JSON string is as follows, without any unnecessary whitespace:
+ *
+ * \code
+ *   {
+ *     "uuid":                   "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+ *     "name":                   "Fan Controller",
+ *     "description":            "Controls a fan via PWM",
+ *     "network_name":           "Hardware Control",
+ *     "path":                   "/Cooling System/Fan Controller",
+ *     "hostname":               "beaglebone",
+ *     "pid":                    4124,
+ *     "advertising_interfaces": ["localhost"],
+ *     "advertising_address":    "ff02::8000:2439",
+ *     "advertising_port":       13531,
+ *     "advertising_interval":   1.0,
+ *     "tcp_server_port":        53332,
+ *     "start_time":             "2018-04-23T18:25:43.511Z",
+ *     "timeout":                3.0,
+ *     "ghost_mode":             false
+ *   }
+ * \endcode
+ *
+ * \param[in]  branch   The branch handle
+ * \param[out] uuid     Pointer to a 16 byte array for storing the UUID (can be
+ *                      set to NULL)
+ * \param[out] json     Pointer to a char array for storing the information (can
+ *                      be set to NULL)
+ * \param[in]  jsonsize Maximum number of bytes to write to \p json
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_BranchGetInfo') }}
+
+/*!
+ * Retrieves information about all connected remote branches.
+ *
+ * For each of the connected remote branches, this function will:
+ *  -# Write the branch's UUID (16 bytes) in binary form to \p uuid.
+ *  -# Generate a JSON string containing further information to \p json.
+ *  -# Execute the handler \p fn with #YOGI_OK as first argument if \p jsonsize
+ *     is as least as large as the length of the generated JSON string
+ *
+ * If the produced JSON string for the branch does not fit into \p json, i.e. if
+ * \p jsonsize is too small, then \p json will be filled with the first
+ * \p jsonsize - 1 characters and a trailing zero and \p fn will be called with
+ * the #YOGI_ERR_BUFFER_TOO_SMALL error for that particular branch.
+ *
+ * This function will return #YOGI_ERR_BUFFER_TOO_SMALL if \p json is not large
+ * enough to hold each one of the JSON strings. However, \p fn will still be
+ * called for each discovered branch.
+ *
+ * The produced JSON string is as follows, without any unnecessary whitespace:
+ *
+ * \code
+ *   {
+ *     "uuid":                 "123e4567-e89b-12d3-a456-426655440000",
+ *     "name":                 "Pump Safety Logic",
+ *     "description":          "Monitors the pump for safety",
+ *     "network_name":         "Hardware Control",
+ *     "path":                 "/Cooling System/Pump/Safety",
+ *     "hostname":             "beaglebone",
+ *     "pid":                  3321,
+ *     "tcp_server_address":   "fe80::f086:b106:2c1b:c45",
+ *     "tcp_server_port":      43384,
+ *     "start_time":           "2018-04-23T18:25:43.511Z",
+ *     "timeout":              3.0,
+ *     "advertising_interval": 1.0,
+ *     "ghost_mode":           false
+ *   }
+ * \endcode
+ *
+ * \param[in]  branch   The branch handle
+ * \param[out] uuid     Pointer to 16 byte array for storing the UUID (can be
+ *                      set to NULL)
+ * \param[out] json     Pointer to a char array for storing the information (can
+ *                      be set to NULL)
+ * \param[in]  jsonsize Maximum number of bytes to write to \p json
+ * \param[in]  fn       Handler to call for each connected branch
+ * \param[in]  userarg  User-specified argument to be passed to \p fn
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_BranchGetConnectedBranches') }}
+
+/*!
+ * Wait for a branch event to occur.
+ *
+ * This function will register \p fn to be called once one of the given branch
+ * \p events occurs on the given \p branch. The parameters passed to \p fn are:
+ *  -# __res__: #YOGI_OK or error code associated with the wait operation
+ *  -# __ev__: The branch event that occurred (see \ref BEV)
+ *  -# __evres__: #YOGI_OK or error code associated with the event
+ *  -# __userarg__: Value of the user-specified \p userarg parameter
+ *
+ * If this function is called while a previous wait operation is still active
+ * then the previous operation will be canceled, i.e. \p fn for the previous
+ * operation will be called with the #YOGI_ERR_CANCELED error.
+ *
+ * The \p uuid parameter will be populated with the UUID of the branch that
+ * caused the event, i.e. if the remote branch B gets discovered, causing the
+ * #YOGI_BEV_BRANCH_DISCOVERED event to be generated, then \p uuid will be
+ * populated with B's UUID.
+ *
+ * The \p json parameter will be populated with a string in JSON format
+ * containing additional event information such as branch information See
+ * \ref BEV for event-specific details.
+ *
+ * If the produced JSON string for the branch does not fit into \p json, i.e. if
+ * \p jsonsize is too small, then \p json will be filled with the first
+ * \p jsonsize - 1 characters and a trailing zero and \p fn will be called with
+ * the #YOGI_ERR_BUFFER_TOO_SMALL error for that particular branch.
+ *
+ * \attention
+ *   Make sure that the two supplied buffers \p uuid and \p json remain valid
+ *   until \p fn has been executed.
+ *
+ * \param[in]  branch   The branch handle
+ * \param[in]  events   Events to observe (see \ref BEV)
+ * \param[out] uuid     Pointer to 16 byte array for storing the UUID
+ *                      (can be set to NULL)
+ * \param[out] json     Pointer to a char array for storing event information
+ *                      (can be set to NULL)
+ * \param[in]  jsonsize Maximum number of bytes to write to \p json
+ * \param[in]  fn       Handler to call for the received event
+ * \param[in]  userarg  User-specified argument to be passed to \p fn
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_BranchAwaitEventAsync') }}
+
+/*!
+ * Cancels waiting for a branch event.
+ *
+ * Calling this function will cause the handler registered via
+ * YOGI_BranchAwaitEventAsync() to be called with the #YOGI_ERR_CANCELED error.
+ *
+ * \note
+ *   If the receive handler has already been scheduled for execution, this
+ *   function will fail with the #YOGI_ERR_OPERATION_NOT_RUNNING error.
+ *
+ * \param[in] branch The branch handle
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_BranchCancelAwaitEvent') }}
+
+/*!
+ * Sends a broadcast message to all connected branches.
+ *
+ * Broadcast messages contain arbitrary data encoded as JSON or MessagePack. As
+ * opposed to sending messages via terminals, broadcast messages don't have to
+ * comply with a defined schema for the payload; any data that can be encoded
+ * is valid. This implies that validating the data is entirely up to the user
+ * code.
+ *
+ * \note
+ *   The payload in \p data can be given encoded in either JSON or MessagePack
+ *   as specified in the \p datafmt parameter. It does not matter which format
+ *   is chosen since the receivers can specify their desired format and the
+ *   library performs the necessary conversions automatically.
+ *
+ * Setting the \p block parameter to #YOGI_FALSE will cause the function to skip
+ * sending the message to branches that have a full send queue. If at least one
+ * branch was skipped, the function will return the #YOGI_ERR_TX_QUEUE_FULL
+ * error. If the parameter is set to #YOGI_TRUE instead, the function will block
+ * until the message has been put into the send queues of all connected
+ * branches.
+ *
+ * \attention
+ *   Calling this function from within a handler function executed through the
+ *   branch's _context_  with \p block set to #YOGI_TRUE will cause a dead-lock
+ *   if any send queue is full!
+ *
+ * \param[in] branch   The branch handle
+ * \param[in] enc      Encoding type used for \p data (see \ref ENC)
+ * \param[in] data     Payload encoded according to \p datafmt
+ * \param[in] datasize Number of bytes in \p data
+ * \param[in] block    Block until message has been put into all send buffers
+ *                     (#YOGI_TRUE or #YOGI_FALSE)
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_BranchSendBroadcast') }}
+
+/*!
+ * Sends a broadcast message to all connected branches.
+ *
+ * Broadcast messages contain arbitrary data encoded as JSON or MessagePack. As
+ * opposed to sending messages via terminals, broadcast messages don't have to
+ * comply with a defined schema for the payload; any data that can be encoded
+ * is valid. This implies that validating the data is entirely up to the user
+ * code.
+ *
+ * \note
+ *   The payload in \p data can be given encoded in either JSON or MessagePack
+ *   as specified in the \p datafmt parameter. It does not matter which format
+ *   is chosen since the receivers can specify their desired format and the
+ *   library performs the necessary conversions automatically.
+ *
+ * The handler function \p fn will be called once the operation finishes. Its
+ * parameters are:
+ *  -# __res__: #YOGI_OK or error code associated with the operation
+ *  -# __oid__: Operation ID as returned by this library function
+ *  -# __userarg__: Value of the user-specified \p userarg parameter
+ *
+ * Setting the \p retry parameter to #YOGI_FALSE will cause the function to skip
+ * sending the message to branches that have a full send queue. If at least one
+ * branch was skipped, the handler \p fn will be called with the
+ * #YOGI_ERR_TX_QUEUE_FULL error. If the parameter is set to #YOGI_TRUE instead,
+ * \p fn will be called once the message has been put into the send queues of
+ * all connected branches.
+ *
+ * The function returns an ID which uniquely identifies this send operation
+ * until \p fn has been called. It can be used in a subsequent
+ * YOGI_BranchCancelSendBroadcast() call to abort the operation.
+ *
+ * \note
+ *   The memory pointed to via \p data will be copied if necessary, i.e. \p data
+ *   only needs to remain valid until the function returns.
+ *
+ * \param[in] branch   The branch handle
+ * \param[in] enc      Encoding type used for \p data (see \ref ENC)
+ * \param[in] data     Payload encoded according to \p datafmt
+ * \param[in] datasize Number of bytes in \p data
+ * \param[in] retry    Retry sending the message (#YOGI_TRUE or #YOGI_FALSE)
+ * \param[in] fn       Handler to call once the operation finishes
+ * \param[in] userarg  User-specified argument to be passed to \p fn
+ *
+ * \returns [>0] Operation ID if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_BranchSendBroadcastAsync') }}
+
+/*!
+ * Cancels a send broadcast operation.
+ *
+ * Calling this function will cause the send operation with the specified
+ * operation ID \p oid to be canceled, resulting in the handler function
+ * registered via the YOGI_BranchSendBroadcastAsync() call that returned the
+ * same \p oid to be called with the #YOGI_ERR_CANCELED error.
+ *
+ * \note
+ *   If the send operation has already been carried out but the handler function
+ *   has not been called yet, then cancelling the operation will fail and the
+ *   #YOGI_ERR_INVALID_OPERATION_ID will be returned.
+ *
+ * \param[in] branch The branch handle
+ * \param[in] oid    Operation ID of the send operation to cancel
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_BranchCancelSendBroadcast') }}
+
+/*!
+ * Receives a broadcast message from any of the connected branches.
+ *
+ * Broadcast messages contain arbitrary data encoded as JSON or MessagePack. As
+ * opposed to sending messages via terminals, broadcast messages don't have to
+ * comply with a defined schema for the payload; any data that can be encoded
+ * is valid. This implies that validating the data is entirely up to the user
+ * code.
+ *
+ * \note
+ *   The desired encoding of the received payload can be set via \p datafmt.
+ *   The library will automatically perform any necessary conversions.
+ *
+ * This function will register \p fn to be called once a broadcast message has
+ * been received. The parameters passed to \p fn are:
+ *  -# __res__: #YOGI_OK or error code in case of a failure (see \ref EC)
+ *  -# __size__: Number of bytes written to \p data
+ *  -# __userarg__: Value of the user-specified \p userarg parameter
+ *
+ * If the received payload does not fit into \p data, i.e. if \p datasize is too
+ * small, then \p fn will be called with the #YOGI_ERR_BUFFER_TOO_SMALL error
+ * after populating \p data
+ *  - with the first \p datasize - 1 characters of the received payload plus a
+ *    trailing zero if \p datafmt is #YOGI_ENC_JSON; and
+ *  - with the first \p datasize bytes of the received payload if \p datafmt is
+ *    #YOGI_ENC_MSGPACK.
+ *
+ * If this function is called while a previous receive operation is still active
+ * then the previous operation will be canceled with the #YOGI_ERR_CANCELED
+ * error.
+ *
+ * \attention
+ *   Broadcast messages do not get queued, i.e. if a branch is not actively
+ *   receiving broadcast messages then they will be discarded. To ensure that
+ *   no messages get missed, call YOGI_BranchReceiveBroadcastAsync() again from
+ *   within the handler \p fn.
+ *
+ * \param[in]  branch   The branch handle
+ * \param[out] uuid     Pointer to a 16 byte array for storing the UUID of the
+ *                      sending branch (can be set to NULL)
+ * \param[in]  enc      Encoding type to use for \p data (see \ref ENC)
+ * \param[out] data     Pointer to a buffer to store the received payload in
+ * \param[in]  datasize Maximum number of bytes to write to \p data
+ * \param[in]  fn       Handler to call for the received broadcast message
+ * \param[in]  userarg  User-specified argument to be passed to \p fn
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_BranchReceiveBroadcastAsync') }}
+
+/*!
+ * Cancels receiving a broadcast message.
+ *
+ * Calling this function will cause the handler registered via
+ * YOGI_BranchReceiveBroadcastAsync() to be called with the #YOGI_ERR_CANCELED
+ * error.
+ *
+ * \note
+ *   If the receive handler has already been scheduled for execution, this
+ *   function will fail with the #YOGI_ERR_OPERATION_NOT_RUNNING error.
+ *
+ * \param[in] branch The branch handle
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_BranchCancelReceiveBroadcast') }}
+
+/*!
+ * Destroys an object.
+ *
+ * Tries to destroy the object belonging to the given handle. The call fails and
+ * returns #YOGI_ERR_OBJECT_STILL_USED if the object is still being used by
+ * other objects that have been created via other library calls.
+ *
+ * Never destroy a context object from within a handler function that is
+ * executed through the same context.
+ *
+ * Destroying an object will cause any active asynchronous operations to get
+ * canceled and the corresponding completion handlers will be invoked with an
+ * error code of #YOGI_ERR_CANCELED.
+ *
+ * \param[in] obj The object to destroy
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_Destroy') }}
+
+/*!
+ * Destroys all objects.
+ *
+ * Destroys all previously created objects. All handles will be invalidated and
+ * must not be used any more. This effectively resets the library.
+ *
+ * This function must be called outside of any handler function that is executed
+ * through a context's event loop.
+ *
+ * Destroying objects will cause any active asynchronous operations to get
+ * canceled and the corresponding completion handlers will be invoked with an
+ * error code of #YOGI_ERR_CANCELED.
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_DestroyAll') }}
+
+/*!
+ * Creates a web server.
+ *
+ * Apart from serving static content from files and content from user-defined
+ * routes, this web server controls a single branch that can be accessed via
+ * JavaScript on a web page. The web server is sufficient for simple web
+ * applications. However, more complex applications can utilize a more
+ * sophisticated web server and use this built-in web server only as a means to
+ * access the Yogi network.
+ *
+ * For security reasons and browser security restrictions, connections are
+ * served over HTTPS/WSS only.
+ *
+ * The web server supports the following core features:
+ * - Support for both IPv4 and IPv6 clients on the same socket
+ * - Serving static content from files with configurable routes
+ * - Serving user-generated content over HTTPS
+ * - Long-running server-side processes controlled by the client
+ * - User authentication and access control for routes and resources
+ * - Per-user persistant storage
+ *
+ * The web server is configured via the \p config parameter. The configuration
+ * object will only be used while constructing the server, i.e. the server will
+ * not keep any references to it. While none of the properties are mandatory the
+ * following excerpt shows the default values of the core parameters:
+ *
+ * \code
+ *   {
+ *     "port":              {{ core_api.constants.DEFAULT_WEB_PORT.value }},
+ *     "interfaces":        {{ core_api.constants.DEFAULT_WEB_INTERFACES.value | tojson }},
+ *     "timeout":           {{ core_api.constants.DEFAULT_WEB_TIMEOUT.value | ns_to_s }},
+ *     "http_header_limit": {{ core_api.constants.DEFAULT_HTTP_HEADER_LIMIT.value }},
+ *     "http_body_limit":   {{ core_api.constants.DEFAULT_HTTP_BODY_LIMIT.value }},
+ *     "test_mode":         false,
+ *     "compress_assets":   true,
+ *     "cache_size":        {{ core_api.constants.DEFAULT_WEB_CACHE_SIZE.value | int }},
+ *     "routes": {
+ *       "/": {
+ *         "type":        "content",
+ *         "mime":        "text/html",
+ *         "permissions": { "*": ["GET"] },
+ *         "enabled":     true,
+ *         "content": [
+ *           "<!DOCTYPE html>",
+ *           "<html>",
+ *           "<body>",
+ *           "  <h1>Welcome to the Yogi web server!</h1>",
+ *           "</body>",
+ *           "</html>"
+ *         ]
+ *       }
+ *     },
+ *     "api_permissions": {
+ *       "/api/auth/session":       { "*": ["POST", "DELETE"] },
+ *       "/api/auth/groups":        { "*": ["GET"] },
+ *       "/api/auth/users":         { "*": ["GET"], "owner": ["PATCH"] },
+ *       "/api/branch/info":        { "users": ["GET"] },
+ *       "/api/branch/connections": { "users": ["GET"] },
+ *       "/api/branch/broadcasts":  { "users": ["GET", "POST"] }
+ *     },
+ *     "authentication": {
+ *       "provider": "config",
+ *       "readonly": false,
+ *       "users": {
+ *         "{{ core_api.constants.DEFAULT_ADMIN_USER.value }}": {
+ *           "first_name": "Administrator",
+ *           "last_name":  "",
+ *           "email":      "",
+ *           "phone":      "",
+ *           "password":
+ * "{{ core_api.constants.DEFAULT_ADMIN_PASSWORD.value | sha256 }}",
+ *           "groups":     ["admins", "users"],
+ *           "enabled":    true
+ *         }
+ *       },
+ *       "groups": {
+ *         "admins": {
+ *           "name":         "Administrators",
+ *           "description":  "Users with unrestricted access to everything",
+ *           "unrestricted": true
+ *         },
+ *         "users": {
+ *           "name":         "Users",
+ *           "description":  "All registered users"
+ *         }
+ *       }
+ *     },
+ *     "ssl": {
+ *       "private_key": [
+ {{ core_api.constants.DEFAULT_SSL_PRIVATE_KEY.value | multi_line_string_to_array(' *         ') }}
+ *       ],
+ *       "certificate_chain": [
+ {{ core_api.constants.DEFAULT_SSL_CERTIFICATE_CHAIN.value | multi_line_string_to_array(' *         ') }}
+ *       ],
+ *       "dh_params": [
+ {{ core_api.constants.DEFAULT_SSL_DH_PARAMS.value | multi_line_string_to_array(' *         ') }}
+ *       ]
+ *     }
+ *   }
+ * \endcode
+ *
+ * The properties above have the following meaning:
+ *  - __port__: HTTPS port to use.
+ *  - __interfaces__: Network interfaces to use. Valid strings are Unix devices
+ *    names ("eth5", "en5", "wlan0"), adapter names on Windows ("Ethernet",
+ *    "WMware Network Adapter WMnet1") or MAC addresses ("11:22:33:44:55:66").
+ *    Furthermore, the special strings "localhost" and "all" can be used to
+ *    denote loopback and all available interfaces respectively.
+ *  - __timeout__: Time of inactivity before terminating a client connection.
+ *  - __http_header_limit__: Maximum HTTP header size in bytes for incoming HTTP
+ *    requests. If the header is larger then the connection will be closed.
+ *  - __http_body_limit__: Maximum HTTP body size in bytes for incoming HTTP
+ *    requests. If the body is larger then the connection will be closed.
+ *  - __test_mode__: Set to true to enable functionality for testing both server
+ *    and client code. Should only be enabled during development.
+ *  - __compress_assets__: Allow the use of compression when transferring
+ *    static assets such as HTML or JavaScript files.
+ *  - __cache_size__: Size of the file cache in bytes. Used to keep assets in
+ *    memory instead of reading them from disk to improve performance. A value
+ *    of 0 disables the cache entirely.
+ *
+ * The sub-sections following the properties above are described in more detail
+ * in the next paragraphs:
+ *
+ * The __routes__ section describes both the content for static routes and the
+ * level of access that users have to static and custom routes. The excerpt
+ * below shows how to configure the three different types of routes, namely
+ * static routes mapping to the file system (_filesystem_), static routes with
+ * their content in the configuration (_content_) and custom routes which are
+ * created via the YOGI_WebRouteCreate() function (_custom_):
+ *
+ * \code
+ *   "routes": {
+ *     "/": {
+ *       "type":        "filesystem",
+ *       "path":        "www",
+ *       "permissions": { "*": ["GET"] },
+ *       "enabled":     true
+ *     },
+ *     "/secret": {
+ *       "type":        "content",
+ *       "mime":        "text/plain",
+ *       "owner":       "luke",
+ *       "permissions": { "users": ["GET"], "owner": ["PUT"] },
+ *       "content":     "I am your father",
+ *       "enabled":     true
+ *     },
+ *     "/messages": {
+ *       "type":        "custom",
+ *       "permissions": { "*": ["GET"], "users": ["POST"] }
+ *     },
+ *     "/messages/ *": {
+ *       "type":        "custom",
+ *       "permissions": { "*": ["GET"], "owner": ["DELETE"] },
+ *       "enabled":     true
+ *     }
+ *   }
+ * \endcode
+ *
+ * The _filesystem_ route above maps URIs to the server's root URI and below to
+ * the files found in the file system under the (here relative to the current
+ * working directory of the process) "www" directory. The optional _owner_
+ * property assigns a user to _own_ that resource which can be used in the
+ * _permissions_ section to grant specific permissions to that user. The
+ * _permissions_ section describes the level of access that users belonging to
+ * certain groups have. The _enabled_ property is also optional and can be used
+ * to disable a route without removing it from the configuration. If this
+ * property is not specified it is implicitly set to _true_.
+ *
+ * \note
+ *   If a client issues a _GET_ request on a _filesystem_ route leading to a
+ *   directory then the corresponding _index.html_ file in that directory will
+ *   be delivered if it exists.
+ *
+ * A single "*" in the URI of a route is a whilecard for every immediate
+ * sub-path while "**" applies to every path below, no matter how deep. Routes
+ * that have more specific URIs override the properties inherited by routes
+ * with less specific URIs, i.e. in the example above, the "/messages/ *" route
+ * overrides the properties inherited from the "/messages" route for all paths
+ * below "/messages".
+ *
+ * \attention
+ *   There should not be a space in any of the ".../ *" strings in the
+ *   configuration. The space has only been added to a avoid C compiler warnings
+ *   about the start of a comment block inside a comment.
+ *
+ * The access control lists (ACLs) in the _permissions_ section consist of a
+ * dictionary mapping groups to allowed request methods. There are two groups
+ * that have a special meaning: "*" and "owner". The "*" group means every user,
+ * logged in or not. The "owner" group means the user who _owns_ the resource
+ * which can have a different meaning depending on the resource. For example, in
+ * the "/secret" section the owner is explicitly set to the user "luke" which
+ * while in the "/messages/ *" section the custom route could assign the owner
+ * of a message to the user who created that message using a _POST_ request on
+ * the "/messages" route.
+ *
+ * \note
+ *   Users are granted the combination of all permissions that apply for them.
+ *   For example, in the "/secret" route above, the _owner_ is set to the user
+ *   _luke_. The permissions grant _GET_ access to everyone and _PUT_ access
+ *   to the owner, i.e. _luke_. The end result is that _luke_ has both _GET_ and
+ *   _PUT_ access to the route.
+ *
+ * The __api_permissions__ section sets the permissions for each built-in API
+ * endpoints. Any API endpoints not listed here are inaccessible for all but
+ * unrestricted users.
+ *
+ * The __authentication__ section configures the authentication service. The
+ * default configuration (see above) uses the configuration itself to retrieve
+ * user and group information. By default, only the _admin_ user and the two
+ * groups _admins_ and _users_ are created. The _admin_ user's default password
+ * is "admin", stored in the configuration as a hashed value using SHA-256. The
+ * _unrestricted_ property in the _admins_ group section is optional and _false_
+ * by default; setting it to _true_ grants the members of the group every
+ * possible permission for every route and API endpoint without having to grant
+ * those permissions explicitly in the relevant sections.
+ *
+ * The _readonly_ property can be used to write-protect the users and groups
+ * database. Note that for the _config_ provider, setting _readonly_ to false
+ * will save changes in memory only. Any changes will be lost once the server
+ * gets destroyed.
+ *
+ * In order to use external files to store users and groups, the following
+ * configuration can be used:
+ *
+ * \code
+ *   "authentication": {
+ *     "provider":    "files",
+ *     "readonly":    false,
+ *     "users_file":  "users.json",
+ *     "groups_file": "groups.json"
+ *   }
+ * \endcode
+ *
+ * The external users and groups files have to be in JSON format and contain the
+ * _users_ and _groups_ sections respectively directly under the root object,
+ * with the same structure as the default configuration above.
+ *
+ * \note
+ *   The _users_file_ and _groups_file_ can be set to the same file if having
+ *   both users and groups in a single file is desired.
+ *
+ * The __ssl__ section configures the encryption of the HTTPS and WSS
+ * connections. The private key, certificate chain and DH parameters can be put
+ * directly into the server configuration as shown in the default configuration
+ * above. However, in order to use external files, the following can be used:
+ *
+ * \code
+ *   "ssl": {
+ *     "private_key_file":       "key.pem",
+ *     "private_key_password":   "password",
+ *     "certificate_chain_file": "cert.pem",
+ *     "dh_params_file":         "dh_params.pem"
+ *   }
+ * \endcode
+ *
+ * The external files have to use the PEM file format. If the private key file
+ * is encrypted, its password has to be supplied in _private_key_password_.
+ *
+ * \attention
+ *   Use the default private key only for testing since the key is publicly
+ *   available! You can create your own key and a self-signed certificate using
+ *   OpenSSL or services like letsencrypt.org.
+ *
+ * \note
+ *   The DH parameters can be left at their default values since this does not
+ *   pose a security issue.
+ *
+ * The supplied \p context will be used for housekeeping and for accepting
+ * incoming connection requests. As long as no workers have been added using
+ * YOGI_WebServerAddWorker(), \p context will also be used to handle client
+ * requests.
+ *
+ * \param[out] server   Pointer to the server handle
+ * \param[in]  context  The context to use (set to NULL to use the branch's
+ *                      context)
+ * \param[in]  branch   Branch to use (set to NULL to disable all
+ *                      branch-specific features)
+ * \param[in]  config   Server properties (set to NULL to use defaults)
+ * \param[in]  section  Section in \p config to use (set to NULL for root);
+ *                      syntax is JSON pointer (RFC 6901)
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_WebServerCreate') }}
+
+/*!
+ * Adds a worker thread to a web server.
+ *
+ * A worker represents a thread handling client requests. Multiple workers can
+ * be added to a server in order to improve performance. If no workers have been
+ * added, the server will use its own context to handle client requests.
+ *
+ * \attention
+ *   The user has to provide the thread running the provided context or call
+ *   YOGI_ContextRunInBackground() in order to perform the actual work.
+ *
+ * \param[in] server  The server to add the worker to
+ * \param[in] context The context to add as a worker
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_WebServerAddWorker') }}
+
+/*!
+ * Creates a custom route.
+ *
+ * Registers a custom callback for handling requests on a custom URI.
+ *
+ * The handler function \p fn will be called on reception of a HTTP request from
+ * a client. Its parameters are:
+ *  -# __res__: #YOGI_OK or error code in case of a failure (see \ref EC)
+ *  -# __rid__: Request ID to identify a new or running request
+ *  -# __user__: User issuing the request or NULL if the client hasn't logged in
+ *  -# __owner__: Owner as set in the configuration or NULL otherwise
+ *  -# __method__: HTTP request method (see \ref MET)
+ *  -# __uri__: The URI requested by the client without query parameters
+ *  -# __qparams__: Query parameters; terminated by NULL as the last string
+ *  -# __userarg__: Value of \p userarg
+ *
+ * Once a request has been received and \p fn has been called, one or more calls
+ * to YOGI_WebRouteRespond() have to be made in order to respond to the client's
+ * request. In case of connection errors such as a disconnected client or a
+ * timeout \p will be called with a corresponding error and the _rid_ of the
+ * request.
+ *
+ * \param[out] route    Pointer to the route handle
+ * \param[in]  server   The server to use
+ * \param[in]  baseuri  Base URI for the route (e.g. "/app/hello")
+ * \param[in]  fn       Handler function to call for incoming HTTP requests
+ * \param[in]  userarg  User-specified argument to be passed to \p fn
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_WebRouteCreate') }}
+
+/*!
+ * Responds to a custom route request.
+ *
+ * This function must be called after the handler function registered via
+ * YOGI_WebRouteCreate() has been invoked in order to respond to the client's
+ * request.
+ *
+ * Calling this function multiple times will use chunked transfer encoding to
+ * deliver the data to the client. The response is considered complete once
+ * this function is called with \p finished set to #YOGI_TRUE.
+ *
+ * \param[in] route    The route to use
+ * \param[in] rid      ID of the received request
+ * \param[in] finished Response completed (#YOGI_TRUE or #YOGI_FALSE)
+ * \param[in] status   HTTP status code to return (see \ref HTTP)
+ * \param[in] contype  Mime type of the data in \p content (e.g. "text/plain")
+ * \param[in] content  Content (body) of the response
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_WebRouteRespond') }}
+
+/*!
+ * Creates a client-controllable web process.
+ *
+ * A web process is a potentially long-running operation controlled by the
+ * client. Examples are performing computationally expensive operations such as
+ * image recognition or running external programs on the server.
+ *
+ * This function registers a handler function \p which is called whenever a
+ * client starts a web process, sends input to the process or cancels it (see
+ * \ref WPA). In order to send process output and status updates back to the
+ * client, YOGI_WebProcessUpdate() has to be called.
+ *
+ * The handler function \p fn will be called upon the client's request:
+ *  -# __res__: #YOGI_OK or error code in case of a failure (see \ref EC)
+ *  -# __wpid__: Web process ID to identify a new or running process
+ *  -# __user__: User issuing the request or NULL if the client hasn't logged in
+ *  -# __wpa__: Requested web process action (see \WPA)
+ *  -# __data__: Start of the received parameters or input data from the client
+ *  -# __sizes__: Lenths of the individual data blocks (see below for details)
+ *  -# __userarg__: Value of \p userarg
+ *
+ * The _data_ parameter contains either the parameters to start the process with
+ * or input data to be sent to the process. The concept is the same as running
+ * processes in a terminal: They are started with a set of parameters (i.e.
+ * argc/argv) and input can be sent to them through the standard input (stdin).
+ *
+ * The _sizes_ is a -1-terminated array containing the sizes of the individual
+ * data blocks in _data_. For input data, _sizes_ will only contain a single
+ * size, e.g. for 10 bytes of received input data, _sizes_ will consist of the
+ * values [10, -1]. For process parameters, _size_ will contain as many sizes
+ * as parameters, e.g. for 3 received process parameters, _sizes_ consists of
+ * values like [12, 34, 56, -1]. In this example, the first 12 bytes in _data_
+ * make up the first parameter, the next 34 bytes make up the second parameter
+ * and the following 56 bytes make up the third parameter.
+ *
+ * Having received a request and \p fn having been called, one or more calls to
+ * YOGI_WebProcessUpdate() have to be made in order to inform the client about
+ * new output from the process or a change in its state. In case of connection
+ * errors such as a disconnected client \p will be called with a corresponding
+ * error and the _wpid_ of the process.
+ *
+ * \param[out] wproc    Pointer to the web process handle
+ * \param[in]  server   The server to use
+ * \param[in]  name     Name (identifier) of the process (e.g. "echo")
+ * \param[in]  fn       Handler function to call for incoming action requests
+ * \param[in]  userarg  User-specified argument to be passed to \p fn
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_WebProcessCreate') }}
+
+/*!
+ * Sends output from a web process or a change in its state to the client.
+ *
+ * This function has to be called after having received a request from a client
+ * to start a web process. It is used to inform the client about new output from
+ * and process and changes in its state (see \ref WPU).
+ *
+ * For a new process, the first call to this function must be with \p wpu set to
+ * either #YOGI_WPU_STARTED or #YOGI_WPU_FAILED_TO_START. If the process started
+ * successfully, an arbitrary number of calls with \p wpu set to
+ * #YOGI_WPU_OUTPUT can be made in order to send new process output to the
+ * client. Once finished, the process calls this function once with either one
+ * of #YOGI_WPU_FINISHED, #YOGI_WPU_CRASHED or #YOGI_WPU_CANCELED and the \p
+ * exitcode optionally set to a value indicating the success or failure of the
+ * process.
+ *
+ * Calling this function either one of #YOGI_WPU_FAILED_TO_START,
+ * #YOGI_WPU_FINISHED, #YOGI_WPU_CRASHED or #YOGI_WPU_CANCELED will invalidate
+ * the \p wpid and allow no further calls to this function for that particular
+ * process.
+ *
+ * \param[in] wproc    The web process to use
+ * \param[in] wpid     ID of the running web process
+ * \param[in] wpu      Update type (see \ref WPU)
+ * \param[in] exitcode Exit code of the process for indicating success/failure
+ * \param[in] output   Output data (potantially binary) to send to the client
+ * \param[in] outsize  Size of \p output in bytes
+ *
+ * \returns [=0] #YOGI_OK if successful
+ * \returns [<0] An error code in case of a failure (see \ref EC)
+ */
+{{ core_api.functions | to_function_declaration('YOGI_WebProcessUpdate') }}
+
+//! @}
+
+#ifdef __cplusplus
+}  // extern "C"
+#endif
+
+#endif  // YOGI_CORE_H

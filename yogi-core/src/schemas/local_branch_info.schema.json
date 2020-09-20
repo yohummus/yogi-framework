@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "file:///local_branch_info.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "uuid":                   { "$ref": "branch_properties.schema.json#/uuid" },
+    "name":                   { "$ref": "branch_properties.schema.json#/name" },
+    "description":            { "$ref": "branch_properties.schema.json#/description" },
+    "network_name":           { "$ref": "branch_properties.schema.json#/network_name" },
+    "path":                   { "$ref": "branch_properties.schema.json#/path" },
+    "hostname":               { "$ref": "branch_properties.schema.json#/hostname" },
+    "pid":                    { "$ref": "branch_properties.schema.json#/pid" },
+    "advertising_interfaces": { "$ref": "branch_properties.schema.json#/advertising_interfaces" },
+    "advertising_address":    { "$ref": "branch_properties.schema.json#/advertising_address" },
+    "advertising_port":       { "$ref": "branch_properties.schema.json#/advertising_port" },
+    "advertising_interval":   { "$ref": "branch_properties.schema.json#/advertising_interval" },
+    "tcp_server_port":        { "$ref": "branch_properties.schema.json#/tcp_server_port" },
+    "timeout":                { "$ref": "branch_properties.schema.json#/timeout" },
+    "start_time":             { "$ref": "branch_properties.schema.json#/start_time" },
+    "ghost_mode":             { "$ref": "branch_properties.schema.json#/ghost_mode" },
+    "tx_queue_size":          { "$ref": "branch_properties.schema.json#/tx_queue_size" },
+    "rx_queue_size":          { "$ref": "branch_properties.schema.json#/rx_queue_size" }
+  }
+}

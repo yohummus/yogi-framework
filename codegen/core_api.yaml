@@ -1,0 +1,1346 @@
+---
+copyright: |
+  This file is part of the Yogi Framework
+  https://github.com/yohummus/yogi-framework.
+
+  Copyright (c) 2020 Johannes Bergmann.
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+version:
+  major: 0
+  minor: 0
+  patch: 1
+  suffix: "-alpha"
+
+constants:
+  VERSION:
+    help: Whole version string of the core library
+    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    value: YOGI_HDR_VERSION
+
+  VERSION_MAJOR:
+    help: Major version number of the core library
+    type: { c: int, cpp: int, cs: int, py: c_int }
+    value: YOGI_HDR_VERSION_MAJOR
+
+  VERSION_MINOR:
+    help: Minor version number of the core library
+    type: { c: int, cpp: int, cs: int, py: c_int }
+    value: YOGI_HDR_VERSION_MINOR
+
+  VERSION_PATCH:
+    help: Patch version number of the core library
+    type: { c: int, cpp: int, cs: int, py: c_int }
+    value: YOGI_HDR_VERSION_PATCH
+
+  VERSION_SUFFIX:
+    help: Suffix of the core library version
+    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    value: YOGI_HDR_VERSION_SUFFIX
+
+  DEFAULT_ADV_INTERFACES:
+    help: Default network interfaces to use for advertising
+    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    value: ["localhost"]
+
+  DEFAULT_ADV_ADDRESS:
+    help: Default multicast addresses to use for advertising
+    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    value: ff02::8000:2439
+
+  DEFAULT_ADV_PORT:
+    help: Default port to use for advertising via UDP IPv6 multicasts
+    type: { c: int, cpp: int, cs: int, py: c_int }
+    value: 13531
+
+  DEFAULT_ADV_INTERVAL:
+    help: Default advertising interval in nanoseconds
+    type: { c: long long, cpp: long long, cs: long, py: c_longlong }
+    value: 1.e+9
+
+  DEFAULT_CONNECTION_TIMEOUT:
+    help: Default connection timeout in nanoseconds
+    type: { c: long long, cpp: long long, cs: long, py: c_longlong }
+    value: 3.e+9
+
+  DEFAULT_LOGGER_VERBOSITY:
+    help: Default logging verbosity
+    type: { c: int, cpp: int, cs: int, py: c_int }
+    value: YOGI_VB_INFO
+
+  DEFAULT_LOG_TIME_FORMAT:
+    help: Default textual format for timestamps in log entries
+    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    value: "%F %T.%3"
+
+  DEFAULT_LOG_FORMAT:
+    help: Default textual format for log entries
+    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    value: "$t [T$T] $<$s $c: $m$>"
+
+  MAX_MESSAGE_PAYLOAD_SIZE:
+    help: Maximum size of the payload in a message
+    type: { c: int, cpp: int, cs: int, py: c_int }
+    value: 32768
+
+  DEFAULT_TIME_FORMAT:
+    help: Default textual format for timestamps
+    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    value: "%FT%T.%3Z"
+
+  DEFAULT_INF_DURATION_STRING:
+    help: Default string to denote an infinite duration
+    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    value: "%-inf"
+
+  DEFAULT_DURATION_FORMAT:
+    help: Default textual format for duration strings
+    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    value: "%-%dd %T.%3%6%9"
+
+  DEFAULT_INVALID_HANDLE_STRING:
+    help: Default string to denote an invalid object handle
+    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    value: INVALID HANDLE
+
+  DEFAULT_OBJECT_FORMAT:
+    help: Default textual format for strings describing an object
+    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    value: "$T [$x]"
+
+  MIN_TX_QUEUE_SIZE:
+    help: Minimum size of a send queue for a remote branch
+    type: { c: int, cpp: int, cs: int, py: c_int }
+    value: &min_tx_queue_size 35000
+
+  MAX_TX_QUEUE_SIZE:
+    help: Maximum size of a send queue for a remote branch
+    type: { c: int, cpp: int, cs: int, py: c_int }
+    value: 10.e+6
+
+  DEFAULT_TX_QUEUE_SIZE:
+    help: Default size of a send queue for a remote branch
+    type: { c: int, cpp: int, cs: int, py: c_int }
+    value: *min_tx_queue_size
+
+  MIN_RX_QUEUE_SIZE:
+    help: Minimum size of a receive queue for a remote branch
+    type: { c: int, cpp: int, cs: int, py: c_int }
+    value: &min_rx_queue_size 35000
+
+  MAX_RX_QUEUE_SIZE:
+    help: Maximum size of a receive queue for a remote branch
+    type: { c: int, cpp: int, cs: int, py: c_int }
+    value: 10.e+6
+
+  DEFAULT_RX_QUEUE_SIZE:
+    help: Default size of a receive queue for a remote branch
+    type: { c: int, cpp: int, cs: int, py: c_int }
+    value: *min_rx_queue_size
+
+  DEFAULT_WEB_PORT:
+    help: Default port for the web server to listen on for client connections
+    type: { c: int, cpp: int, cs: int, py: c_int }
+    value: 8443
+
+  DEFAULT_WEB_INTERFACES:
+    help: Default network interfaces to use for the web server
+    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    value: ["localhost"]
+
+  DEFAULT_WEB_TIMEOUT:
+    help: Default timeout for web server connections in nanoseconds
+    type: { c: long long, cpp: long long, cs: long, py: c_longlong }
+    value: 30.e+9
+
+  DEFAULT_HTTP_HEADER_LIMIT:
+    help: Default maximum HTTP header size of incoming requests in bytes
+    type: { c: int, cpp: int, cs: int, py: c_int }
+    value: 1000
+
+  DEFAULT_HTTP_BODY_LIMIT:
+    help: Default maximum HTTP body size of incoming requests in bytes
+    type: { c: int, cpp: int, cs: int, py: c_int }
+    value: 10000
+
+  DEFAULT_WEB_CACHE_SIZE:
+    help: Default size of the web server cache in bytes
+    type: { c: int, cpp: int, cs: int, py: c_int }
+    value: 25.e+6
+
+  MAX_WEB_CACHE_SIZE:
+    help: Maximum size of the web server cache in bytes
+    type: { c: int, cpp: int, cs: int, py: c_int }
+    value: 1.e+9
+
+  DEFAULT_ADMIN_USER:
+    help: Default user name for the administrator account
+    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    value: admin
+
+  DEFAULT_ADMIN_PASSWORD:
+    help: Default password for the administrator account
+    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    value: admin
+
+  DEFAULT_SSL_PRIVATE_KEY:
+    help: Default private key to use for SSL connections
+    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    value: |
+      -----BEGIN PRIVATE KEY-----
+      MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDccyREZEfU28sW
+      kdtTxK8XA5pMdAlulFTizhgh9KTs62uKgHWq2zx2ISlZ+4cQfhLTATZBVhwQVLuD
+      RiatrDqPL/cN2m5XER/vFUJw3vJm2u7qKmJGWQ0i4j3O7Yle+uYJHn+35TIUfEX5
+      CgYnpt65lAjfbN1tl2ACbESa4E2nymZMSyOzTFd8xlL+nID2eG3CvKEKsg/bzXIV
+      kf6IlNfpu1tCyeGlwKYaNMymP4Rgp/8Y+Gdp2NZh1JOjqZ9Cavn2divMdEb856hx
+      nnqmoR/IiRyXJU8BdY1x2+NjbBmdcMNHTGioqhmzny+L1Pdfq6KgN4sIj0dQqe2j
+      OfpMvJR1AgMBAAECggEBAJTmSLbRLRt/IduqxQP9s23OByhgsAY6tmNDZVV6EvPb
+      x5WTUucGkf4QRAf9NqtTHI/dH7Jd4TK+qLDwbyubSypv8WUwBptUe8dXCruGOyBx
+      /DG6UwrFF3Rab/kWxFSdD0dVjFq/umXP0st1k9awhXu/m4ad16owNq8sReJ+YrVT
+      ZTIgowAklZ9QKnOCjZ3gbDWS8nn6dgonwU0INJD7iKJ3Mw4rv7Q18/7G7T+YmwHO
+      QdTy8M7MBLKu+ifQjgh9khFZZ8G0/jdV9ZkLbTNR/OfyO7XsPhWMQehRWryN9x2a
+      TekT8K0xJRu6NytDvvdeb139JlQjH6DnVrtMj8I4R/kCgYEA+ADkhZnI3ceHS2Kf
+      +kUbbOJI6/ncm9eHOZ/dEVyIK+iYJO9Eba2XqjIMXl6scZpxRAakHG/zRA23fc+c
+      R0mKEIRxJz9kLxpocW8ib+0LIeb0XdK8xt6JabW4EOtLExu3lIXpa+hkH7xr30Bb
+      +OQZdUpDkk6gBtKbk433w9WfQPcCgYEA447Pn2zgE+Oj8sHEp1qdYbj7CMo0JcQj
+      u4mmb5+BT2FiAlmuetoFGo2/0uGm4ha4cFtj1u58y00Ai8c+dKOrv9LzDHe09jaD
+      uGu4vbwCC0l8wiTKrz5m/Wl3oGAi2tWYUEpDyFBYj9yUEsOtZnhY8S0e2LbrPV6L
+      IftsXcZs5vMCgYEAh3JtXK417zJ3KOvvdY9iwCACNaccHp0ixI0T/tRrppd86Mco
+      t0IU0CZPbQcF5XG1JLL/1GwsD2Hycir+Lkzys7yx0/6iJ7ujiThqNXjgGJ77nXZo
+      FbEamXpe0ha/xOrhY6OTbZTZgh+1RpPu50skwFNT/kckzTUfNQJXbERymtcCgYBn
+      XTJwP1tVjXymQ2AZiK6eehEFgBvJ39s/T5pbb7+kGB8V5Di+MxRIaITuvHM6lYl3
+      9/tU4QWsrzCFTZ7QCpx0SNUAH8wCXubcOYo0HRdsmxfhdCbhDV5o06R0I9cRQh6q
+      seEyN1TTHCXilCHKvvXfr1gopoYaXTyj1fn2arCDAwKBgQDHc9V+9IpZ2F+ZwSYn
+      didwWQfsAZx5EiXtnXnyx0hkNjgebFQAgDJY4vvRphaD0bumywfNMOz/59jjjVZg
+      cWXs9H91XtA7cT7wJi+xiGe6R8zRcVPfImwQchSsCoMGuyLCygJTJPMzGT+YbpBA
+      Umrn/FzslGZsXxwMCR0E8654Kw==
+      -----END PRIVATE KEY-----
+
+  DEFAULT_SSL_CERTIFICATE_CHAIN:
+    help: Default certificate chain to use for SSL connections
+    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    value: |
+      -----BEGIN CERTIFICATE-----
+      MIICvjCCAaYCCQCL4CgivAdrbzANBgkqhkiG9w0BAQsFADAhMQswCQYDVQQGEwJV
+      UzESMBAGA1UEAwwJbG9jYWxob3N0MB4XDTE5MDUxODA3MDQyOFoXDTI5MDUxNTA3
+      MDQyOFowITELMAkGA1UEBhMCVVMxEjAQBgNVBAMMCWxvY2FsaG9zdDCCASIwDQYJ
+      KoZIhvcNAQEBBQADggEPADCCAQoCggEBANxzJERkR9TbyxaR21PErxcDmkx0CW6U
+      VOLOGCH0pOzra4qAdarbPHYhKVn7hxB+EtMBNkFWHBBUu4NGJq2sOo8v9w3ablcR
+      H+8VQnDe8mba7uoqYkZZDSLiPc7tiV765gkef7flMhR8RfkKBiem3rmUCN9s3W2X
+      YAJsRJrgTafKZkxLI7NMV3zGUv6cgPZ4bcK8oQqyD9vNchWR/oiU1+m7W0LJ4aXA
+      pho0zKY/hGCn/xj4Z2nY1mHUk6Opn0Jq+fZ2K8x0RvznqHGeeqahH8iJHJclTwF1
+      jXHb42NsGZ1ww0dMaKiqGbOfL4vU91+roqA3iwiPR1Cp7aM5+ky8lHUCAwEAATAN
+      BgkqhkiG9w0BAQsFAAOCAQEAQQezEoFlVkRjB7x1QljRUAVqUSPpk4bERkynB3Nb
+      hajLKKwZMeO8F4GDkAnY2F7ZD6KPQkOlKMVJJVmtVi3OTvutDJnc8jDXZUyejWe+
+      tSwLU2Uo7scPjYynyyPHcNkut+V7XjvhLJr267X0O6iymYnyJBGweVppwwgfxAmH
+      Rzv2uFLf+U7odtQmSC1g/VdImDoJsfASqnycXcqkmiDfv6Pjqp1dvUm9aDCIFdkf
+      DXShGXE+SVXQ61FVMhV62OsNY36mM5lR2kMXwgybRNMWla8Cmu8OhCkftOvVLdW2
+      tAVd+K6fpZe/mdCCuN3pXCCqu/0vPlFoLNMGZrKbLU8W6Q==
+      -----END CERTIFICATE-----
+
+  DEFAULT_SSL_DH_PARAMS:
+    help: Default DH parameters to use for SSL connections
+    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    value: |
+      -----BEGIN DH PARAMETERS-----
+      MIIBCAKCAQEA4iRXTwOzm97m19J21Pg67Vda5Ocw1PS6/CS+0ks//CpvNaYz0hJA
+      YbvCPzQLmxYyUH8NwYutfNrESWtBFs3qEKiZ9zx09cpacXf/gw4VBfclIl2HAlNo
+      5jWzh9VQBc3CxSNJqCRiJUvgnVCx1ec47cH3vkEucw0ewzxdwkpXgOGbja5BxCuO
+      Mtwb+qTXm4XozdAPPWlwryFvwJL60pvtsF7f9S8xZHIe309yeCNnUajmqyKwdJ18
+      P8RNYFHDe8vvaJ7/cnNCMqWFl16hVmBoIYy11H+R8WAphniJKV6fdGTs+7OLSc7Q
+      4/QFcIxwOY+wIaH2OEuOxTrKjAivFrGz8wIBAg==
+      -----END DH PARAMETERS-----
+
+error_codes:
+  OK: Success
+  UNKNOWN: Unknown internal error occured
+  OBJECT_STILL_USED: The object is still being used by another object
+  BAD_ALLOC: Insufficient memory to complete the operation
+  INVALID_PARAM: Invalid parameter
+  INVALID_HANDLE: Invalid Handle
+  WRONG_OBJECT_TYPE: Object is of the wrong type
+  CANCELED: The operation has been canceled
+  BUSY: Operation failed because the object is busy
+  TIMEOUT: The operation timed out
+  TIMER_EXPIRED: The timer has not been started or already expired
+  BUFFER_TOO_SMALL: The supplied buffer is too small
+  OPEN_SOCKET_FAILED: Could not open a socket
+  BIND_SOCKET_FAILED: Could not bind a socket
+  LISTEN_SOCKET_FAILED: Could not listen on socket
+  SET_SOCKET_OPTION_FAILED: Could not set a socket option
+  INVALID_REGEX: Invalid regular expression
+  READ_FILE_FAILED: Could not read from file
+  RW_SOCKET_FAILED: Could not read from or write to socket
+  CONNECT_SOCKET_FAILED: Could not connect a socket
+  INVALID_MAGIC_PREFIX: The magic prefix sent when establishing a connection is wrong
+  INCOMPATIBLE_VERSION: The Yogi versions are not compatible
+  DESERIALIZE_MSG_FAILED: Could not deserialize a message
+  ACCEPT_SOCKET_FAILED: Could not accept a socket
+  LOOPBACK_CONNECTION: Attempting to connect branch to itself
+  PASSWORD_MISMATCH: The passwords of the local and remote branch do not match
+  NET_NAME_MISMATCH: The net names of the local and remote branch do not match
+  DUPLICATE_BRANCH_NAME: A branch with the same name is already active
+  DUPLICATE_BRANCH_PATH: A branch with the same path is already active
+  PAYLOAD_TOO_LARGE: Message payload is too large
+  PARSING_CMDLINE_FAILED: Parsing the command line failed
+  PARSING_JSON_FAILED: Parsing a JSON string failed
+  PARSING_FILE_FAILED: Parsing a configuration file failed
+  CONFIG_NOT_VALID: The configuration is not valid
+  HELP_REQUESTED: Help/usage text requested
+  WRITE_FILE_FAILED: Could not write to file
+  UNDEFINED_VARIABLES: One or more configuration variables are undefined or could not be resolved
+  NO_VARIABLE_SUPPORT: Support for configuration variables has been disabled
+  VARIABLE_USED_IN_KEY: A configuration variable has been used in a key
+  INVALID_TIME_FORMAT: Invalid time format
+  PARSING_TIME_FAILED: Could not parse time string
+  TX_QUEUE_FULL: A send queue for a remote branch is full
+  INVALID_OPERATION_ID: Invalid operation ID
+  OPERATION_NOT_RUNNING: Operation is not running
+  INVALID_USER_MSGPACK: User-supplied data is not valid MessagePack
+  JOIN_MULTICAST_GROUP_FAILED: Joining UDP multicast group failed
+  ENUMERATE_NETWORK_INTERFACES_FAILED: Enumerating network interfaces failed
+  CONFIGURATION_SECTION_NOT_FOUND: The section could not be found in the configuration
+  CONFIGURATION_VALIDATION_FAILED: Validating the configuration failed
+  WORKER_ALREADY_ADDED: The context has already been added as a worker
+  OPEN_FILE_FAILED: Could not open file
+
+verbosity:
+  NONE: Used to disable logging
+  FATAL: Errors that require a process restart
+  ERROR: Errors that the system can recover from
+  WARNING: Warnings
+  INFO: General information about the system state
+  DEBUG: Information for debugging
+  TRACE: Detailed debugging
+
+streams:
+  STDOUT: Standard output
+  STDERR: Standard error output
+
+schemas:
+  BRANCH_PROPERTIES: All possible branch properties
+  BRANCH_CONFIG: Properties for creating a branch
+  LOCAL_BRANCH_INFO: Information about a local branch
+  REMOTE_BRANCH_INFO: Information about a remote branch
+  BRANCH_EVENT: Information about a branch event
+
+signals:
+  NONE:
+    help: No signal
+    bit: null
+
+  INT:
+    help: Interrupt (e.g. by pressing STRG + C)
+    bit: 0
+
+  TERM:
+    help: Termination request
+    bit: 1
+
+  USR1:
+    help: User-defined signal 1
+    bit: 24
+
+  USR2:
+    help: User-defined signal 2
+    bit: 25
+
+  USR3:
+    help: User-defined signal 3
+    bit: 26
+
+  USR4:
+    help: User-defined signal 4
+    bit: 27
+
+  USR5:
+    help: User-defined signal 5
+    bit: 28
+
+  USR6:
+    help: User-defined signal 6
+    bit: 29
+
+  USR7:
+    help: User-defined signal 7
+    bit: 30
+
+  USR8:
+    help: User-defined signal 8
+    bit: 31
+
+  ALL:
+    help: All signals
+    combine: [INT, TERM, USR1, USR2, USR3, USR4, USR5, USR6, USR7, USR8]
+
+cfg_flags:
+  NONE:
+    help: No flags
+    bit: null
+
+  DISABLE_VARIABLES:
+    help: |
+      Disables support for variables in the configuration
+
+      Variables are used to define common values (or parts of values) in a
+      pre-defined  section. They can then be used in multiple other parts of the
+      configuration.
+
+      \note
+        Variables can *not* be used in keys.
+
+      Variables are defined in the *variables* section of the configuration:
+
+      \code
+      {
+        "variables": {
+          "ROOT": "/usr/share/my-app",
+          "DATA_DIR": "${ROOT}/data"
+          "DURATION": 30,
+          "MAX_DURATION": "${DURATION}",
+      ...
+      \endcode
+      These variables can then be used anywhere in the configuration, even in the
+      *variables* section itself as shown above.
+
+      \note
+        Even if the value of a variable is not a string, the placeholder *${name}*
+        always has to be a string to conform to the JSON format. When resolving a
+        placeholder for a non-string variable, the type of the target value will
+        be changed accordingly if and only if the placeholder is surrounded by
+        quotation marks as shown for the *MAX_DURATION* variable above. Otherwise,
+        the target value will remain a string and the placeholder will be replaced
+        with the stringified value of the variable.
+    bit: 0
+
+  MUTABLE_CMD_LINE:
+    help: |
+      Makes configuration options given directly on the command line overridable
+
+      By default, configuration options given direclty on the command line are
+      immutable, i.e. they will never be updated from another source.
+    bit: 1
+
+clo_flags:
+  NONE:
+    help: No options
+    bit: null
+
+  LOGGING:
+    help: Include the --log... switches for configuring file logging
+    bit: 0
+
+  BRANCH_NAME:
+    help: Include the --name switch for setting the branch name
+    bit: 1
+
+  BRANCH_DESCRIPTION:
+    help: Include the --description switch for setting the branch description
+    bit: 2
+
+  BRANCH_NETWORK:
+    help: Include the --network switch for setting the network name
+    bit: 3
+
+  BRANCH_PASSWORD:
+    help: Include the --password switch for setting the network password
+    bit: 4
+
+  BRANCH_PATH:
+    help: Include the --path switch for setting the branch path
+    bit: 5
+
+  BRANCH_ADV_IFS:
+    help: Include the --adv-interfaces switch for setting the branch advertising interfaces
+    bit: 6
+
+  BRANCH_ADV_ADDR:
+    help: Include the --adv-addr switch for setting the branch advertising address
+    bit: 7
+
+  BRANCH_ADV_PORT:
+    help: Include the --adv-port switch for setting the branch advertising port
+    bit: 8
+
+  BRANCH_ADV_INT:
+    help: Include the --adv-int switch for setting the branch advertising interval
+    bit: 9
+
+  BRANCH_TIMEOUT:
+    help: Include the --timeout switch for setting the branch timeout
+    bit: 10
+
+  BRANCH_GHOST_MODE:
+    help: Include the --ghost_mode switch for enabling ghost mode for the branch
+    bit: 11
+
+  FILES:
+    help: |
+      Parse configuration files given on the command line
+
+      The files will be parsed from left to right, i.e. if the same value is set
+      in two supplied configuration files, then the value from the rightmost file
+      will be used. However, values given directly on the command line, i.e. not
+      through files, have higher priority.
+    bit: 12
+
+  FILES_REQUIRED:
+    help: At least one configuration file must be given
+    bit: 13
+
+  OVERRIDES:
+    help: |
+      Include the --override switch for overriding arbitrary configuration
+      sections
+
+      This is useful for supplying arbitrary parameters on the command line
+      without having to store them in a file.
+
+      \note
+        Parameters supplied in this way override the same parameters in any
+        given configuration file. If the same parameter is set directly on the
+        command line multiple times, then the rightmost value is used.
+    bit: 14
+
+  VARIABLES:
+    help: Include the --var switch for setting variables
+    bit: 15
+
+  BRANCH_ALL:
+    help: Combination of all branch flags
+    combine:
+      - BRANCH_NAME
+      - BRANCH_DESCRIPTION
+      - BRANCH_NETWORK
+      - BRANCH_PASSWORD
+      - BRANCH_PATH
+      - BRANCH_ADV_IFS
+      - BRANCH_ADV_ADDR
+      - BRANCH_ADV_PORT
+      - BRANCH_ADV_INT
+      - BRANCH_TIMEOUT
+      - BRANCH_GHOST_MODE
+
+  ALL:
+    help: |
+      Combination of all flags
+
+      This is usually used with the application object.
+    combine:
+      - LOGGING
+      - BRANCH_ALL
+      - FILES
+      - FILES_REQUIRED
+      - OVERRIDES
+      - VARIABLES
+
+branch_events:
+  NONE:
+    help: No event (passed to event handler function if wait operation failed)
+    bit: null
+
+  BRANCH_DISCOVERED:
+    help: |
+      A new branch has been discovered
+
+      A remote branch is considered to be a _new branch_ if it is neither already
+      connected nor in the process of being connected to. This means if we
+      discover a branch and connect to it but connecting to it fails and the
+      remote branch itself has not connected to us, then the next time an
+      we receive an advertisement message we consider the branch new again.
+
+      Associated event information:
+
+      \code
+        {
+          "uuid":               "123e4567-e89b-12d3-a456-426655440000",
+          "tcp_server_address": "fe80::f086:b106:2c1b:c45",
+          "tcp_server_port":    43384
+        }
+      \endcode
+    bit: 0
+
+  BRANCH_QUERIED:
+    help: |
+      Querying a new branch for information finished (successfully or not)
+
+      Associated event information:
+
+      \code
+        {
+          "uuid":                 "123e4567-e89b-12d3-a456-426655440000",
+          "name":                 "Pump Safety Logic",
+          "description":          "Monitors the pump for safety",
+          "network_name":         "Hardware Control",
+          "path":                 "/Cooling System/Pump/Safety",
+          "hostname":             "beaglebone",
+          "pid":                  3321,
+          "tcp_server_address":   "fe80::f086:b106:2c1b:c45",
+          "tcp_server_port":      43384,
+          "start_time":           "2018-04-23T18:25:43.511Z",
+          "timeout":              3.0,
+          "advertising_interval": 1.0,
+          "ghost_mode":           false
+        }
+      \endcode
+    bit: 1
+
+  CONNECT_FINISHED:
+    help: |
+      Connecting to a branch finished (successfully or not)
+
+      Associated event information:
+
+      \code
+        {
+          "uuid": "123e4567-e89b-12d3-a456-426655440000"
+        }
+      \endcode
+    bit: 2
+
+  CONNECTION_LOST:
+    help: |
+      The connection to a branch was lost
+
+      Associated event information:
+
+      \code
+        {
+          "uuid": "123e4567-e89b-12d3-a456-426655440000"
+        }
+      \endcode
+    bit: 3
+
+  ALL:
+    help: All branch events
+    combine:
+      - BRANCH_DISCOVERED
+      - BRANCH_QUERIED
+      - CONNECT_FINISHED
+      - CONNECTION_LOST
+
+encoding_types:
+  JSON: Data is encoded as JSON
+  MSGPACK: Data is encoded as MessagePack
+
+http_methods:
+  NONE:
+    help: No methods
+    bit: null
+
+  GET:
+    help: GET method for retrieving data
+    bit: 0
+
+  HEAD:
+    help: |
+      HEAD method for retrieving the same header as with the GET request but
+      without the response body
+    bit: 1
+
+  POST:
+    help: POST method for submitting data
+    bit: 2
+
+  PUT:
+    help: PUT method for modifying data
+    bit: 3
+
+  DELETE:
+    help: DELETE method for deleting data
+    bit: 4
+
+  PATCH:
+    help: PATCH method for partially modifying data
+    bit: 5
+
+http_codes:
+  200: OK
+  201: Created
+  202: Accepted
+  203: Non-Authoritative Information
+  204: No Content
+  205: Reset Content
+  206: Partial Content
+  300: Multiple Choices
+  301: Moved Permanently
+  302: Found
+  303: See Other
+  304: Not Modified
+  307: Temporary Redirect
+  308: Permanent Redirect
+  400: Bad Request
+  401: Unauthorized
+  403: Forbidden
+  404: Not Found
+  405: Method Not Allowed
+  406: Not Acceptable
+  407: Proxy Authentication Required
+  408: Request Timeout
+  409: Conflict
+  410: Gone
+  411: Length Required
+  412: Precondition Failed
+  413: Payload Too Large
+  414: URI Too Long
+  415: Unsupported Media Type
+  416: Range Not Satisfiable
+  417: Expectation Failed
+  418: I am a teapot
+  422: Unprocessable Entity
+  425: Too Early
+  426: Upgrade Required
+  428: Precondition Required
+  429: Too Many Requests
+  431: Request Header Fields Too Large
+  451: Unavailable For Legal Reasons
+  500: Internal Server Error
+  501: Not Implemented
+  502: Bad Gateway
+  503: Service Unavailable
+  504: Gateway Timeout
+  505: HTTP Version Not Supported
+  511: Network Authentication Required
+
+wp_actions:
+  START: Client requests to start a process
+  INPUT: Client sent some input to the process
+  CANCELED: Client canceled the process
+
+wp_updates:
+  STARTED: Process has been started
+  FAILED_TO_START: Process could not be started
+  FINISHED: Process finished gracefully
+  CRASHED: Process finished by crashing
+  CANCELED: Process finished by cancelation
+  OUTPUT: Process created some output
+
+functions:
+  YOGI_GetVersion:
+    return_type: const char*
+    args: {}
+    mock: false
+
+  YOGI_CheckBindingsCompatibility:
+    return_type: int
+    args:
+      bindver: const char*
+    mock: false
+
+  YOGI_GetErrorString:
+    return_type: const char*
+    args:
+      err: int
+    mock: false
+
+  YOGI_GetLastErrorDetails:
+    return_type: const char*
+    args: {}
+    mock: false
+
+  YOGI_GetConstant:
+    return_type: int
+    args:
+      dest: void*
+      constant: int
+    mock: false
+
+  YOGI_GetSchema:
+    return_type: const char*
+    args:
+      schema: int
+    mock: false
+
+  YOGI_GetCurrentTime:
+    return_type: int
+    args:
+      timestamp: long long*
+    mock: true
+
+  YOGI_FormatTime:
+    return_type: int
+    args:
+      timestamp: long long
+      str: const char**
+      strsize: int*
+      timefmt: const char*
+    mock: true
+
+  YOGI_ParseTime:
+    return_type: int
+    args:
+      timestamp: long long*
+      str: const char*
+      timefmt: const char*
+    mock: true
+
+  YOGI_FormatDuration:
+    return_type: int
+    args:
+      dur: long long
+      neg: int
+      str: const char**
+      strsize: int*
+      durfmt: const char*
+      inffmt: const char*
+    mock: true
+
+  YOGI_FormatObject:
+    return_type: int
+    args:
+      obj: void*
+      str: const char**
+      strsize: int*
+      objfmt: const char*
+      nullstr: const char*
+    mock: true
+
+  YOGI_ConfigureConsoleLogging:
+    return_type: int
+    args:
+      verbosity: int
+      stream: int
+      color: int
+      timefmt: const char*
+      fmt: const char*
+    mock: true
+
+  YOGI_ConfigureHookLogging:
+    return_type: int
+    args:
+      verbosity: int
+      fn:
+        return_type: void
+        args:
+          severity: int
+          timestamp: long long
+          tid: int
+          file: const char*
+          line: int
+          comp: const char*
+          msg: const char*
+          userarg: void*
+      userarg: void*
+    mock: true
+
+  YOGI_ConfigureFileLogging:
+    return_type: int
+    args:
+      verbosity: int
+      filename: const char*
+      genfn: const char**
+      genfnsize: int*
+      timefmt: const char*
+      fmt: const char*
+    mock: true
+
+  YOGI_LoggerCreate:
+    return_type: int
+    args:
+      logger: void**
+      component: const char*
+    mock: true
+
+  YOGI_LoggerGetVerbosity:
+    return_type: int
+    args:
+      logger: void*
+      verbosity: int*
+    mock: true
+
+  YOGI_LoggerSetVerbosity:
+    return_type: int
+    args:
+      logger: void*
+      verbosity: int
+    mock: true
+
+  YOGI_LoggerSetComponentsVerbosity:
+    return_type: int
+    args:
+      components: const char*
+      verbosity: int
+      count: int*
+    mock: true
+
+  YOGI_LoggerLog:
+    return_type: int
+    args:
+      logger: void*
+      severity: int
+      file: const char*
+      line: int
+      msg: const char*
+    mock: true
+
+  YOGI_ConfigurationCreate:
+    return_type: int
+    args:
+      config: void**
+      flags: int
+    mock: true
+
+  YOGI_ConfigurationUpdateFromCommandLine:
+    return_type: int
+    args:
+      config: void*
+      argc: int
+      argv: const char* const*
+      options: int
+    mock: true
+
+  YOGI_ConfigurationUpdateFromJson:
+    return_type: int
+    args:
+      config: void*
+      json: const char*
+    mock: true
+
+  YOGI_ConfigurationUpdateFromFile:
+    return_type: int
+    args:
+      config: void*
+      filename: const char*
+    mock: true
+
+  YOGI_ConfigurationDump:
+    return_type: int
+    args:
+      config: void*
+      json: const char**
+      jsonsize: int*
+      resvars: int
+      indent: int
+    mock: true
+
+  YOGI_ConfigurationWriteToFile:
+    return_type: int
+    args:
+      config: void*
+      filename: const char*
+      resvars: int
+      indent: int
+    mock: true
+
+  YOGI_ConfigurationValidate:
+    return_type: int
+    args:
+      config: void*
+      section: const char*
+      schema: void*
+    mock: true
+
+  YOGI_ContextCreate:
+    return_type: int
+    args:
+      context: void**
+    mock: true
+
+  YOGI_ContextPoll:
+    return_type: int
+    args:
+      context: void*
+      count: int*
+    mock: true
+
+  YOGI_ContextPollOne:
+    return_type: int
+    args:
+      context: void*
+      count: int*
+    mock: true
+
+  YOGI_ContextRun:
+    return_type: int
+    args:
+      context: void*
+      count: int*
+      duration: long long
+    mock: true
+
+  YOGI_ContextRunOne:
+    return_type: int
+    args:
+      context: void*
+      count: int*
+      duration: long long
+    mock: true
+
+  YOGI_ContextRunInBackground:
+    return_type: int
+    args:
+      context: void*
+    mock: true
+
+  YOGI_ContextStop:
+    return_type: int
+    args:
+      context: void*
+    mock: true
+
+  YOGI_ContextWaitForRunning:
+    return_type: int
+    args:
+      context: void*
+      duration: long long
+    mock: true
+
+  YOGI_ContextWaitForStopped:
+    return_type: int
+    args:
+      context: void*
+      duration: long long
+    mock: true
+
+  YOGI_ContextPost:
+    return_type: int
+    args:
+      context: void*
+      fn:
+        return_type: void
+        args:
+          userarg: void*
+      userarg: void*
+    mock: true
+
+  YOGI_RaiseSignal:
+    return_type: int
+    args:
+      signal: int
+      sigarg: void*
+      fn:
+        return_type: void
+        args:
+          sigarg: void*
+          userarg: void*
+      userarg: void*
+    mock: true
+
+  YOGI_SignalSetCreate:
+    return_type: int
+    args:
+      sigset: void**
+      context: void*
+      signals: int
+    mock: true
+
+  YOGI_SignalSetAwaitSignalAsync:
+    return_type: int
+    args:
+      sigset: void*
+      fn:
+        return_type: void
+        args:
+          res: int
+          sig: int
+          sigarg: void*
+          userarg: void*
+      userarg: void*
+    mock: true
+
+  YOGI_SignalSetCancelAwaitSignal:
+    return_type: int
+    args:
+      sigset: void*
+    mock: true
+
+  YOGI_TimerCreate:
+    return_type: int
+    args:
+      timer: void**
+      context: void*
+    mock: true
+
+  YOGI_TimerStartAsync:
+    return_type: int
+    args:
+      timer: void*
+      duration: long long
+      fn:
+        return_type: void
+        args:
+          res: int
+          userarg: void*
+      userarg: void*
+    mock: true
+
+  YOGI_TimerCancel:
+    return_type: int
+    args:
+      timer: void*
+    mock: true
+
+  YOGI_BranchCreate:
+    return_type: int
+    args:
+      branch: void**
+      context: void*
+      config: void*
+      section: const char*
+    mock: true
+
+  YOGI_BranchGetInfo:
+    return_type: int
+    args:
+      branch: void*
+      uuid: void*
+      json: char*
+      jsonsize: int
+    mock: true
+
+  YOGI_BranchGetConnectedBranches:
+    return_type: int
+    args:
+      branch: void*
+      uuid: void*
+      json: char*
+      jsonsize: int
+      fn:
+        return_type: void
+        args:
+          res: int
+          userarg: void*
+      userarg: void*
+    mock: true
+
+  YOGI_BranchAwaitEventAsync:
+    return_type: int
+    args:
+      branch: void*
+      events: int
+      uuid: void*
+      json: char*
+      jsonsize: int
+      fn:
+        return_type: void
+        args:
+          res: int
+          ev: int
+          evres: int
+          userarg: void*
+      userarg: void*
+    mock: true
+
+  YOGI_BranchCancelAwaitEvent:
+    return_type: int
+    args:
+      branch: void*
+    mock: true
+
+  YOGI_BranchSendBroadcast:
+    return_type: int
+    args:
+      branch: void*
+      enc: int
+      data: const void*
+      datasize: int
+      block: int
+    mock: true
+
+  YOGI_BranchSendBroadcastAsync:
+    return_type: int
+    args:
+      branch: void*
+      enc: int
+      data: const void*
+      datasize: int
+      retry: int
+      fn:
+        return_type: void
+        args:
+          res: int
+          oid: int
+          userarg: void*
+      userarg: void*
+    mock: true
+
+  YOGI_BranchCancelSendBroadcast:
+    return_type: int
+    args:
+      branch: void*
+      oid: int
+    mock: true
+
+  YOGI_BranchReceiveBroadcastAsync:
+    return_type: int
+    args:
+      branch: void*
+      uuid: void*
+      enc: int
+      data: void*
+      datasize: int
+      fn:
+        return_type: void
+        args:
+          res: int
+          size: int
+          userarg: void*
+      userarg: void*
+    mock: true
+
+  YOGI_BranchCancelReceiveBroadcast:
+    return_type: int
+    args:
+      branch: void*
+    mock: true
+
+  YOGI_Destroy:
+    return_type: int
+    args:
+      obj: void*
+    mock: true
+
+  YOGI_DestroyAll:
+    return_type: int
+    args: {}
+    mock: true
+
+  YOGI_WebServerCreate:
+    return_type: int
+    args:
+      server: void**
+      context: void*
+      branch: void*
+      config: void*
+      section: const char*
+    mock: true
+
+  YOGI_WebServerAddWorker:
+    return_type: int
+    args:
+      server: void*
+      context: void*
+    mock: true
+
+  YOGI_WebRouteCreate:
+    return_type: int
+    args:
+      route: void**
+      server: void*
+      baseuri: const char*
+      fn:
+        return_type: void
+        args:
+          res: int
+          rid: int
+          user: const char*
+          owner: const char*
+          method: int
+          uri: const char*
+          qparams: const char* const*
+          userarg: void*
+      userarg: void*
+    mock: true
+
+  YOGI_WebRouteRespond:
+    return_type: int
+    args:
+      route: void*
+      rid: int
+      finished: int
+      status: int
+      contype: const char*
+      content: const char*
+    mock: true
+
+  YOGI_WebProcessCreate:
+    return_type: int
+    args:
+      wproc: void**
+      server: void*
+      name: const char*
+      fn:
+        return_type: void
+        args:
+          res: int
+          wpid: int
+          user: const char*
+          wpa: int
+          data: const void*
+          sizes: const int*
+          userarg: void*
+      userarg: void*
+    mock: true
+
+  YOGI_WebProcessUpdate:
+    return_type: int
+    args:
+      wproc: void*
+      wpid: int
+      wpu: int
+      exitcode: int
+      output: const void*
+      outsize: int
+    mock: true
+
+type_mappings:
+  void: { py: None, cs: void }
+  int: { py: c_int, cs: int }
+  int*: { py: POINTER(c_int), cs: ref int }
+  const int*: { py: POINTER(c_int), cs: ref int }
+  long long: { py: c_longlong, cs: long }
+  long long*: { py: POINTER(c_longlong), cs: ref long }
+  char*: { py: POINTER(c_char), cs: StringBuilder }
+  const char*: { py: c_char_p, cs: string }
+  const char**: { py: POINTER(c_char_p), cs: ref IntPtr }
+  const char* const*: { py: POINTER(POINTER(c_char)), cs: "string[]" }
+  void*: { py: c_void_p, cs: IntPtr }
+  void**: { py: POINTER(c_void_p), cs: ref IntPtr }
+  const void*: { py: c_void_p, cs: IntPtr }
+
+time_fmt_placeholders:
+  "%Y": Four digit year
+  "%m": Month name as a decimal 01 to 12
+  "%d": Day of the month as decimal 01 to 31
+  "%F": Equivalent to %Y-%m-%d (the ISO 8601 date format)
+  "%H": The hour as a decimal number using a 24-hour clock (00 to 23)
+  "%M": The minute as a decimal 00 to 59
+  "%S": Seconds as a decimal 00 to 59
+  "%T": Equivalent to %H:%M:%S (the ISO 8601 time format)
+  "%3": Milliseconds as decimal number 000 to 999
+  "%6": Microseconds as decimal number 000 to 999
+  "%9": Nanoseconds as decimal number 000 to 999
+
+duration_fmt_placeholders:
+  "%+": Plus sign if duration is positive and minus sign if it is negative
+  "%-": Minus sign (only) if duration is negative
+  "%d": Total number of days
+  "%D": Total number of days if days > 0
+  "%H": Fractional hours (range 00 to 23)
+  "%M": Fractional minutes (range 00 to 59)
+  "%S": Fractional seconds (range 00 to 59)
+  "%T": Equivalent to %H:%M:%S
+  "%3": Fractional milliseconds (range 000 to 999)
+  "%6": Fractional microseconds (range 000 to 999)
+  "%9": Fractional nanoseconds (range 000 to 999)
+
+object_fmt_placeholders:
+  "$T": Type of the object (e.g. Branch)
+  "$x": Handle of the object in lower-case hex notation
+  "$X": Handle of the object in upper-case hex notation
+
+log_fmt_placeholders:
+  "$t": Timestamp, formatted according to \p timefmt
+  "$P": Process ID (PID)
+  "$T": Thread ID
+  "$s": Severity as 3 letter abbreviation (FAT, ERR, WRN, IFO, DBG or TRC)
+  "$m": Log message
+  "$f": Source filename
+  "$l": Source line number
+  "$c": Component tag
+  "$<": Set console color corresponding to severity
+  "$>": Reset the colours (also done after each log entry)
+  "$$": A $ sign

@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "file:///branch_event.schema.json",
+  "additionalProperties": false,
+  "oneOf": [{
+    "properties": {
+      "uuid":               { "$ref": "branch_properties.schema.json#/uuid" }
+    }
+  }, {
+    "properties": {
+      "uuid":               { "$ref": "branch_properties.schema.json#/uuid" },
+      "tcp_server_address": { "$ref": "branch_properties.schema.json#/tcp_server_address" },
+      "tcp_server_port":    { "$ref": "branch_properties.schema.json#/tcp_server_port" }
+    }
+  }, {
+    "$ref": "remote_branch_info.schema.json"
+  }]
+}

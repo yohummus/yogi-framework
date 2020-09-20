@@ -1,0 +1,19 @@
+---
+BasedOnStyle: Google
+SortIncludes: true
+DerivePointerAlignment: false
+PointerAlignment: Left
+ColumnLimit: 120
+AlignTrailingComments: true
+ReflowComments: true
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: false
+AlignEscapedNewlines: true
+AlignOperands: true
+AllowShortFunctionsOnASingleLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
+IndentPPDirectives: AfterHash
+IncludeBlocks: Preserve
+IndentWidth: 2
+...
+

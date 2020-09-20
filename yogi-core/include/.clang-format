@@ -1,0 +1,9 @@
+---
+BasedOnStyle: Google
+DerivePointerAlignment: false
+PointerAlignment: Left
+ColumnLimit: 80
+AlignTrailingComments: true
+ReflowComments: true
+AllowAllParametersOfDeclarationOnNextLine: true
+...
