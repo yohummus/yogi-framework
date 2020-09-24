@@ -26,7 +26,9 @@
 
 #include <regex>
 
-TEST(SystemTest, GetHostname) { EXPECT_FALSE(get_hostname().empty()); }
+TEST(SystemTest, GetHostname) {
+  EXPECT_FALSE(get_hostname().empty());
+}
 
 TEST(SystemTest, GetNetworkInterfaces) {
   auto ifs = get_network_interfaces();

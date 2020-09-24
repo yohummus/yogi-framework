@@ -30,10 +30,13 @@
 class ConsoleLogSink : public TextBasedLogSink {
  public:
   ConsoleLogSink(int stream, int color, const char* timefmt, const char* fmt)
-      : TextBasedLogSink{timefmt, fmt, !!color}, console_{stream} {}
+      : TextBasedLogSink{timefmt, fmt, !!color}, console_{stream} {
+  }
 
  protected:
-  virtual void write_partial_output(const std::string& str) override { console_.write(str.c_str()); }
+  virtual void write_partial_output(const std::string& str) override {
+    console_.write(str.c_str());
+  }
 
   virtual void set_output_colors(int severity) override {
     switch (severity) {
@@ -68,8 +71,13 @@ class ConsoleLogSink : public TextBasedLogSink {
     }
   }
 
-  virtual void reset_output_colors() override { console_.reset_colors(); }
-  virtual void flush() override { console_.flush(); }
+  virtual void reset_output_colors() override {
+    console_.reset_colors();
+  }
+
+  virtual void flush() override {
+    console_.flush();
+  }
 
  private:
   Console console_;

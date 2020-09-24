@@ -58,7 +58,9 @@
 // Class for logging internal messages
 class LogUser {
  public:
-  const std::string& logging_prefix() const { return prefix_; }
+  const std::string& logging_prefix() const {
+    return prefix_;
+  }
 
  protected:
   void set_logging_prefix(const ExposedObject& obj) {
@@ -66,8 +68,13 @@ class LogUser {
     prefix_ = obj.format("[$x]");
   }
 
-  void set_logging_prefix(std::string prefix) { prefix_ = prefix; }
-  void clear_logging_prefix() { prefix_ = {}; }
+  void set_logging_prefix(std::string prefix) {
+    prefix_ = prefix;
+  }
+
+  void clear_logging_prefix() {
+    prefix_ = {};
+  }
 
  private:
   std::string prefix_;

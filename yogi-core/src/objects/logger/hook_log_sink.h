@@ -31,7 +31,8 @@
 
 class HookLogSink {
  public:
-  HookLogSink(Logger::HookFn fn, void* userarg) : fn_{fn}, userarg_{userarg} {}
+  HookLogSink(Logger::HookFn fn, void* userarg) : fn_{fn}, userarg_{userarg} {
+  }
 
   void publish(int severity, Timestamp timestamp, int tid, const char* file, int line, const std::string& component,
                const char* msg) {

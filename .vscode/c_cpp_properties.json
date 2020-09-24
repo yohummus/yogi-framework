@@ -1,56 +1,49 @@
 {
   "env": {
-    "definesFromBuildSystem": [
-      "YOGI_TEST_DATA_DIR=\"/some/path\""
+    "commonIncludePaths": [
+      "${workspaceFolder}/yogi-core/include",
+      "${workspaceFolder}/yogi-core",
+      "${workspaceFolder}/yogi-core-mock/include",
+      "${workspaceFolder}/yogi-core-mock",
+      "${workspaceFolder}/yogi-cpp/include",
+      "${workspaceFolder}/yogi-cpp",
+      "~/.conan/data/**"
     ]
   },
   "configurations": [
     {
       "name": "Mac",
       "includePath": [
-        "${workspaceFolder}/yogi-core/include",
-        "${workspaceFolder}/yogi-core",
-        "${workspaceFolder}/yogi-core-mock",
-        "~/.conan/data/**",
+        "${commonIncludePaths}",
         "/usr/local/include"
       ],
-      "defines": [
-        "${definesFromBuildSystem}"
-      ],
+      "defines": [],
       "macFrameworkPath": [
         "/System/Library/Frameworks"
       ],
-      "cppStandard": "c++20"
+      "cppStandard": "c++17"
     },
     {
       "name": "Linux",
       "includePath": [
-        "${workspaceFolder}/yogi-core/include",
-        "${workspaceFolder}/yogi-core",
-        "${workspaceFolder}/yogi-core-mock",
-        "~/.conan/data/**",
+        "${commonIncludePaths}",
         "/usr/include",
         "/usr/local/include"
       ],
-      "defines": [
-        "${definesFromBuildSystem}"
-      ],
-      "cppStandard": "c++20"
+      "defines": [],
+      "cppStandard": "c++17"
     },
     {
       "name": "Win32",
       "includePath": [
-        "${workspaceFolder}/yogi-core/include",
-        "${workspaceFolder}/yogi-core",
-        "${workspaceFolder}/yogi-core-mock",
-        "~/.conan/data/**"
+        "${commonIncludePaths}"
       ],
       "defines": [
         "_DEBUG",
         "UNICODE",
         "WIN32"
       ],
-      "cppStandard": "c++20"
+      "cppStandard": "c++17"
     }
   ],
   "version": 4

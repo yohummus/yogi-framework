@@ -204,7 +204,9 @@ nlohmann::json Configuration::get_json(bool resolve_vars, const char* section) c
   return json;
 }
 
-nlohmann::json Configuration::get_json(const char* section) const { return get_json(variables_supported_, section); }
+nlohmann::json Configuration::get_json(const char* section) const {
+  return get_json(variables_supported_, section);
+}
 
 std::string Configuration::dump(bool resolve_variables, int indentation_width) const {
   return get_json(resolve_variables).dump(indentation_width);

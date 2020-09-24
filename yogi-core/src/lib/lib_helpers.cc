@@ -38,7 +38,9 @@ int update_last_error_details(const Result& res) {
   return res.error_code();
 }
 
-const char* get_last_error_details() { return last_error_details.c_str(); }
+const char* get_last_error_details() {
+  return last_error_details.c_str();
+}
 
 thread_local std::string api_buffer;
 

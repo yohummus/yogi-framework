@@ -28,7 +28,9 @@
 
 YOGI_DEFINE_INTERNAL_LOGGER("Context")
 
-Context::Context() : ioc_(1), work_(ioc_), running_(false) { set_logging_prefix(*this); }
+Context::Context() : ioc_(1), work_(ioc_), running_(false) {
+  set_logging_prefix(*this);
+}
 
 Context::~Context() {
   stop();
@@ -113,7 +115,9 @@ bool Context::wait_for_stopped(Duration timeout) {
   return !timed_out;
 }
 
-void Context::post(std::function<void()> fn) { boost::asio::post(ioc_, fn); }
+void Context::post(std::function<void()> fn) {
+  boost::asio::post(ioc_, fn);
+}
 
 void Context::set_running_flag_and_reset() {
   std::lock_guard<std::mutex> lock{mutex_};

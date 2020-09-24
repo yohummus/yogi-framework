@@ -39,11 +39,18 @@ class FileLogSink : public TextBasedLogSink {
     }
   }
 
-  const std::string& generated_filename() const { return filename_; }
+  const std::string& generated_filename() const {
+    return filename_;
+  }
 
  protected:
-  virtual void write_partial_output(const std::string& str) override { file_ << str; }
-  virtual void flush() override { file_ << std::flush; }
+  virtual void write_partial_output(const std::string& str) override {
+    file_ << str;
+  }
+
+  virtual void flush() override {
+    file_ << std::flush;
+  }
 
  private:
   std::string filename_;

@@ -190,7 +190,9 @@ std::string Timestamp::format(const char* fmt) const {
   return ss.str();
 }
 
-std::string Timestamp::to_javascript_string() const { return format("%FT%T.%3Z"); }
+std::string Timestamp::to_javascript_string() const {
+  return format("%FT%T.%3Z");
+}
 
 std::chrono::nanoseconds Duration::to_chrono_duration() const {
   using std::chrono::nanoseconds;

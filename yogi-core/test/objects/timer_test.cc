@@ -80,8 +80,8 @@ TEST_F(TimerTest, StartWhileRunning) {
   EXPECT_OK(res);
 
   // Immediate timeout
-  res = YOGI_TimerStartAsync(timer_, 0, [](int res_, void* handler_res_) { *static_cast<int*>(handler_res_) = res_; },
-                             &handler_res);
+  res = YOGI_TimerStartAsync(
+      timer_, 0, [](int res_, void* handler_res_) { *static_cast<int*>(handler_res_) = res_; }, &handler_res);
   EXPECT_OK(res);
 
   int cnt = -1;
@@ -102,8 +102,8 @@ TEST_F(TimerTest, Cancel) {
   int handler_res = 1;
 
   // Infinite timeout
-  res = YOGI_TimerStartAsync(timer_, -1, [](int res_, void* handler_res_) { *static_cast<int*>(handler_res_) = res_; },
-                             &handler_res);
+  res = YOGI_TimerStartAsync(
+      timer_, -1, [](int res_, void* handler_res_) { *static_cast<int*>(handler_res_) = res_; }, &handler_res);
 
   res = YOGI_TimerCancel(timer_);
   EXPECT_OK(res);

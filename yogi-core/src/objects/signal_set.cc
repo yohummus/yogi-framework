@@ -47,7 +47,8 @@ void SignalSet::raise_signal(int signal, void* sigarg, CleanupHandler cleanup_ha
   }
 }
 
-SignalSet::SignalSet(ContextPtr context, int signals) : context_(context), signals_(signals) {}
+SignalSet::SignalSet(ContextPtr context, int signals) : context_(context), signals_(signals) {
+}
 
 bool SignalSet::await_async(AwaitHandler handler, void* userarg) {
   std::lock_guard<std::mutex> lock{mutex_};
@@ -85,7 +86,9 @@ SignalSet::~SignalSet() {
   cancel_await();
 }
 
-bool SignalSet::cancel_await() { return await_async({}, nullptr); }
+bool SignalSet::cancel_await() {
+  return await_async({}, nullptr);
+}
 
 void SignalSet::on_signal_raised(const SignalDataPtr& data) {
   YOGI_ASSERT(signals_ & data->signal);

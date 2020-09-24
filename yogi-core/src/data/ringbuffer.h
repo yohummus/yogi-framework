@@ -40,7 +40,10 @@ class LockFreeRingBuffer {
 
   explicit LockFreeRingBuffer(size_type capacity);
 
-  size_type capacity() const { return capacity_; };
+  size_type capacity() const {
+    return capacity_;
+  };
+
   bool empty();
   bool full();
   Byte front() const;

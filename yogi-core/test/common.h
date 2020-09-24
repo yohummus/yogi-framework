@@ -50,13 +50,15 @@
   }
 
 #define EXPECT_THROW_ERROR(statement, ec) \
-  _EXPECT_THROW_ERROR(statement, ec, catch (const Error& err) { EXPECT_EQ(err.value(), ec); })
+  _EXPECT_THROW_ERROR(                    \
+      statement, ec, catch (const Error& err) { EXPECT_EQ(err.value(), ec); })
 
-#define EXPECT_THROW_DESCRIPTIVE_ERROR(statement, ec)                      \
-  _EXPECT_THROW_ERROR(statement, ec, catch (const DescriptiveError& err) { \
-    EXPECT_EQ(err.value(), ec);                                            \
-    EXPECT_FALSE(err.details().empty());                                   \
-  })
+#define EXPECT_THROW_DESCRIPTIVE_ERROR(statement, ec)      \
+  _EXPECT_THROW_ERROR(                                     \
+      statement, ec, catch (const DescriptiveError& err) { \
+        EXPECT_EQ(err.value(), ec);                        \
+        EXPECT_FALSE(err.details().empty());               \
+      })
 
 class TestFixture : public testing::Test {
  public:

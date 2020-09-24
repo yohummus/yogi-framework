@@ -64,6 +64,10 @@ void print_all_colors(int stream) {
   cons.reset_colors();
 }
 
-TEST(ConsoleTest, PrintStdoutColors) { print_all_colors(YOGI_ST_STDOUT); }
+TEST(ConsoleTest, PrintStdoutColors) {
+  print_all_colors(YOGI_ST_STDOUT);
+}
 
-TEST(ConsoleTest, PrintStderrColors) { print_all_colors(YOGI_ST_STDERR); }
+TEST(ConsoleTest, PrintStderrColors) {
+  print_all_colors(YOGI_ST_STDERR);
+}

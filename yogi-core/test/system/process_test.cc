@@ -26,6 +26,10 @@
 
 #include <regex>
 
-TEST(SystemTest, GetProcessId) { EXPECT_GT(get_process_id(), 0); }
+TEST(SystemTest, GetProcessId) {
+  EXPECT_GT(get_process_id(), 0);
+}
 
-TEST(SystemTest, GetCurrentThreadId) { EXPECT_GT(get_thread_id(), 0); }
+TEST(SystemTest, GetCurrentThreadId) {
+  EXPECT_GT(get_thread_id(), 0);
+}

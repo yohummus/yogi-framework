@@ -24,7 +24,9 @@
 #include <src/lib/lib_helpers.h>
 #include <src/schemas/schemas.h>
 
-YOGI_API const char* YOGI_GetVersion() { return constants::kVersion; }
+YOGI_API const char* YOGI_GetVersion() {
+  return constants::kVersion;
+}
 
 YOGI_API int YOGI_CheckBindingsCompatibility(const char* bindver) {
   BEGIN_CHECKED_API_FUNCTION
@@ -36,9 +38,13 @@ YOGI_API int YOGI_CheckBindingsCompatibility(const char* bindver) {
   END_CHECKED_API_FUNCTION
 }
 
-YOGI_API const char* YOGI_GetErrorString(int res) { return Result(res).description(); }
+YOGI_API const char* YOGI_GetErrorString(int res) {
+  return Result(res).description();
+}
 
-YOGI_API const char* YOGI_GetLastErrorDetails() { return get_last_error_details(); }
+YOGI_API const char* YOGI_GetLastErrorDetails() {
+  return get_last_error_details();
+}
 
 YOGI_API int YOGI_GetConstant(void* dest, int constant) {
   BEGIN_CHECKED_API_FUNCTION
@@ -50,4 +56,6 @@ YOGI_API int YOGI_GetConstant(void* dest, int constant) {
   END_CHECKED_API_FUNCTION
 }
 
-YOGI_API const char* YOGI_GetSchema(int schema) { return get_schema(schema); }
+YOGI_API const char* YOGI_GetSchema(int schema) {
+  return get_schema(schema);
+}

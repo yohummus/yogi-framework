@@ -38,7 +38,9 @@ class Context : public ExposedObjectT<Context, ObjectType::kContext>, public Log
   Context();
   virtual ~Context();
 
-  boost::asio::io_context& io_context() { return ioc_; }
+  boost::asio::io_context& io_context() {
+    return ioc_;
+  }
 
   int poll();
   int poll_one();

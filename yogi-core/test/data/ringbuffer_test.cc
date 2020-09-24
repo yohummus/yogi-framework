@@ -37,8 +37,13 @@ class RingBufferTest : public TestFixture {
     boost::asio::buffer_copy(uut.first_write_array() + idx, boost::asio::buffer(&byte, 1));
   }
 
-  std::size_t first_read_array_size() const { return boost::asio::buffer_size(uut.first_read_array()); }
-  std::size_t first_write_array_size() { return boost::asio::buffer_size(uut.first_write_array()); }
+  std::size_t first_read_array_size() const {
+    return boost::asio::buffer_size(uut.first_read_array());
+  }
+
+  std::size_t first_write_array_size() {
+    return boost::asio::buffer_size(uut.first_write_array());
+  }
 };
 
 TEST_F(RingBufferTest, FirstReadArray) {

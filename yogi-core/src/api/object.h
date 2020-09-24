@@ -56,7 +56,10 @@ class ExposedObject : public std::enable_shared_from_this<ExposedObject> {
 
   const std::string& type_name() const;
   std::string format(std::string fmt = constants::kDefaultObjectFormat) const;
-  ObjectHandle handle() { return static_cast<ObjectHandle>(this); }
+
+  ObjectHandle handle() {
+    return static_cast<ObjectHandle>(this);
+  }
 
   template <typename TO>
   std::shared_ptr<TO> cast() {
@@ -84,17 +87,26 @@ typedef std::shared_ptr<ExposedObject> ObjectPtr;
 template <typename TO, ObjectType TK>
 class ExposedObjectT : public ExposedObject {
  public:
-  static constexpr ObjectType static_type() { return TK; }
+  static constexpr ObjectType static_type() {
+    return TK;
+  }
 
   template <typename... TArgs>
   static std::shared_ptr<TO> create(TArgs&&... args) {
     return std::make_shared<TO>(std::forward<TArgs>(args)...);
   }
 
-  virtual ObjectType type() const override { return static_type(); };
+  virtual ObjectType type() const override {
+    return static_type();
+  };
 
-  std::shared_ptr<TO> make_shared_ptr() { return std::static_pointer_cast<TO>(this->shared_from_this()); }
-  std::weak_ptr<TO> make_weak_ptr() { return {make_shared_ptr()}; }
+  std::shared_ptr<TO> make_shared_ptr() {
+    return std::static_pointer_cast<TO>(this->shared_from_this());
+  }
+
+  std::weak_ptr<TO> make_weak_ptr() {
+    return {make_shared_ptr()};
+  }
 };
 
 class ObjectRegister {

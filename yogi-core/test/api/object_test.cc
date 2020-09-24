@@ -28,8 +28,12 @@ class Dummy : public ExposedObjectT<Dummy, ObjectType::kDummy> {};
 
 class MyObject : public ExposedObjectT<MyObject, ObjectType::kTimer> {
  public:
-  MyObject(int) {}
-  ~MyObject() { ++dtor_calls; }
+  MyObject(int) {
+  }
+
+  ~MyObject() {
+    ++dtor_calls;
+  }
 
   static int dtor_calls;
 };
@@ -38,7 +42,9 @@ int MyObject::dtor_calls = 0;
 
 class ObjectTest : public testing::Test {
  protected:
-  virtual void TearDown() override { ObjectRegister::destroy_all(); }
+  virtual void TearDown() override {
+    ObjectRegister::destroy_all();
+  }
 };
 
 TEST_F(ObjectTest, Create) {

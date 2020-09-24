@@ -48,7 +48,9 @@ auto win32_original_stderr_colors = []() {
   return csbi.wAttributes;
 }();
 
-HANDLE get_std_handle(const FILE* file) { return GetStdHandle(file == stdout ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE); }
+HANDLE get_std_handle(const FILE* file) {
+  return GetStdHandle(file == stdout ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE);
+}
 
 #endif
 
@@ -130,6 +132,10 @@ void Console::reset_colors() {
 #endif
 }
 
-void Console::flush() { fflush(file_); }
+void Console::flush() {
+  fflush(file_);
+}
 
-void Console::write(const char* txt) { fputs(txt, file_); }
+void Console::write(const char* txt) {
+  fputs(txt, file_);
+}

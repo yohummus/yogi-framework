@@ -446,9 +446,9 @@
 //! \code
 //! {
 //!   "variables": {
-//!     "ROOT": "/usr/share/my-app",
-//!     "DATA_DIR": "${ROOT}/data"
-//!     "DURATION": 30,
+//!     "ROOT":         "/usr/share/my-app",
+//!     "DATA_DIR":     "${ROOT}/data"
+//!     "DURATION":     30,
 //!     "MAX_DURATION": "${DURATION}",
 //! ...
 //! \endcode

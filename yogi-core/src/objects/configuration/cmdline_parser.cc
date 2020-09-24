@@ -38,7 +38,8 @@ CmdlineParser::CmdlineParser(int argc, const char* const* argv, int clo_flags)
       visible_options_{"Allowed options"},
       hidden_options_{"Hidden options"},
       files_json_({}),
-      direct_json_({}) {}
+      direct_json_({}) {
+}
 
 void CmdlineParser::parse() {
   YOGI_ASSERT(vm_.empty());  // only run once!

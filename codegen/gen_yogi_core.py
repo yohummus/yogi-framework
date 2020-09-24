@@ -6,8 +6,10 @@ import json
 import hashlib
 
 from common import ROOT
-from common import replace_in_file
+from common import VERSION, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_SUFFIX
+from common import replace_block_in_file
 from common import generate_copyright_headers
+from common import generate_conanfile_py
 
 
 def generate(core_api: munch.Munch) -> None:
@@ -20,7 +22,7 @@ def generate(core_api: munch.Munch) -> None:
     generate_yogi_core_h(core_api)
     generate_schemas_h_cc()
     generate_cmake_lists_txt(core_api)
-    generate_conanfile_py(core_api)
+    generate_conanfile_py('yogi-core')
 
 
 def generate_constants_h_cc(core_api: munch.Munch) -> None:
@@ -55,8 +57,8 @@ def generate_constants_h_cc(core_api: munch.Munch) -> None:
 
         source_lines += [source_line]
 
-    replace_in_file('yogi-core/src/api/constants.h', header_lines)
-    replace_in_file('yogi-core/src/api/constants.cc', source_lines)
+    replace_block_in_file('yogi-core/src/api/constants.h', header_lines)
+    replace_block_in_file('yogi-core/src/api/constants.cc', source_lines)
 
 
 def generate_constants_test_cc(core_api: munch.Munch) -> None:
@@ -66,24 +68,24 @@ def generate_constants_test_cc(core_api: munch.Munch) -> None:
         const_name = f'k{stringcase.pascalcase(name.lower())}'
         lines += [f'check(YOGI_CONST_{name}, {const_name});']
 
-    replace_in_file('yogi-core/test/api/constants_test.cc', lines)
+    replace_block_in_file('yogi-core/test/api/constants_test.cc', lines)
 
 
 def generate_errors_cc(core_api: munch.Munch) -> None:
     """Replaces the code in the errors.cc file"""
     lines = []
-    for idx, (name, description) in enumerate(core_api.error_codes.items()):
+    for idx, (name, description) in enumerate(core_api.enums.error_code.items()):
         prefix = 'ERR_' if idx else ''
         lines += [f'    case YOGI_{prefix}{name}: return "{description}";']
 
-    replace_in_file('yogi-core/src/api/errors.cc', lines)
+    replace_block_in_file('yogi-core/src/api/errors.cc', lines)
 
 
 def generate_errors_test_cc(core_api: munch.Munch) -> None:
     """Replaces the code in the errors_test.cc file"""
-    lines = [f'int kLastError = YOGI_ERR_{list(core_api.error_codes)[-1]};']
+    lines = [f'int kLastError = YOGI_ERR_{list(core_api.enums.error_code)[-1]};']
 
-    replace_in_file('yogi-core/test/api/errors_test.cc', lines)
+    replace_block_in_file('yogi-core/test/api/errors_test.cc', lines)
 
 
 def generate_yogi_core_h(core_api: munch.Munch) -> None:
@@ -92,7 +94,7 @@ def generate_yogi_core_h(core_api: munch.Munch) -> None:
     env.filters['to_bit'] = lambda x: '0' if x is None else f'(1 << {x})'
     env.filters['or_flags'] = lambda x, prefix = '': f'({" | ".join([prefix + y for y in x])})'
     env.filters['prefix_lines'] = lambda x, prefix: '\n'.join([f'{prefix}{y}' for y in x.rstrip().split('\n')])
-    env.filters['to_function_declaration'] = lambda x, fn_name: f'YOGI_API {make_function_signature(fn_name, x[fn_name])};'
+    env.filters['to_fn_declaration'] = lambda x, fn_name: f'YOGI_API {make_function_signature(fn_name, x[fn_name])};'
     env.filters['ns_to_s'] = lambda x: x / 1e9
     env.filters['sha256'] = lambda x: hashlib.sha256(x.encode()).hexdigest().upper()
     env.filters['multi_line_string_to_array'] = lambda x, prefix: ',\n'.join(
@@ -102,7 +104,8 @@ def generate_yogi_core_h(core_api: munch.Munch) -> None:
     with open(file.with_suffix('.h.jinja2'), 'r') as f:
         template = env.from_string(f.read())
 
-    content = template.render(core_api=core_api)
+    content = template.render(core_api=core_api, VERSION=VERSION, VERSION_MAJOR=VERSION_MAJOR,
+                              VERSION_MINOR=VERSION_MINOR, VERSION_PATCH=VERSION_PATCH, VERSION_SUFFIX=VERSION_SUFFIX)
     formatted_content = subprocess.check_output(['clang-format'], input=content, text=True, cwd=file.parent)
 
     with open(file, 'w') as f:
@@ -134,9 +137,9 @@ def generate_schemas_h_cc() -> None:
         source_lines_1 += ['', f'// {macro_name}']
         source_lines_1 += [f'const char {var_name}[] = R"raw({schema_content})raw";']
 
-    replace_in_file('yogi-core/src/schemas/schemas.h', header_lines)
-    replace_in_file('yogi-core/src/schemas/schemas.cc', source_lines_0, block_idx=0)
-    replace_in_file('yogi-core/src/schemas/schemas.cc', source_lines_1, block_idx=1)
+    replace_block_in_file('yogi-core/src/schemas/schemas.h', header_lines)
+    replace_block_in_file('yogi-core/src/schemas/schemas.cc', source_lines_0, block_idx=0)
+    replace_block_in_file('yogi-core/src/schemas/schemas.cc', source_lines_1, block_idx=1)
 
 
 def generate_cmake_lists_txt(core_api: munch.Munch) -> None:
@@ -145,27 +148,18 @@ def generate_cmake_lists_txt(core_api: munch.Munch) -> None:
     for file in (ROOT / 'yogi-core/src').rglob('*.cc'):
         src_lines += [f'    {file.relative_to(ROOT  / "yogi-core")}']
 
-    replace_in_file('yogi-core/CMakeLists.txt', src_lines, block_idx=0)
+    replace_block_in_file('yogi-core/CMakeLists.txt', src_lines, block_idx=0)
 
-    v = core_api.version
-    version_lines = [f'    VERSION {v.major}.{v.minor}.{v.patch}{v.suffix}',
-                     f'    SOVERSION {v.major}']
+    version_lines = [f'    VERSION {VERSION}',
+                     f'    SOVERSION {VERSION_MAJOR}']
 
-    replace_in_file('yogi-core/CMakeLists.txt', version_lines, block_idx=1)
+    replace_block_in_file('yogi-core/CMakeLists.txt', version_lines, block_idx=1)
 
     test_lines = []
     for file in (ROOT / 'yogi-core/test').rglob('*.cc'):
         test_lines += [f'    {file.relative_to(ROOT  / "yogi-core")}']
 
-    replace_in_file('yogi-core/CMakeLists.txt', test_lines, block_idx=2)
-
-
-def generate_conanfile_py(core_api: munch.Munch) -> None:
-    """Replaces the code in the conanfile.py file"""
-    v = core_api.version
-    lines = [f'    version = "{v.major}.{v.minor}.{v.patch}{v.suffix}"']
-
-    replace_in_file('yogi-core/conanfile.py', lines)
+    replace_block_in_file('yogi-core/CMakeLists.txt', test_lines, block_idx=2)
 
 
 def make_function_signature(fn_name: str, fn_props: munch.Munch) -> str:

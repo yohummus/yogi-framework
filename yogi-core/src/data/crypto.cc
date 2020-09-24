@@ -44,9 +44,13 @@ SmallBuffer make_sha256_impl(const void* data, std::size_t len) {
 
 }  // anonymous namespace
 
-SmallBuffer make_sha256(const Buffer& data) { return make_sha256_impl(data.data(), data.size()); }
+SmallBuffer make_sha256(const Buffer& data) {
+  return make_sha256_impl(data.data(), data.size());
+}
 
-SmallBuffer make_sha256(std::string_view data) { return make_sha256_impl(data.data(), data.size()); }
+SmallBuffer make_sha256(std::string_view data) {
+  return make_sha256_impl(data.data(), data.size());
+}
 
 Buffer generate_random_bytes(std::size_t n) {
   Buffer bytes(n);

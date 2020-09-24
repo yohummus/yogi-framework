@@ -87,9 +87,13 @@ TEST_F(GlobTest, FilesInWorkingDirectory) {
   check({"*.js*"}, {"common.json", "utils.json"});
 }
 
-TEST_F(GlobTest, FilesInParentDirectory) { check({"../*"}, {"../a.json", "../b.json"}); }
+TEST_F(GlobTest, FilesInParentDirectory) {
+  check({"../*"}, {"../a.json", "../b.json"});
+}
 
-TEST_F(GlobTest, FilesInSubDirectory) { check({"old/*.json"}, {"old/one.json", "old/two.json"}); }
+TEST_F(GlobTest, FilesInSubDirectory) {
+  check({"old/*.json"}, {"old/one.json", "old/two.json"});
+}
 
 TEST_F(GlobTest, FilesInImmediateSubdirs) {
   check({"*/*"}, {"old/one.json", "old/two.json", "old/three.ini", "new/all.json"});

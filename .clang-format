@@ -10,10 +10,10 @@ AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: false
 AlignEscapedNewlines: true
 AlignOperands: true
-AllowShortFunctionsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: false
 AllowAllParametersOfDeclarationOnNextLine: true
 IndentPPDirectives: AfterHash
 IncludeBlocks: Preserve
 IndentWidth: 2
-...
+---
 

@@ -32,7 +32,9 @@ const std::chrono::nanoseconds kTimingMargin = 50ms;
 
 class ContextTest : public TestFixture {
  protected:
-  virtual void SetUp() override { context_ = create_context(); }
+  virtual void SetUp() override {
+    context_ = create_context();
+  }
 
   void* context_;
 };
@@ -52,9 +54,12 @@ TEST_F(ContextTest, Poll) {
   EXPECT_OK(res);
   EXPECT_EQ(cnt, 0);
 
-  res = YOGI_ContextPost(context_, [](void*) {}, nullptr);
+  res = YOGI_ContextPost(
+      context_, [](void*) {}, nullptr);
   EXPECT_OK(res);
-  res = YOGI_ContextPost(context_, [](void*) {}, nullptr);
+
+  res = YOGI_ContextPost(
+      context_, [](void*) {}, nullptr);
   EXPECT_OK(res);
 
   res = YOGI_ContextPoll(context_, &cnt);
@@ -71,8 +76,10 @@ TEST_F(ContextTest, PollOne) {
   EXPECT_OK(res);
   EXPECT_EQ(cnt, 0);
 
-  YOGI_ContextPost(context_, [](void*) {}, nullptr);
-  YOGI_ContextPost(context_, [](void*) {}, nullptr);
+  YOGI_ContextPost(
+      context_, [](void*) {}, nullptr);
+  YOGI_ContextPost(
+      context_, [](void*) {}, nullptr);
 
   res = YOGI_ContextPollOne(context_, &cnt);
   EXPECT_OK(res);
@@ -93,8 +100,10 @@ TEST_F(ContextTest, Run) {
   YOGI_ContextWaitForRunning(context_, -1);
 
   std::atomic<int> n(0);
-  YOGI_ContextPost(context_, [](void* n_) { ++*static_cast<std::atomic<int>*>(n_); }, &n);
-  YOGI_ContextPost(context_, [](void* n_) { ++*static_cast<std::atomic<int>*>(n_); }, &n);
+  YOGI_ContextPost(
+      context_, [](void* n_) { ++*static_cast<std::atomic<int>*>(n_); }, &n);
+  YOGI_ContextPost(
+      context_, [](void* n_) { ++*static_cast<std::atomic<int>*>(n_); }, &n);
 
   while (n < 2)
     ;
@@ -120,8 +129,10 @@ TEST_F(ContextTest, RunOne) {
   YOGI_ContextWaitForRunning(context_, -1);
 
   std::atomic<int> n(0);
-  YOGI_ContextPost(context_, [](void* n_) { ++*static_cast<std::atomic<int>*>(n_); }, &n);
-  YOGI_ContextPost(context_, [](void* n_) { ++*static_cast<std::atomic<int>*>(n_); }, &n);
+  YOGI_ContextPost(
+      context_, [](void* n_) { ++*static_cast<std::atomic<int>*>(n_); }, &n);
+  YOGI_ContextPost(
+      context_, [](void* n_) { ++*static_cast<std::atomic<int>*>(n_); }, &n);
 
   while (n < 1)
     ;
@@ -138,8 +149,10 @@ TEST_F(ContextTest, RunFor) {
   EXPECT_OK(res);
 
   int n = 0;
-  YOGI_ContextPost(context_, [](void* n_) { ++*static_cast<int*>(n_); }, &n);
-  YOGI_ContextPost(context_, [](void* n_) { ++*static_cast<int*>(n_); }, &n);
+  YOGI_ContextPost(
+      context_, [](void* n_) { ++*static_cast<int*>(n_); }, &n);
+  YOGI_ContextPost(
+      context_, [](void* n_) { ++*static_cast<int*>(n_); }, &n);
 
   int count       = -1;
   auto start_time = std::chrono::steady_clock::now();
@@ -158,7 +171,8 @@ TEST_F(ContextTest, RunOneFor) {
   EXPECT_OK(res);
 
   int n = 0;
-  YOGI_ContextPost(context_, [](void* n_) { ++*static_cast<int*>(n_); }, &n);
+  YOGI_ContextPost(
+      context_, [](void* n_) { ++*static_cast<int*>(n_); }, &n);
 
   int count       = -1;
   auto start_time = std::chrono::steady_clock::now();
@@ -183,12 +197,14 @@ TEST_F(ContextTest, RunOneFor) {
 
 TEST_F(ContextTest, RunInBackground) {
   std::atomic<int> n(0);
-  YOGI_ContextPost(context_, [](void* n_) { ++*static_cast<std::atomic<int>*>(n_); }, &n);
+  YOGI_ContextPost(
+      context_, [](void* n_) { ++*static_cast<std::atomic<int>*>(n_); }, &n);
 
   int res = YOGI_ContextRunInBackground(context_);
   EXPECT_OK(res);
 
-  YOGI_ContextPost(context_, [](void* n_) { ++*static_cast<std::atomic<int>*>(n_); }, &n);
+  YOGI_ContextPost(
+      context_, [](void* n_) { ++*static_cast<std::atomic<int>*>(n_); }, &n);
 
   while (n != 2)
     ;
@@ -216,7 +232,8 @@ TEST_F(ContextTest, ExceptionInBackgroundThread) {
   int res = YOGI_ContextRunInBackground(context_);
   EXPECT_OK(res);
 
-  YOGI_ContextPost(context_, [](void*) { throw std::runtime_error("My exception"); }, nullptr);
+  YOGI_ContextPost(
+      context_, [](void*) { throw std::runtime_error("My exception"); }, nullptr);
 
   // Background thread should stop and print an error message
   res = YOGI_ContextWaitForStopped(context_, 1000000000);
@@ -224,6 +241,7 @@ TEST_F(ContextTest, ExceptionInBackgroundThread) {
 }
 
 TEST_F(ContextTest, Post) {
-  int res = YOGI_ContextPost(context_, [](void*) {}, nullptr);
+  int res = YOGI_ContextPost(
+      context_, [](void*) {}, nullptr);
   EXPECT_OK(res);
 }

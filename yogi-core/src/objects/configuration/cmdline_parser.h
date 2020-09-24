@@ -33,8 +33,14 @@ class CmdlineParser {
   CmdlineParser(int argc, const char* const* argv, int clo_flags);
 
   void parse();
-  const nlohmann::json& get_files_configuration() const { return files_json_; }
-  const nlohmann::json& get_direct_configuration() const { return direct_json_; }
+
+  const nlohmann::json& get_files_configuration() const {
+    return files_json_;
+  }
+
+  const nlohmann::json& get_direct_configuration() const {
+    return direct_json_;
+  }
 
  private:
   struct Override {

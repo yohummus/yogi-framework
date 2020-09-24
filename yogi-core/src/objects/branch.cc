@@ -23,4 +23,5 @@
 
 YOGI_DEFINE_INTERNAL_LOGGER("Branch")
 
-Branch::Branch(ContextPtr context) : context_(context) {}
+Branch::Branch(ContextPtr context) : context_(context) {
+}

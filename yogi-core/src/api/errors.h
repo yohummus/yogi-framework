@@ -30,18 +30,35 @@ class Error;
 
 class Result {
  public:
-  Result() : ec_(YOGI_ERR_UNKNOWN) {}
+  Result() : ec_(YOGI_ERR_UNKNOWN) {
+  }
 
-  explicit Result(int error_code) : ec_(error_code) {}
+  explicit Result(int error_code) : ec_(error_code) {
+  }
 
-  bool operator==(const Result& rhs) const { return ec_ == rhs.ec_; }
-  bool operator!=(const Result& rhs) const { return ec_ != rhs.ec_; }
+  bool operator==(const Result& rhs) const {
+    return ec_ == rhs.ec_;
+  }
 
-  int value() const { return ec_; }
-  int error_code() const { return ec_ > 0 ? 0 : ec_; }
+  bool operator!=(const Result& rhs) const {
+    return ec_ != rhs.ec_;
+  }
+
+  int value() const {
+    return ec_;
+  }
+
+  int error_code() const {
+    return ec_ > 0 ? 0 : ec_;
+  }
   const char* description() const;
-  bool is_success() const { return ec_ >= 0; }
-  bool is_error() const { return ec_ < 0; }
+  bool is_success() const {
+    return ec_ >= 0;
+  }
+
+  bool is_error() const {
+    return ec_ < 0;
+  }
   Error to_error() const;
 
  private:
@@ -50,22 +67,31 @@ class Result {
 
 class Success : public Result {
  public:
-  Success(int res = YOGI_OK) : Result(res) {}
+  Success(int res = YOGI_OK) : Result(res) {
+  }
 };
 
 class Error : public Result, public std::exception {
  public:
-  explicit Error(int error_code) : Result(error_code) { YOGI_ASSERT(error_code < 0); }
+  explicit Error(int error_code) : Result(error_code) {
+    YOGI_ASSERT(error_code < 0);
+  }
 
-  virtual const char* what() const noexcept override { return description(); }
+  virtual const char* what() const noexcept override {
+    return description();
+  }
 };
 
 class DescriptiveError : public Error {
  public:
-  explicit DescriptiveError(int error_code) : Error(error_code) {}
+  explicit DescriptiveError(int error_code) : Error(error_code) {
+  }
 
-  DescriptiveError(const DescriptiveError& err) : Error(err.value()), oss_(err.oss_.str()) {}
-  DescriptiveError(DescriptiveError&& err) : Error(err.value()), oss_(std::move(err.oss_)) {}
+  DescriptiveError(const DescriptiveError& err) : Error(err.value()), oss_(err.oss_.str()) {
+  }
+
+  DescriptiveError(DescriptiveError&& err) : Error(err.value()), oss_(std::move(err.oss_)) {
+  }
 
   template <typename T>
   DescriptiveError& operator<<(T&& val) {
@@ -73,7 +99,9 @@ class DescriptiveError : public Error {
     return *this;
   }
 
-  std::string details() const { return oss_.str(); }
+  std::string details() const {
+    return oss_.str();
+  }
 
  private:
   std::ostringstream oss_;

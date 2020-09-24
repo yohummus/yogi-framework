@@ -46,7 +46,9 @@ TEST(YogiCoreTest, HeaderVersion) {
   EXPECT_EQ(version, YOGI_HDR_VERSION);
 }
 
-TEST(VersionTest, GetVersion) { EXPECT_STREQ(YOGI_HDR_VERSION, YOGI_GetVersion()); }
+TEST(VersionTest, GetVersion) {
+  EXPECT_STREQ(YOGI_HDR_VERSION, YOGI_GetVersion());
+}
 
 TEST(VersionTest, CheckBindingsCompatibility) {
   EXPECT_OK(YOGI_CheckBindingsCompatibility(YOGI_HDR_VERSION));

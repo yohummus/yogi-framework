@@ -19,12 +19,6 @@ copyright: |
   along with this program; if not, write to the Free Software Foundation,
   Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-version:
-  major: 0
-  minor: 0
-  patch: 1
-  suffix: "-alpha"
-
 constants:
   VERSION:
     help: Whole version string of the core library
@@ -68,17 +62,17 @@ constants:
 
   DEFAULT_ADV_INTERVAL:
     help: Default advertising interval in nanoseconds
-    type: { c: long long, cpp: long long, cs: long, py: c_longlong }
+    type: { c: long long, cpp: Duration, cs: long, py: c_longlong }
     value: 1.e+9
 
   DEFAULT_CONNECTION_TIMEOUT:
     help: Default connection timeout in nanoseconds
-    type: { c: long long, cpp: long long, cs: long, py: c_longlong }
+    type: { c: long long, cpp: Duration, cs: long, py: c_longlong }
     value: 3.e+9
 
   DEFAULT_LOGGER_VERBOSITY:
     help: Default logging verbosity
-    type: { c: int, cpp: int, cs: int, py: c_int }
+    type: { c: int, cpp: Verbosity, cs: int, py: c_int }
     value: YOGI_VB_INFO
 
   DEFAULT_LOG_TIME_FORMAT:
@@ -163,7 +157,7 @@ constants:
 
   DEFAULT_WEB_TIMEOUT:
     help: Default timeout for web server connections in nanoseconds
-    type: { c: long long, cpp: long long, cs: long, py: c_longlong }
+    type: { c: long long, cpp: Duration, cs: long, py: c_longlong }
     value: 30.e+9
 
   DEFAULT_HTTP_HEADER_LIMIT:
@@ -264,469 +258,471 @@ constants:
       4/QFcIxwOY+wIaH2OEuOxTrKjAivFrGz8wIBAg==
       -----END DH PARAMETERS-----
 
-error_codes:
-  OK: Success
-  UNKNOWN: Unknown internal error occured
-  OBJECT_STILL_USED: The object is still being used by another object
-  BAD_ALLOC: Insufficient memory to complete the operation
-  INVALID_PARAM: Invalid parameter
-  INVALID_HANDLE: Invalid Handle
-  WRONG_OBJECT_TYPE: Object is of the wrong type
-  CANCELED: The operation has been canceled
-  BUSY: Operation failed because the object is busy
-  TIMEOUT: The operation timed out
-  TIMER_EXPIRED: The timer has not been started or already expired
-  BUFFER_TOO_SMALL: The supplied buffer is too small
-  OPEN_SOCKET_FAILED: Could not open a socket
-  BIND_SOCKET_FAILED: Could not bind a socket
-  LISTEN_SOCKET_FAILED: Could not listen on socket
-  SET_SOCKET_OPTION_FAILED: Could not set a socket option
-  INVALID_REGEX: Invalid regular expression
-  READ_FILE_FAILED: Could not read from file
-  RW_SOCKET_FAILED: Could not read from or write to socket
-  CONNECT_SOCKET_FAILED: Could not connect a socket
-  INVALID_MAGIC_PREFIX: The magic prefix sent when establishing a connection is wrong
-  INCOMPATIBLE_VERSION: The Yogi versions are not compatible
-  DESERIALIZE_MSG_FAILED: Could not deserialize a message
-  ACCEPT_SOCKET_FAILED: Could not accept a socket
-  LOOPBACK_CONNECTION: Attempting to connect branch to itself
-  PASSWORD_MISMATCH: The passwords of the local and remote branch do not match
-  NET_NAME_MISMATCH: The net names of the local and remote branch do not match
-  DUPLICATE_BRANCH_NAME: A branch with the same name is already active
-  DUPLICATE_BRANCH_PATH: A branch with the same path is already active
-  PAYLOAD_TOO_LARGE: Message payload is too large
-  PARSING_CMDLINE_FAILED: Parsing the command line failed
-  PARSING_JSON_FAILED: Parsing a JSON string failed
-  PARSING_FILE_FAILED: Parsing a configuration file failed
-  CONFIG_NOT_VALID: The configuration is not valid
-  HELP_REQUESTED: Help/usage text requested
-  WRITE_FILE_FAILED: Could not write to file
-  UNDEFINED_VARIABLES: One or more configuration variables are undefined or could not be resolved
-  NO_VARIABLE_SUPPORT: Support for configuration variables has been disabled
-  VARIABLE_USED_IN_KEY: A configuration variable has been used in a key
-  INVALID_TIME_FORMAT: Invalid time format
-  PARSING_TIME_FAILED: Could not parse time string
-  TX_QUEUE_FULL: A send queue for a remote branch is full
-  INVALID_OPERATION_ID: Invalid operation ID
-  OPERATION_NOT_RUNNING: Operation is not running
-  INVALID_USER_MSGPACK: User-supplied data is not valid MessagePack
-  JOIN_MULTICAST_GROUP_FAILED: Joining UDP multicast group failed
-  ENUMERATE_NETWORK_INTERFACES_FAILED: Enumerating network interfaces failed
-  CONFIGURATION_SECTION_NOT_FOUND: The section could not be found in the configuration
-  CONFIGURATION_VALIDATION_FAILED: Validating the configuration failed
-  WORKER_ALREADY_ADDED: The context has already been added as a worker
-  OPEN_FILE_FAILED: Could not open file
+enums:
+  error_code:
+    OK: Success
+    UNKNOWN: Unknown internal error occured
+    OBJECT_STILL_USED: The object is still being used by another object
+    BAD_ALLOC: Insufficient memory to complete the operation
+    INVALID_PARAM: Invalid parameter
+    INVALID_HANDLE: Invalid Handle
+    WRONG_OBJECT_TYPE: Object is of the wrong type
+    CANCELED: The operation has been canceled
+    BUSY: Operation failed because the object is busy
+    TIMEOUT: The operation timed out
+    TIMER_EXPIRED: The timer has not been started or already expired
+    BUFFER_TOO_SMALL: The supplied buffer is too small
+    OPEN_SOCKET_FAILED: Could not open a socket
+    BIND_SOCKET_FAILED: Could not bind a socket
+    LISTEN_SOCKET_FAILED: Could not listen on socket
+    SET_SOCKET_OPTION_FAILED: Could not set a socket option
+    INVALID_REGEX: Invalid regular expression
+    READ_FILE_FAILED: Could not read from file
+    RW_SOCKET_FAILED: Could not read from or write to socket
+    CONNECT_SOCKET_FAILED: Could not connect a socket
+    INVALID_MAGIC_PREFIX: The magic prefix sent when establishing a connection is wrong
+    INCOMPATIBLE_VERSION: The Yogi versions are not compatible
+    DESERIALIZE_MSG_FAILED: Could not deserialize a message
+    ACCEPT_SOCKET_FAILED: Could not accept a socket
+    LOOPBACK_CONNECTION: Attempting to connect branch to itself
+    PASSWORD_MISMATCH: The passwords of the local and remote branch do not match
+    NET_NAME_MISMATCH: The net names of the local and remote branch do not match
+    DUPLICATE_BRANCH_NAME: A branch with the same name is already active
+    DUPLICATE_BRANCH_PATH: A branch with the same path is already active
+    PAYLOAD_TOO_LARGE: Message payload is too large
+    PARSING_CMDLINE_FAILED: Parsing the command line failed
+    PARSING_JSON_FAILED: Parsing a JSON string failed
+    PARSING_FILE_FAILED: Parsing a configuration file failed
+    CONFIG_NOT_VALID: The configuration is not valid
+    HELP_REQUESTED: Help/usage text requested
+    WRITE_FILE_FAILED: Could not write to file
+    UNDEFINED_VARIABLES: One or more configuration variables are undefined or could not be resolved
+    NO_VARIABLE_SUPPORT: Support for configuration variables has been disabled
+    VARIABLE_USED_IN_KEY: A configuration variable has been used in a key
+    INVALID_TIME_FORMAT: Invalid time format
+    PARSING_TIME_FAILED: Could not parse time string
+    TX_QUEUE_FULL: A send queue for a remote branch is full
+    INVALID_OPERATION_ID: Invalid operation ID
+    OPERATION_NOT_RUNNING: Operation is not running
+    INVALID_USER_MSGPACK: User-supplied data is not valid MessagePack
+    JOIN_MULTICAST_GROUP_FAILED: Joining UDP multicast group failed
+    ENUMERATE_NETWORK_INTERFACES_FAILED: Enumerating network interfaces failed
+    CONFIGURATION_SECTION_NOT_FOUND: The section could not be found in the configuration
+    CONFIGURATION_VALIDATION_FAILED: Validating the configuration failed
+    WORKER_ALREADY_ADDED: The context has already been added as a worker
+    OPEN_FILE_FAILED: Could not open file
 
-verbosity:
-  NONE: Used to disable logging
-  FATAL: Errors that require a process restart
-  ERROR: Errors that the system can recover from
-  WARNING: Warnings
-  INFO: General information about the system state
-  DEBUG: Information for debugging
-  TRACE: Detailed debugging
+  verbosity:
+    NONE: Used to disable logging
+    FATAL: Errors that require a process restart
+    ERROR: Errors that the system can recover from
+    WARNING: Warnings
+    INFO: General information about the system state
+    DEBUG: Information for debugging
+    TRACE: Detailed debugging
 
-streams:
-  STDOUT: Standard output
-  STDERR: Standard error output
+  stream:
+    STDOUT: Standard output
+    STDERR: Standard error output
 
-schemas:
-  BRANCH_PROPERTIES: All possible branch properties
-  BRANCH_CONFIG: Properties for creating a branch
-  LOCAL_BRANCH_INFO: Information about a local branch
-  REMOTE_BRANCH_INFO: Information about a remote branch
-  BRANCH_EVENT: Information about a branch event
+  schema:
+    BRANCH_PROPERTIES: All possible branch properties
+    BRANCH_CONFIG: Properties for creating a branch
+    LOCAL_BRANCH_INFO: Information about a local branch
+    REMOTE_BRANCH_INFO: Information about a remote branch
+    BRANCH_EVENT: Information about a branch event
 
-signals:
-  NONE:
-    help: No signal
-    bit: null
+  encoding:
+    JSON: Data is encoded as JSON
+    MSGPACK: Data is encoded as MessagePack
 
-  INT:
-    help: Interrupt (e.g. by pressing STRG + C)
-    bit: 0
+  http_status:
+    200: OK
+    201: Created
+    202: Accepted
+    203: Non-Authoritative Information
+    204: No Content
+    205: Reset Content
+    206: Partial Content
+    300: Multiple Choices
+    301: Moved Permanently
+    302: Found
+    303: See Other
+    304: Not Modified
+    307: Temporary Redirect
+    308: Permanent Redirect
+    400: Bad Request
+    401: Unauthorized
+    403: Forbidden
+    404: Not Found
+    405: Method Not Allowed
+    406: Not Acceptable
+    407: Proxy Authentication Required
+    408: Request Timeout
+    409: Conflict
+    410: Gone
+    411: Length Required
+    412: Precondition Failed
+    413: Payload Too Large
+    414: URI Too Long
+    415: Unsupported Media Type
+    416: Range Not Satisfiable
+    417: Expectation Failed
+    418: I am a teapot
+    422: Unprocessable Entity
+    425: Too Early
+    426: Upgrade Required
+    428: Precondition Required
+    429: Too Many Requests
+    431: Request Header Fields Too Large
+    451: Unavailable For Legal Reasons
+    500: Internal Server Error
+    501: Not Implemented
+    502: Bad Gateway
+    503: Service Unavailable
+    504: Gateway Timeout
+    505: HTTP Version Not Supported
+    511: Network Authentication Required
 
-  TERM:
-    help: Termination request
-    bit: 1
+  web_process_action:
+    START: Client requests to start a process
+    INPUT: Client sent some input to the process
+    CANCELED: Client canceled the process
 
-  USR1:
-    help: User-defined signal 1
-    bit: 24
+  web_process_update:
+    STARTED: Process has been started
+    FAILED_TO_START: Process could not be started
+    FINISHED: Process finished gracefully
+    CRASHED: Process finished by crashing
+    CANCELED: Process finished by cancelation
+    OUTPUT: Process created some output
 
-  USR2:
-    help: User-defined signal 2
-    bit: 25
+flags:
+  signals:
+    NONE:
+      help: No signal
+      bit: null
 
-  USR3:
-    help: User-defined signal 3
-    bit: 26
+    INT:
+      help: Interrupt (e.g. by pressing STRG + C)
+      bit: 0
 
-  USR4:
-    help: User-defined signal 4
-    bit: 27
+    TERM:
+      help: Termination request
+      bit: 1
 
-  USR5:
-    help: User-defined signal 5
-    bit: 28
+    USR1:
+      help: User-defined signal 1
+      bit: 24
 
-  USR6:
-    help: User-defined signal 6
-    bit: 29
+    USR2:
+      help: User-defined signal 2
+      bit: 25
 
-  USR7:
-    help: User-defined signal 7
-    bit: 30
+    USR3:
+      help: User-defined signal 3
+      bit: 26
 
-  USR8:
-    help: User-defined signal 8
-    bit: 31
+    USR4:
+      help: User-defined signal 4
+      bit: 27
 
-  ALL:
-    help: All signals
-    combine: [INT, TERM, USR1, USR2, USR3, USR4, USR5, USR6, USR7, USR8]
+    USR5:
+      help: User-defined signal 5
+      bit: 28
 
-cfg_flags:
-  NONE:
-    help: No flags
-    bit: null
+    USR6:
+      help: User-defined signal 6
+      bit: 29
 
-  DISABLE_VARIABLES:
-    help: |
-      Disables support for variables in the configuration
+    USR7:
+      help: User-defined signal 7
+      bit: 30
 
-      Variables are used to define common values (or parts of values) in a
-      pre-defined  section. They can then be used in multiple other parts of the
-      configuration.
+    USR8:
+      help: User-defined signal 8
+      bit: 31
 
-      \note
-        Variables can *not* be used in keys.
+    ALL:
+      help: All signals
+      combine: [INT, TERM, USR1, USR2, USR3, USR4, USR5, USR6, USR7, USR8]
 
-      Variables are defined in the *variables* section of the configuration:
+  configuration_flags:
+    NONE:
+      help: No flags
+      bit: null
 
-      \code
-      {
-        "variables": {
-          "ROOT": "/usr/share/my-app",
-          "DATA_DIR": "${ROOT}/data"
-          "DURATION": 30,
-          "MAX_DURATION": "${DURATION}",
-      ...
-      \endcode
-      These variables can then be used anywhere in the configuration, even in the
-      *variables* section itself as shown above.
+    DISABLE_VARIABLES:
+      help: |
+        Disables support for variables in the configuration
 
-      \note
-        Even if the value of a variable is not a string, the placeholder *${name}*
-        always has to be a string to conform to the JSON format. When resolving a
-        placeholder for a non-string variable, the type of the target value will
-        be changed accordingly if and only if the placeholder is surrounded by
-        quotation marks as shown for the *MAX_DURATION* variable above. Otherwise,
-        the target value will remain a string and the placeholder will be replaced
-        with the stringified value of the variable.
-    bit: 0
+        Variables are used to define common values (or parts of values) in a
+        pre-defined  section. They can then be used in multiple other parts of the
+        configuration.
 
-  MUTABLE_CMD_LINE:
-    help: |
-      Makes configuration options given directly on the command line overridable
+        \note
+          Variables can *not* be used in keys.
 
-      By default, configuration options given direclty on the command line are
-      immutable, i.e. they will never be updated from another source.
-    bit: 1
+        Variables are defined in the *variables* section of the configuration:
 
-clo_flags:
-  NONE:
-    help: No options
-    bit: null
-
-  LOGGING:
-    help: Include the --log... switches for configuring file logging
-    bit: 0
-
-  BRANCH_NAME:
-    help: Include the --name switch for setting the branch name
-    bit: 1
-
-  BRANCH_DESCRIPTION:
-    help: Include the --description switch for setting the branch description
-    bit: 2
-
-  BRANCH_NETWORK:
-    help: Include the --network switch for setting the network name
-    bit: 3
-
-  BRANCH_PASSWORD:
-    help: Include the --password switch for setting the network password
-    bit: 4
-
-  BRANCH_PATH:
-    help: Include the --path switch for setting the branch path
-    bit: 5
-
-  BRANCH_ADV_IFS:
-    help: Include the --adv-interfaces switch for setting the branch advertising interfaces
-    bit: 6
-
-  BRANCH_ADV_ADDR:
-    help: Include the --adv-addr switch for setting the branch advertising address
-    bit: 7
-
-  BRANCH_ADV_PORT:
-    help: Include the --adv-port switch for setting the branch advertising port
-    bit: 8
-
-  BRANCH_ADV_INT:
-    help: Include the --adv-int switch for setting the branch advertising interval
-    bit: 9
-
-  BRANCH_TIMEOUT:
-    help: Include the --timeout switch for setting the branch timeout
-    bit: 10
-
-  BRANCH_GHOST_MODE:
-    help: Include the --ghost_mode switch for enabling ghost mode for the branch
-    bit: 11
-
-  FILES:
-    help: |
-      Parse configuration files given on the command line
-
-      The files will be parsed from left to right, i.e. if the same value is set
-      in two supplied configuration files, then the value from the rightmost file
-      will be used. However, values given directly on the command line, i.e. not
-      through files, have higher priority.
-    bit: 12
-
-  FILES_REQUIRED:
-    help: At least one configuration file must be given
-    bit: 13
-
-  OVERRIDES:
-    help: |
-      Include the --override switch for overriding arbitrary configuration
-      sections
-
-      This is useful for supplying arbitrary parameters on the command line
-      without having to store them in a file.
-
-      \note
-        Parameters supplied in this way override the same parameters in any
-        given configuration file. If the same parameter is set directly on the
-        command line multiple times, then the rightmost value is used.
-    bit: 14
-
-  VARIABLES:
-    help: Include the --var switch for setting variables
-    bit: 15
-
-  BRANCH_ALL:
-    help: Combination of all branch flags
-    combine:
-      - BRANCH_NAME
-      - BRANCH_DESCRIPTION
-      - BRANCH_NETWORK
-      - BRANCH_PASSWORD
-      - BRANCH_PATH
-      - BRANCH_ADV_IFS
-      - BRANCH_ADV_ADDR
-      - BRANCH_ADV_PORT
-      - BRANCH_ADV_INT
-      - BRANCH_TIMEOUT
-      - BRANCH_GHOST_MODE
-
-  ALL:
-    help: |
-      Combination of all flags
-
-      This is usually used with the application object.
-    combine:
-      - LOGGING
-      - BRANCH_ALL
-      - FILES
-      - FILES_REQUIRED
-      - OVERRIDES
-      - VARIABLES
-
-branch_events:
-  NONE:
-    help: No event (passed to event handler function if wait operation failed)
-    bit: null
-
-  BRANCH_DISCOVERED:
-    help: |
-      A new branch has been discovered
-
-      A remote branch is considered to be a _new branch_ if it is neither already
-      connected nor in the process of being connected to. This means if we
-      discover a branch and connect to it but connecting to it fails and the
-      remote branch itself has not connected to us, then the next time an
-      we receive an advertisement message we consider the branch new again.
-
-      Associated event information:
-
-      \code
+        \code
         {
-          "uuid":               "123e4567-e89b-12d3-a456-426655440000",
-          "tcp_server_address": "fe80::f086:b106:2c1b:c45",
-          "tcp_server_port":    43384
-        }
-      \endcode
-    bit: 0
+          "variables": {
+            "ROOT":         "/usr/share/my-app",
+            "DATA_DIR":     "${ROOT}/data"
+            "DURATION":     30,
+            "MAX_DURATION": "${DURATION}",
+        ...
+        \endcode
+        These variables can then be used anywhere in the configuration, even in the
+        *variables* section itself as shown above.
 
-  BRANCH_QUERIED:
-    help: |
-      Querying a new branch for information finished (successfully or not)
+        \note
+          Even if the value of a variable is not a string, the placeholder *${name}*
+          always has to be a string to conform to the JSON format. When resolving a
+          placeholder for a non-string variable, the type of the target value will
+          be changed accordingly if and only if the placeholder is surrounded by
+          quotation marks as shown for the *MAX_DURATION* variable above. Otherwise,
+          the target value will remain a string and the placeholder will be replaced
+          with the stringified value of the variable.
+      bit: 0
 
-      Associated event information:
+    MUTABLE_CMD_LINE:
+      help: |
+        Makes configuration options given directly on the command line overridable
 
-      \code
-        {
-          "uuid":                 "123e4567-e89b-12d3-a456-426655440000",
-          "name":                 "Pump Safety Logic",
-          "description":          "Monitors the pump for safety",
-          "network_name":         "Hardware Control",
-          "path":                 "/Cooling System/Pump/Safety",
-          "hostname":             "beaglebone",
-          "pid":                  3321,
-          "tcp_server_address":   "fe80::f086:b106:2c1b:c45",
-          "tcp_server_port":      43384,
-          "start_time":           "2018-04-23T18:25:43.511Z",
-          "timeout":              3.0,
-          "advertising_interval": 1.0,
-          "ghost_mode":           false
-        }
-      \endcode
-    bit: 1
+        By default, configuration options given direclty on the command line are
+        immutable, i.e. they will never be updated from another source.
+      bit: 1
 
-  CONNECT_FINISHED:
-    help: |
-      Connecting to a branch finished (successfully or not)
+  command_line_options:
+    NONE:
+      help: No options
+      bit: null
 
-      Associated event information:
+    LOGGING:
+      help: Include the --log... switches for configuring file logging
+      bit: 0
 
-      \code
-        {
-          "uuid": "123e4567-e89b-12d3-a456-426655440000"
-        }
-      \endcode
-    bit: 2
+    BRANCH_NAME:
+      help: Include the --name switch for setting the branch name
+      bit: 1
 
-  CONNECTION_LOST:
-    help: |
-      The connection to a branch was lost
+    BRANCH_DESCRIPTION:
+      help: Include the --description switch for setting the branch description
+      bit: 2
 
-      Associated event information:
+    BRANCH_NETWORK:
+      help: Include the --network switch for setting the network name
+      bit: 3
 
-      \code
-        {
-          "uuid": "123e4567-e89b-12d3-a456-426655440000"
-        }
-      \endcode
-    bit: 3
+    BRANCH_PASSWORD:
+      help: Include the --password switch for setting the network password
+      bit: 4
 
-  ALL:
-    help: All branch events
-    combine:
-      - BRANCH_DISCOVERED
-      - BRANCH_QUERIED
-      - CONNECT_FINISHED
-      - CONNECTION_LOST
+    BRANCH_PATH:
+      help: Include the --path switch for setting the branch path
+      bit: 5
 
-encoding_types:
-  JSON: Data is encoded as JSON
-  MSGPACK: Data is encoded as MessagePack
+    BRANCH_ADV_IFS:
+      help: Include the --adv-interfaces switch for setting the branch advertising interfaces
+      bit: 6
 
-http_methods:
-  NONE:
-    help: No methods
-    bit: null
+    BRANCH_ADV_ADDR:
+      help: Include the --adv-addr switch for setting the branch advertising address
+      bit: 7
 
-  GET:
-    help: GET method for retrieving data
-    bit: 0
+    BRANCH_ADV_PORT:
+      help: Include the --adv-port switch for setting the branch advertising port
+      bit: 8
 
-  HEAD:
-    help: |
-      HEAD method for retrieving the same header as with the GET request but
-      without the response body
-    bit: 1
+    BRANCH_ADV_INT:
+      help: Include the --adv-int switch for setting the branch advertising interval
+      bit: 9
 
-  POST:
-    help: POST method for submitting data
-    bit: 2
+    BRANCH_TIMEOUT:
+      help: Include the --timeout switch for setting the branch timeout
+      bit: 10
 
-  PUT:
-    help: PUT method for modifying data
-    bit: 3
+    BRANCH_GHOST_MODE:
+      help: Include the --ghost_mode switch for enabling ghost mode for the branch
+      bit: 11
 
-  DELETE:
-    help: DELETE method for deleting data
-    bit: 4
+    FILES:
+      help: |
+        Parse configuration files given on the command line
 
-  PATCH:
-    help: PATCH method for partially modifying data
-    bit: 5
+        The files will be parsed from left to right, i.e. if the same value is set
+        in two supplied configuration files, then the value from the rightmost file
+        will be used. However, values given directly on the command line, i.e. not
+        through files, have higher priority.
+      bit: 12
 
-http_codes:
-  200: OK
-  201: Created
-  202: Accepted
-  203: Non-Authoritative Information
-  204: No Content
-  205: Reset Content
-  206: Partial Content
-  300: Multiple Choices
-  301: Moved Permanently
-  302: Found
-  303: See Other
-  304: Not Modified
-  307: Temporary Redirect
-  308: Permanent Redirect
-  400: Bad Request
-  401: Unauthorized
-  403: Forbidden
-  404: Not Found
-  405: Method Not Allowed
-  406: Not Acceptable
-  407: Proxy Authentication Required
-  408: Request Timeout
-  409: Conflict
-  410: Gone
-  411: Length Required
-  412: Precondition Failed
-  413: Payload Too Large
-  414: URI Too Long
-  415: Unsupported Media Type
-  416: Range Not Satisfiable
-  417: Expectation Failed
-  418: I am a teapot
-  422: Unprocessable Entity
-  425: Too Early
-  426: Upgrade Required
-  428: Precondition Required
-  429: Too Many Requests
-  431: Request Header Fields Too Large
-  451: Unavailable For Legal Reasons
-  500: Internal Server Error
-  501: Not Implemented
-  502: Bad Gateway
-  503: Service Unavailable
-  504: Gateway Timeout
-  505: HTTP Version Not Supported
-  511: Network Authentication Required
+    FILES_REQUIRED:
+      help: At least one configuration file must be given
+      bit: 13
 
-wp_actions:
-  START: Client requests to start a process
-  INPUT: Client sent some input to the process
-  CANCELED: Client canceled the process
+    OVERRIDES:
+      help: |
+        Include the --override switch for overriding arbitrary configuration
+        sections
 
-wp_updates:
-  STARTED: Process has been started
-  FAILED_TO_START: Process could not be started
-  FINISHED: Process finished gracefully
-  CRASHED: Process finished by crashing
-  CANCELED: Process finished by cancelation
-  OUTPUT: Process created some output
+        This is useful for supplying arbitrary parameters on the command line
+        without having to store them in a file.
+
+        \note
+          Parameters supplied in this way override the same parameters in any
+          given configuration file. If the same parameter is set directly on the
+          command line multiple times, then the rightmost value is used.
+      bit: 14
+
+    VARIABLES:
+      help: Include the --var switch for setting variables
+      bit: 15
+
+    BRANCH_ALL:
+      help: Combination of all branch flags
+      combine:
+        - BRANCH_NAME
+        - BRANCH_DESCRIPTION
+        - BRANCH_NETWORK
+        - BRANCH_PASSWORD
+        - BRANCH_PATH
+        - BRANCH_ADV_IFS
+        - BRANCH_ADV_ADDR
+        - BRANCH_ADV_PORT
+        - BRANCH_ADV_INT
+        - BRANCH_TIMEOUT
+        - BRANCH_GHOST_MODE
+
+    ALL:
+      help: |
+        Combination of all flags
+
+        This is usually used with the application object.
+      combine:
+        - LOGGING
+        - BRANCH_ALL
+        - FILES
+        - FILES_REQUIRED
+        - OVERRIDES
+        - VARIABLES
+
+  branch_events:
+    NONE:
+      help: No event (passed to event handler function if wait operation failed)
+      bit: null
+
+    BRANCH_DISCOVERED:
+      help: |
+        A new branch has been discovered
+
+        A remote branch is considered to be a _new branch_ if it is neither already
+        connected nor in the process of being connected to. This means if we
+        discover a branch and connect to it but connecting to it fails and the
+        remote branch itself has not connected to us, then the next time an
+        we receive an advertisement message we consider the branch new again.
+
+        Associated event information:
+
+        \code
+          {
+            "uuid":               "123e4567-e89b-12d3-a456-426655440000",
+            "tcp_server_address": "fe80::f086:b106:2c1b:c45",
+            "tcp_server_port":    43384
+          }
+        \endcode
+      bit: 0
+
+    BRANCH_QUERIED:
+      help: |
+        Querying a new branch for information finished (successfully or not)
+
+        Associated event information:
+
+        \code
+          {
+            "uuid":                 "123e4567-e89b-12d3-a456-426655440000",
+            "name":                 "Pump Safety Logic",
+            "description":          "Monitors the pump for safety",
+            "network_name":         "Hardware Control",
+            "path":                 "/Cooling System/Pump/Safety",
+            "hostname":             "beaglebone",
+            "pid":                  3321,
+            "tcp_server_address":   "fe80::f086:b106:2c1b:c45",
+            "tcp_server_port":      43384,
+            "start_time":           "2018-04-23T18:25:43.511Z",
+            "timeout":              3.0,
+            "advertising_interval": 1.0,
+            "ghost_mode":           false
+          }
+        \endcode
+      bit: 1
+
+    CONNECT_FINISHED:
+      help: |
+        Connecting to a branch finished (successfully or not)
+
+        Associated event information:
+
+        \code
+          {
+            "uuid": "123e4567-e89b-12d3-a456-426655440000"
+          }
+        \endcode
+      bit: 2
+
+    CONNECTION_LOST:
+      help: |
+        The connection to a branch was lost
+
+        Associated event information:
+
+        \code
+          {
+            "uuid": "123e4567-e89b-12d3-a456-426655440000"
+          }
+        \endcode
+      bit: 3
+
+    ALL:
+      help: All branch events
+      combine:
+        - BRANCH_DISCOVERED
+        - BRANCH_QUERIED
+        - CONNECT_FINISHED
+        - CONNECTION_LOST
+
+  http_methods:
+    NONE:
+      help: No methods
+      bit: null
+
+    GET:
+      help: GET method for retrieving data
+      bit: 0
+
+    HEAD:
+      help: |
+        HEAD method for retrieving the same header as with the GET request but
+        without the response body
+      bit: 1
+
+    POST:
+      help: POST method for submitting data
+      bit: 2
+
+    PUT:
+      help: PUT method for modifying data
+      bit: 3
+
+    DELETE:
+      help: DELETE method for deleting data
+      bit: 4
+
+    PATCH:
+      help: PATCH method for partially modifying data
+      bit: 5
 
 functions:
   YOGI_GetVersion:

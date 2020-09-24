@@ -35,9 +35,11 @@ class TextBasedLogSink {
   TextBasedLogSink(const char* timefmt, const char* fmt, bool use_color)
       : time_fmt_{timefmt ? timefmt : constants::kDefaultTimeFormat},
         fmt_{fmt ? fmt : constants::kDefaultLogFormat},
-        use_color_{use_color} {}
+        use_color_{use_color} {
+  }
 
-  virtual ~TextBasedLogSink() {}
+  virtual ~TextBasedLogSink() {
+  }
 
   void publish(int severity, Timestamp timestamp, int tid, const char* file, int line, const std::string& component,
                const char* msg) {
@@ -101,9 +103,16 @@ class TextBasedLogSink {
 
  protected:
   virtual void write_partial_output(const std::string& str) = 0;
-  virtual void set_output_colors(int verbosity) { YOGI_UNUSED(verbosity); }
-  virtual void reset_output_colors() {}
-  virtual void flush() {}
+
+  virtual void set_output_colors(int verbosity) {
+    YOGI_UNUSED(verbosity);
+  }
+
+  virtual void reset_output_colors() {
+  }
+
+  virtual void flush() {
+  }
 
  private:
   static const char* severity_to_string(int severity) {

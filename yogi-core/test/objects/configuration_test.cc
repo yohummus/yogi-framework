@@ -27,7 +27,9 @@ namespace fs = boost::filesystem;
 
 class ConfigurationTest : public TestFixture {
  protected:
-  virtual void SetUp() override { cfg_ = make_configuration(YOGI_CFG_NONE); }
+  virtual void SetUp() override {
+    cfg_ = make_configuration(YOGI_CFG_NONE);
+  }
 
   void* make_configuration(int flags, const char* json = R"({"person": {"name": "Joe", "age": 42}})") {
     void* cfg = nullptr;

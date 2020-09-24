@@ -19,11 +19,11 @@
 //!
 //! @{
 
-#define YOGI_HDR_VERSION "{{ core_api.version.major }}.{{ core_api.version.minor }}.{{ core_api.version.patch }}{{ core_api.version.suffix }}"  ///< Whole version string
-#define YOGI_HDR_VERSION_MAJOR {{ core_api.version.major }}  ///< Major version number
-#define YOGI_HDR_VERSION_MINOR {{ core_api.version.minor }}  ///< Minor version number
-#define YOGI_HDR_VERSION_PATCH {{ core_api.version.patch }}  ///< Patch version number
-#define YOGI_HDR_VERSION_SUFFIX "{{ core_api.version.suffix }}"  ///< Version suffix (e.g. "-beta")
+#define YOGI_HDR_VERSION "{{ VERSION }}"  ///< Whole version string
+#define YOGI_HDR_VERSION_MAJOR {{ VERSION_MAJOR }}  ///< Major version number
+#define YOGI_HDR_VERSION_MINOR {{ VERSION_MINOR }}  ///< Minor version number
+#define YOGI_HDR_VERSION_PATCH {{ VERSION_PATCH }}  ///< Patch version number
+#define YOGI_HDR_VERSION_SUFFIX "{{ VERSION_SUFFIX }}"  ///< Version suffix (e.g. "-beta")
 
 //! @}
 //!
@@ -51,7 +51,7 @@
 //!
 //! @{
 
-{% for name, help in core_api.error_codes.items() %}
+{% for name, help in core_api.enums.error_code.items() %}
 //! {{ help }}
 #define YOGI_{{ '' if loop.first else 'ERR_' }}{{ name }} {{ -loop.index0 }}
 {% endfor %}
@@ -64,7 +64,7 @@
 //!
 //! @{
 
-{% for name, help in core_api.verbosity.items() -%}
+{% for name, help in core_api.enums.verbosity.items() -%}
 #define YOGI_VB_{{ name }} {{ loop.index0 - 1 }}   ///< {{ help }}
 {% endfor %}
 
@@ -87,7 +87,7 @@
 //!
 //! @{
 
-{% for name, help in core_api.streams.items() -%}
+{% for name, help in core_api.enums.stream.items() -%}
 #define YOGI_ST_{{ name }} {{ loop.index0  }}   ///< {{ help }}
 {% endfor %}
 
@@ -101,7 +101,7 @@
 //!
 //! @{
 
-{% for name, help in core_api.schemas.items() %}
+{% for name, help in core_api.enums.schema.items() %}
 //! {{ help }}
 #define YOGI_SCM_{{ name }} {{ loop.index0 }}
 {% endfor %}
@@ -119,7 +119,7 @@
 //!
 //! @{
 
-{% for name, props in core_api.signals.items() %}
+{% for name, props in core_api.flags.signals.items() %}
   {%- if 'bit' in props -%}
     #define YOGI_SIG_{{ name }} {{ props.bit | to_bit }}  ///< {{ props.help }}
   {%- else %}
@@ -136,7 +136,7 @@
 //!
 //! @{
 
-{% for name, props in core_api.cfg_flags.items() %}
+{% for name, props in core_api.flags.configuration_flags.items() %}
 {{ props.help | prefix_lines('//! ') }}
 #define YOGI_CFG_{{ name }} {{ props.bit | to_bit }}
 {% endfor %}
@@ -149,7 +149,7 @@
 //!
 //! @{
 
-{% for name, props in core_api.clo_flags.items() %}
+{% for name, props in core_api.flags.command_line_options.items() %}
   {{ props.help | prefix_lines('//! ') }}
   {% if 'bit' in props -%}
     #define YOGI_CLO_{{ name }} {{ props.bit | to_bit }}
@@ -166,7 +166,7 @@
 //!
 //! @{
 
-{% for name, props in core_api.branch_events.items() %}
+{% for name, props in core_api.flags.branch_events.items() %}
   {{ props.help | prefix_lines('//! ') }}
   {% if 'bit' in props -%}
     #define YOGI_BEV_{{ name }} {{ props.bit | to_bit }}
@@ -183,7 +183,7 @@
 //!
 //! @{
 
-{% for name, help in core_api.encoding_types.items() -%}
+{% for name, help in core_api.enums.encoding.items() -%}
 #define YOGI_ENC_{{ name }} {{ loop.index0  }}   ///< {{ help }}
 {% endfor %}
 
@@ -195,7 +195,7 @@
 //!
 //! @{
 
-{% for name, props in core_api.http_methods.items() %}
+{% for name, props in core_api.flags.http_methods.items() %}
   {{ props.help | prefix_lines('//! ') }}
   {% if 'bit' in props -%}
     #define YOGI_MET_{{ name }} {{ props.bit | to_bit }}
@@ -212,7 +212,7 @@
 //!
 //! @{
 
-{% for code, help in core_api.http_codes.items() -%}
+{% for code, help in core_api.enums.http_status.items() -%}
 #define YOGI_HTTP_{{ code }} {{ code }}   ///< {{ help }}
 {% endfor %}
 
@@ -224,7 +224,7 @@
 //!
 //! @{
 
-{% for name, help in core_api.wp_actions.items() -%}
+{% for name, help in core_api.enums.web_process_action.items() -%}
 #define YOGI_WPA_{{ name }} {{ loop.index0  }}   ///< {{ help }}
 {% endfor %}
 
@@ -236,7 +236,7 @@
 //!
 //! @{
 
-{% for name, help in core_api.wp_updates.items() -%}
+{% for name, help in core_api.enums.web_process_update.items() -%}
 #define YOGI_WPU_{{ name }} {{ loop.index0  }}   ///< {{ help }}
 {% endfor %}
 
@@ -270,7 +270,7 @@ extern "C" {
  *
  * \returns Library version
  */
-{{ core_api.functions | to_function_declaration('YOGI_GetVersion') }}
+{{ core_api.functions | to_fn_declaration('YOGI_GetVersion') }}
 
 /*!
  * Checks if the bindings for Yogi used in a program are compatible with the
@@ -300,7 +300,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] if versions are not compatible
  */
- {{ core_api.functions | to_function_declaration('YOGI_CheckBindingsCompatibility') }}
+ {{ core_api.functions | to_fn_declaration('YOGI_CheckBindingsCompatibility') }}
 
 /*!
  * Get a description of an error code.
@@ -313,7 +313,7 @@ extern "C" {
  *
  * \returns Description of the error code
  */
- {{ core_api.functions | to_function_declaration('YOGI_GetErrorString') }}
+ {{ core_api.functions | to_fn_declaration('YOGI_GetErrorString') }}
 
 /*!
  * Get error details of the result of this thread's last library call.
@@ -331,7 +331,7 @@ extern "C" {
  *
  * \returns Description of the result of this thread's last library call
  */
- {{ core_api.functions | to_function_declaration('YOGI_GetLastErrorDetails') }}
+ {{ core_api.functions | to_fn_declaration('YOGI_GetLastErrorDetails') }}
 
 /*!
  * Get the value of a constant (see \ref CV).
@@ -350,7 +350,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
- {{ core_api.functions | to_function_declaration('YOGI_GetConstant') }}
+ {{ core_api.functions | to_fn_declaration('YOGI_GetConstant') }}
 
 /*!
  * Returns a built-in JSON Schema (see \ref SCM).
@@ -366,7 +366,7 @@ extern "C" {
  *
  * \returns The schema as serialized JSON string
  */
- {{ core_api.functions | to_function_declaration('YOGI_GetSchema') }}
+ {{ core_api.functions | to_fn_declaration('YOGI_GetSchema') }}
 
 /*!
  * Get the current time.
@@ -376,7 +376,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
- {{ core_api.functions | to_function_declaration('YOGI_GetCurrentTime') }}
+ {{ core_api.functions | to_fn_declaration('YOGI_GetCurrentTime') }}
 
 /*!
  * Converts a timestamp into a string.
@@ -409,7 +409,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
- {{ core_api.functions | to_function_declaration('YOGI_FormatTime') }}
+ {{ core_api.functions | to_fn_declaration('YOGI_FormatTime') }}
 
 /*!
  * Converts a string into a timestamp.
@@ -434,7 +434,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_ParseTime') }}
+{{ core_api.functions | to_fn_declaration('YOGI_ParseTime') }}
 
 /*!
  * Converts a duration into a string.
@@ -475,7 +475,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_FormatDuration') }}
+{{ core_api.functions | to_fn_declaration('YOGI_FormatDuration') }}
 
 /*!
  * Creates a string describing an object.
@@ -511,7 +511,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_FormatObject') }}
+{{ core_api.functions | to_fn_declaration('YOGI_FormatObject') }}
 
 /*!
  * Configures logging to the console.
@@ -555,7 +555,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_ConfigureConsoleLogging') }}
+{{ core_api.functions | to_fn_declaration('YOGI_ConfigureConsoleLogging') }}
 
 /*!
  * Configures logging to a user-defined function.
@@ -593,7 +593,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_ConfigureHookLogging') }}
+{{ core_api.functions | to_fn_declaration('YOGI_ConfigureHookLogging') }}
 
 /*!
  * Configures logging to a file.
@@ -632,7 +632,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_ConfigureFileLogging') }}
+{{ core_api.functions | to_fn_declaration('YOGI_ConfigureFileLogging') }}
 
 /*!
  * Creates a logger.
@@ -650,7 +650,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_LoggerCreate') }}
+{{ core_api.functions | to_fn_declaration('YOGI_LoggerCreate') }}
 
 /*!
  * Gets the verbosity of a particular logger.
@@ -670,7 +670,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_LoggerGetVerbosity') }}
+{{ core_api.functions | to_fn_declaration('YOGI_LoggerGetVerbosity') }}
 
 /*!
  * Sets the verbosity of a particular logger.
@@ -689,7 +689,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_LoggerSetVerbosity') }}
+{{ core_api.functions | to_fn_declaration('YOGI_LoggerSetVerbosity') }}
 
 /*!
  * Sets the verbosity of all loggers matching a given component tag.
@@ -705,7 +705,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_LoggerSetComponentsVerbosity') }}
+{{ core_api.functions | to_fn_declaration('YOGI_LoggerSetComponentsVerbosity') }}
 
 /*!
  * Creates a log entry.
@@ -723,7 +723,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_LoggerLog') }}
+{{ core_api.functions | to_fn_declaration('YOGI_LoggerLog') }}
 
 /*!
  * Creates a configuration.
@@ -743,7 +743,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_ConfigurationCreate') }}
+{{ core_api.functions | to_fn_declaration('YOGI_ConfigurationCreate') }}
 
 /*!
  * Updates a configuration from command line options.
@@ -762,7 +762,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_ConfigurationUpdateFromCommandLine') }}
+{{ core_api.functions | to_fn_declaration('YOGI_ConfigurationUpdateFromCommandLine') }}
 
 /*!
  * Updates a configuration from a JSON-formatted string.
@@ -776,7 +776,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_ConfigurationUpdateFromJson') }}
+{{ core_api.functions | to_fn_declaration('YOGI_ConfigurationUpdateFromJson') }}
 
 /*!
  * Updates a configuration from a JSON file.
@@ -790,7 +790,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_ConfigurationUpdateFromFile') }}
+{{ core_api.functions | to_fn_declaration('YOGI_ConfigurationUpdateFromFile') }}
 
 /*!
  * Dumps a configuration as a JSON-formatted string.
@@ -814,7 +814,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_ConfigurationDump') }}
+{{ core_api.functions | to_fn_declaration('YOGI_ConfigurationDump') }}
 
 /*!
  * Writes a configuration to a file in JSON format.
@@ -831,7 +831,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_ConfigurationWriteToFile') }}
+{{ core_api.functions | to_fn_declaration('YOGI_ConfigurationWriteToFile') }}
 
 /*!
  * Validates the configuration against a JSON Schema.
@@ -851,7 +851,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_ConfigurationValidate') }}
+{{ core_api.functions | to_fn_declaration('YOGI_ConfigurationValidate') }}
 
 /*!
  * Creates a context for the execution of asynchronous operations.
@@ -861,7 +861,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_ContextCreate') }}
+{{ core_api.functions | to_fn_declaration('YOGI_ContextCreate') }}
 
 /*!
  * Runs the context's event processing loop to execute ready handlers.
@@ -880,7 +880,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_ContextPoll') }}
+{{ core_api.functions | to_fn_declaration('YOGI_ContextPoll') }}
 
 /*!
  * Runs the context's event processing loop to execute at most one ready
@@ -899,7 +899,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_ContextPollOne') }}
+{{ core_api.functions | to_fn_declaration('YOGI_ContextPollOne') }}
 
 /*!
  * Runs the context's event processing loop for the specified duration.
@@ -919,7 +919,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_ContextRun') }}
+{{ core_api.functions | to_fn_declaration('YOGI_ContextRun') }}
 
 /*!
  * Runs the context's event processing loop for the specified duration to
@@ -941,7 +941,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_ContextRunOne') }}
+{{ core_api.functions | to_fn_declaration('YOGI_ContextRunOne') }}
 
 /*!
  * Starts an internal thread for running the context's event processing loop.
@@ -959,7 +959,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_ContextRunInBackground') }}
+{{ core_api.functions | to_fn_declaration('YOGI_ContextRunInBackground') }}
 
 /*!
  * Stops the context's event processing loop.
@@ -973,7 +973,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_ContextStop') }}
+{{ core_api.functions | to_fn_declaration('YOGI_ContextStop') }}
 
 /*!
  * Blocks until the context's event processing loop is being run or until the
@@ -995,7 +995,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_ContextWaitForRunning') }}
+{{ core_api.functions | to_fn_declaration('YOGI_ContextWaitForRunning') }}
 
 /*!
  * Blocks until no thread is running the context's event processing loop or
@@ -1017,7 +1017,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_ContextWaitForStopped') }}
+{{ core_api.functions | to_fn_declaration('YOGI_ContextWaitForStopped') }}
 
 /*!
  * Adds the given function to the context's event processing queue to be
@@ -1034,7 +1034,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_ContextPost') }}
+{{ core_api.functions | to_fn_declaration('YOGI_ContextPost') }}
 
 /*!
  * Raises a signal.
@@ -1063,7 +1063,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_RaiseSignal') }}
+{{ core_api.functions | to_fn_declaration('YOGI_RaiseSignal') }}
 
 /*!
  * Creates a new signal set.
@@ -1079,7 +1079,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_SignalSetCreate') }}
+{{ core_api.functions | to_fn_declaration('YOGI_SignalSetCreate') }}
 
 /*!
  * Waits for a signal to be raised.
@@ -1103,7 +1103,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_SignalSetAwaitSignalAsync') }}
+{{ core_api.functions | to_fn_declaration('YOGI_SignalSetAwaitSignalAsync') }}
 
 /*!
  * Cancels waiting for a signal.
@@ -1120,7 +1120,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_SignalSetCancelAwaitSignal') }}
+{{ core_api.functions | to_fn_declaration('YOGI_SignalSetCancelAwaitSignal') }}
 
 /*!
  * Creates a new timer.
@@ -1131,7 +1131,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_TimerCreate') }}
+{{ core_api.functions | to_fn_declaration('YOGI_TimerCreate') }}
 
 /*!
  * Starts the given timer.
@@ -1151,7 +1151,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_TimerStartAsync') }}
+{{ core_api.functions | to_fn_declaration('YOGI_TimerStartAsync') }}
 
 /*!
  * Cancels the given timer.
@@ -1169,7 +1169,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_TimerCancel') }}
+{{ core_api.functions | to_fn_declaration('YOGI_TimerCancel') }}
 
 /*!
  * Creates a new branch.
@@ -1264,7 +1264,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_BranchCreate') }}
+{{ core_api.functions | to_fn_declaration('YOGI_BranchCreate') }}
 
 /*!
  * Retrieves information about a local branch.
@@ -1308,7 +1308,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_BranchGetInfo') }}
+{{ core_api.functions | to_fn_declaration('YOGI_BranchGetInfo') }}
 
 /*!
  * Retrieves information about all connected remote branches.
@@ -1360,7 +1360,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_BranchGetConnectedBranches') }}
+{{ core_api.functions | to_fn_declaration('YOGI_BranchGetConnectedBranches') }}
 
 /*!
  * Wait for a branch event to occur.
@@ -1407,7 +1407,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_BranchAwaitEventAsync') }}
+{{ core_api.functions | to_fn_declaration('YOGI_BranchAwaitEventAsync') }}
 
 /*!
  * Cancels waiting for a branch event.
@@ -1424,7 +1424,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_BranchCancelAwaitEvent') }}
+{{ core_api.functions | to_fn_declaration('YOGI_BranchCancelAwaitEvent') }}
 
 /*!
  * Sends a broadcast message to all connected branches.
@@ -1463,7 +1463,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_BranchSendBroadcast') }}
+{{ core_api.functions | to_fn_declaration('YOGI_BranchSendBroadcast') }}
 
 /*!
  * Sends a broadcast message to all connected branches.
@@ -1512,7 +1512,7 @@ extern "C" {
  * \returns [>0] Operation ID if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_BranchSendBroadcastAsync') }}
+{{ core_api.functions | to_fn_declaration('YOGI_BranchSendBroadcastAsync') }}
 
 /*!
  * Cancels a send broadcast operation.
@@ -1533,7 +1533,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_BranchCancelSendBroadcast') }}
+{{ core_api.functions | to_fn_declaration('YOGI_BranchCancelSendBroadcast') }}
 
 /*!
  * Receives a broadcast message from any of the connected branches.
@@ -1584,7 +1584,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_BranchReceiveBroadcastAsync') }}
+{{ core_api.functions | to_fn_declaration('YOGI_BranchReceiveBroadcastAsync') }}
 
 /*!
  * Cancels receiving a broadcast message.
@@ -1602,7 +1602,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_BranchCancelReceiveBroadcast') }}
+{{ core_api.functions | to_fn_declaration('YOGI_BranchCancelReceiveBroadcast') }}
 
 /*!
  * Destroys an object.
@@ -1623,7 +1623,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_Destroy') }}
+{{ core_api.functions | to_fn_declaration('YOGI_Destroy') }}
 
 /*!
  * Destroys all objects.
@@ -1641,7 +1641,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_DestroyAll') }}
+{{ core_api.functions | to_fn_declaration('YOGI_DestroyAll') }}
 
 /*!
  * Creates a web server.
@@ -1928,7 +1928,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_WebServerCreate') }}
+{{ core_api.functions | to_fn_declaration('YOGI_WebServerCreate') }}
 
 /*!
  * Adds a worker thread to a web server.
@@ -1947,7 +1947,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_WebServerAddWorker') }}
+{{ core_api.functions | to_fn_declaration('YOGI_WebServerAddWorker') }}
 
 /*!
  * Creates a custom route.
@@ -1980,7 +1980,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_WebRouteCreate') }}
+{{ core_api.functions | to_fn_declaration('YOGI_WebRouteCreate') }}
 
 /*!
  * Responds to a custom route request.
@@ -2003,7 +2003,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_WebRouteRespond') }}
+{{ core_api.functions | to_fn_declaration('YOGI_WebRouteRespond') }}
 
 /*!
  * Creates a client-controllable web process.
@@ -2055,7 +2055,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_WebProcessCreate') }}
+{{ core_api.functions | to_fn_declaration('YOGI_WebProcessCreate') }}
 
 /*!
  * Sends output from a web process or a change in its state to the client.
@@ -2088,7 +2088,7 @@ extern "C" {
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-{{ core_api.functions | to_function_declaration('YOGI_WebProcessUpdate') }}
+{{ core_api.functions | to_fn_declaration('YOGI_WebProcessUpdate') }}
 
 //! @}
 

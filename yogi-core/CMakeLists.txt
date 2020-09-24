@@ -5,7 +5,7 @@ include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
 # Compiler and linker flags
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Include dependencies
@@ -82,7 +82,6 @@ set_target_properties(yogi-core PROPERTIES
 
 
 # ========== TESTS ==========
-
 set(test_files
     # :CODEGEN_BEGIN:
     test/common.cc

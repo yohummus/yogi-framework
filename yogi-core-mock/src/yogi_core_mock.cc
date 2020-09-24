@@ -19,7 +19,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <src/yogi_core_mock.h>
+#include <src/default_functions.h>
+#include <yogi_core_mock.h>
 
 #include <functional>
 #include <iostream>
@@ -31,13 +32,13 @@ std::mutex global_mock_mutex;
 // :CODEGEN_BEGIN:
 
 // Mock implementation for YOGI_GetVersion
-static std::function<decltype(YOGI_GetVersion)> mock_GetVersion_fn;
+static std::function<decltype(YOGI_GetVersion)> mock_GetVersion_fn = default_GetVersion;
 
 YOGI_API const char* YOGI_GetVersion() {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_GetVersion_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_GetVersion()" << std::endl;
-    return {};
+    return "";
   }
 
   return mock_GetVersion_fn();
@@ -49,13 +50,14 @@ YOGI_API void MOCK_GetVersion(decltype(YOGI_GetVersion) fn) {
 }
 
 // Mock implementation for YOGI_CheckBindingsCompatibility
-static std::function<decltype(YOGI_CheckBindingsCompatibility)> mock_CheckBindingsCompatibility_fn;
+static std::function<decltype(YOGI_CheckBindingsCompatibility)> mock_CheckBindingsCompatibility_fn =
+    default_CheckBindingsCompatibility;
 
 YOGI_API int YOGI_CheckBindingsCompatibility(const char* bindver) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_CheckBindingsCompatibility_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_CheckBindingsCompatibility()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_CheckBindingsCompatibility_fn(bindver);
@@ -67,13 +69,13 @@ YOGI_API void MOCK_CheckBindingsCompatibility(decltype(YOGI_CheckBindingsCompati
 }
 
 // Mock implementation for YOGI_GetErrorString
-static std::function<decltype(YOGI_GetErrorString)> mock_GetErrorString_fn;
+static std::function<decltype(YOGI_GetErrorString)> mock_GetErrorString_fn = {};
 
 YOGI_API const char* YOGI_GetErrorString(int err) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_GetErrorString_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_GetErrorString()" << std::endl;
-    return {};
+    return "";
   }
 
   return mock_GetErrorString_fn(err);
@@ -85,13 +87,13 @@ YOGI_API void MOCK_GetErrorString(decltype(YOGI_GetErrorString) fn) {
 }
 
 // Mock implementation for YOGI_GetLastErrorDetails
-static std::function<decltype(YOGI_GetLastErrorDetails)> mock_GetLastErrorDetails_fn;
+static std::function<decltype(YOGI_GetLastErrorDetails)> mock_GetLastErrorDetails_fn = {};
 
 YOGI_API const char* YOGI_GetLastErrorDetails() {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_GetLastErrorDetails_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_GetLastErrorDetails()" << std::endl;
-    return {};
+    return "";
   }
 
   return mock_GetLastErrorDetails_fn();
@@ -103,13 +105,13 @@ YOGI_API void MOCK_GetLastErrorDetails(decltype(YOGI_GetLastErrorDetails) fn) {
 }
 
 // Mock implementation for YOGI_GetConstant
-static std::function<decltype(YOGI_GetConstant)> mock_GetConstant_fn;
+static std::function<decltype(YOGI_GetConstant)> mock_GetConstant_fn = default_GetConstant;
 
 YOGI_API int YOGI_GetConstant(void* dest, int constant) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_GetConstant_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_GetConstant()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_GetConstant_fn(dest, constant);
@@ -121,13 +123,13 @@ YOGI_API void MOCK_GetConstant(decltype(YOGI_GetConstant) fn) {
 }
 
 // Mock implementation for YOGI_GetSchema
-static std::function<decltype(YOGI_GetSchema)> mock_GetSchema_fn;
+static std::function<decltype(YOGI_GetSchema)> mock_GetSchema_fn = {};
 
 YOGI_API const char* YOGI_GetSchema(int schema) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_GetSchema_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_GetSchema()" << std::endl;
-    return {};
+    return "";
   }
 
   return mock_GetSchema_fn(schema);
@@ -139,13 +141,13 @@ YOGI_API void MOCK_GetSchema(decltype(YOGI_GetSchema) fn) {
 }
 
 // Mock implementation for YOGI_GetCurrentTime
-static std::function<decltype(YOGI_GetCurrentTime)> mock_GetCurrentTime_fn;
+static std::function<decltype(YOGI_GetCurrentTime)> mock_GetCurrentTime_fn = {};
 
 YOGI_API int YOGI_GetCurrentTime(long long* timestamp) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_GetCurrentTime_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_GetCurrentTime()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_GetCurrentTime_fn(timestamp);
@@ -157,13 +159,13 @@ YOGI_API void MOCK_GetCurrentTime(decltype(YOGI_GetCurrentTime) fn) {
 }
 
 // Mock implementation for YOGI_FormatTime
-static std::function<decltype(YOGI_FormatTime)> mock_FormatTime_fn;
+static std::function<decltype(YOGI_FormatTime)> mock_FormatTime_fn = {};
 
 YOGI_API int YOGI_FormatTime(long long timestamp, const char** str, int* strsize, const char* timefmt) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_FormatTime_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_FormatTime()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_FormatTime_fn(timestamp, str, strsize, timefmt);
@@ -175,13 +177,13 @@ YOGI_API void MOCK_FormatTime(decltype(YOGI_FormatTime) fn) {
 }
 
 // Mock implementation for YOGI_ParseTime
-static std::function<decltype(YOGI_ParseTime)> mock_ParseTime_fn;
+static std::function<decltype(YOGI_ParseTime)> mock_ParseTime_fn = {};
 
 YOGI_API int YOGI_ParseTime(long long* timestamp, const char* str, const char* timefmt) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_ParseTime_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_ParseTime()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_ParseTime_fn(timestamp, str, timefmt);
@@ -193,14 +195,14 @@ YOGI_API void MOCK_ParseTime(decltype(YOGI_ParseTime) fn) {
 }
 
 // Mock implementation for YOGI_FormatDuration
-static std::function<decltype(YOGI_FormatDuration)> mock_FormatDuration_fn;
+static std::function<decltype(YOGI_FormatDuration)> mock_FormatDuration_fn = {};
 
 YOGI_API int YOGI_FormatDuration(long long dur, int neg, const char** str, int* strsize, const char* durfmt,
                                  const char* inffmt) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_FormatDuration_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_FormatDuration()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_FormatDuration_fn(dur, neg, str, strsize, durfmt, inffmt);
@@ -212,13 +214,13 @@ YOGI_API void MOCK_FormatDuration(decltype(YOGI_FormatDuration) fn) {
 }
 
 // Mock implementation for YOGI_FormatObject
-static std::function<decltype(YOGI_FormatObject)> mock_FormatObject_fn;
+static std::function<decltype(YOGI_FormatObject)> mock_FormatObject_fn = {};
 
 YOGI_API int YOGI_FormatObject(void* obj, const char** str, int* strsize, const char* objfmt, const char* nullstr) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_FormatObject_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_FormatObject()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_FormatObject_fn(obj, str, strsize, objfmt, nullstr);
@@ -230,13 +232,13 @@ YOGI_API void MOCK_FormatObject(decltype(YOGI_FormatObject) fn) {
 }
 
 // Mock implementation for YOGI_ConfigureConsoleLogging
-static std::function<decltype(YOGI_ConfigureConsoleLogging)> mock_ConfigureConsoleLogging_fn;
+static std::function<decltype(YOGI_ConfigureConsoleLogging)> mock_ConfigureConsoleLogging_fn = {};
 
 YOGI_API int YOGI_ConfigureConsoleLogging(int verbosity, int stream, int color, const char* timefmt, const char* fmt) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_ConfigureConsoleLogging_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_ConfigureConsoleLogging()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_ConfigureConsoleLogging_fn(verbosity, stream, color, timefmt, fmt);
@@ -248,7 +250,7 @@ YOGI_API void MOCK_ConfigureConsoleLogging(decltype(YOGI_ConfigureConsoleLogging
 }
 
 // Mock implementation for YOGI_ConfigureHookLogging
-static std::function<decltype(YOGI_ConfigureHookLogging)> mock_ConfigureHookLogging_fn;
+static std::function<decltype(YOGI_ConfigureHookLogging)> mock_ConfigureHookLogging_fn = {};
 
 YOGI_API int YOGI_ConfigureHookLogging(int verbosity,
                                        void (*fn)(int severity, long long timestamp, int tid, const char* file,
@@ -257,7 +259,7 @@ YOGI_API int YOGI_ConfigureHookLogging(int verbosity,
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_ConfigureHookLogging_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_ConfigureHookLogging()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_ConfigureHookLogging_fn(verbosity, fn, userarg);
@@ -269,14 +271,14 @@ YOGI_API void MOCK_ConfigureHookLogging(decltype(YOGI_ConfigureHookLogging) fn) 
 }
 
 // Mock implementation for YOGI_ConfigureFileLogging
-static std::function<decltype(YOGI_ConfigureFileLogging)> mock_ConfigureFileLogging_fn;
+static std::function<decltype(YOGI_ConfigureFileLogging)> mock_ConfigureFileLogging_fn = {};
 
 YOGI_API int YOGI_ConfigureFileLogging(int verbosity, const char* filename, const char** genfn, int* genfnsize,
                                        const char* timefmt, const char* fmt) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_ConfigureFileLogging_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_ConfigureFileLogging()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_ConfigureFileLogging_fn(verbosity, filename, genfn, genfnsize, timefmt, fmt);
@@ -288,13 +290,13 @@ YOGI_API void MOCK_ConfigureFileLogging(decltype(YOGI_ConfigureFileLogging) fn) 
 }
 
 // Mock implementation for YOGI_LoggerCreate
-static std::function<decltype(YOGI_LoggerCreate)> mock_LoggerCreate_fn;
+static std::function<decltype(YOGI_LoggerCreate)> mock_LoggerCreate_fn = {};
 
 YOGI_API int YOGI_LoggerCreate(void** logger, const char* component) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_LoggerCreate_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_LoggerCreate()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_LoggerCreate_fn(logger, component);
@@ -306,13 +308,13 @@ YOGI_API void MOCK_LoggerCreate(decltype(YOGI_LoggerCreate) fn) {
 }
 
 // Mock implementation for YOGI_LoggerGetVerbosity
-static std::function<decltype(YOGI_LoggerGetVerbosity)> mock_LoggerGetVerbosity_fn;
+static std::function<decltype(YOGI_LoggerGetVerbosity)> mock_LoggerGetVerbosity_fn = {};
 
 YOGI_API int YOGI_LoggerGetVerbosity(void* logger, int* verbosity) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_LoggerGetVerbosity_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_LoggerGetVerbosity()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_LoggerGetVerbosity_fn(logger, verbosity);
@@ -324,13 +326,13 @@ YOGI_API void MOCK_LoggerGetVerbosity(decltype(YOGI_LoggerGetVerbosity) fn) {
 }
 
 // Mock implementation for YOGI_LoggerSetVerbosity
-static std::function<decltype(YOGI_LoggerSetVerbosity)> mock_LoggerSetVerbosity_fn;
+static std::function<decltype(YOGI_LoggerSetVerbosity)> mock_LoggerSetVerbosity_fn = {};
 
 YOGI_API int YOGI_LoggerSetVerbosity(void* logger, int verbosity) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_LoggerSetVerbosity_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_LoggerSetVerbosity()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_LoggerSetVerbosity_fn(logger, verbosity);
@@ -342,13 +344,13 @@ YOGI_API void MOCK_LoggerSetVerbosity(decltype(YOGI_LoggerSetVerbosity) fn) {
 }
 
 // Mock implementation for YOGI_LoggerSetComponentsVerbosity
-static std::function<decltype(YOGI_LoggerSetComponentsVerbosity)> mock_LoggerSetComponentsVerbosity_fn;
+static std::function<decltype(YOGI_LoggerSetComponentsVerbosity)> mock_LoggerSetComponentsVerbosity_fn = {};
 
 YOGI_API int YOGI_LoggerSetComponentsVerbosity(const char* components, int verbosity, int* count) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_LoggerSetComponentsVerbosity_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_LoggerSetComponentsVerbosity()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_LoggerSetComponentsVerbosity_fn(components, verbosity, count);
@@ -360,13 +362,13 @@ YOGI_API void MOCK_LoggerSetComponentsVerbosity(decltype(YOGI_LoggerSetComponent
 }
 
 // Mock implementation for YOGI_LoggerLog
-static std::function<decltype(YOGI_LoggerLog)> mock_LoggerLog_fn;
+static std::function<decltype(YOGI_LoggerLog)> mock_LoggerLog_fn = {};
 
 YOGI_API int YOGI_LoggerLog(void* logger, int severity, const char* file, int line, const char* msg) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_LoggerLog_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_LoggerLog()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_LoggerLog_fn(logger, severity, file, line, msg);
@@ -378,13 +380,13 @@ YOGI_API void MOCK_LoggerLog(decltype(YOGI_LoggerLog) fn) {
 }
 
 // Mock implementation for YOGI_ConfigurationCreate
-static std::function<decltype(YOGI_ConfigurationCreate)> mock_ConfigurationCreate_fn;
+static std::function<decltype(YOGI_ConfigurationCreate)> mock_ConfigurationCreate_fn = {};
 
 YOGI_API int YOGI_ConfigurationCreate(void** config, int flags) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_ConfigurationCreate_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_ConfigurationCreate()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_ConfigurationCreate_fn(config, flags);
@@ -396,13 +398,13 @@ YOGI_API void MOCK_ConfigurationCreate(decltype(YOGI_ConfigurationCreate) fn) {
 }
 
 // Mock implementation for YOGI_ConfigurationUpdateFromCommandLine
-static std::function<decltype(YOGI_ConfigurationUpdateFromCommandLine)> mock_ConfigurationUpdateFromCommandLine_fn;
+static std::function<decltype(YOGI_ConfigurationUpdateFromCommandLine)> mock_ConfigurationUpdateFromCommandLine_fn = {};
 
 YOGI_API int YOGI_ConfigurationUpdateFromCommandLine(void* config, int argc, const char* const* argv, int options) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_ConfigurationUpdateFromCommandLine_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_ConfigurationUpdateFromCommandLine()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_ConfigurationUpdateFromCommandLine_fn(config, argc, argv, options);
@@ -414,13 +416,13 @@ YOGI_API void MOCK_ConfigurationUpdateFromCommandLine(decltype(YOGI_Configuratio
 }
 
 // Mock implementation for YOGI_ConfigurationUpdateFromJson
-static std::function<decltype(YOGI_ConfigurationUpdateFromJson)> mock_ConfigurationUpdateFromJson_fn;
+static std::function<decltype(YOGI_ConfigurationUpdateFromJson)> mock_ConfigurationUpdateFromJson_fn = {};
 
 YOGI_API int YOGI_ConfigurationUpdateFromJson(void* config, const char* json) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_ConfigurationUpdateFromJson_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_ConfigurationUpdateFromJson()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_ConfigurationUpdateFromJson_fn(config, json);
@@ -432,13 +434,13 @@ YOGI_API void MOCK_ConfigurationUpdateFromJson(decltype(YOGI_ConfigurationUpdate
 }
 
 // Mock implementation for YOGI_ConfigurationUpdateFromFile
-static std::function<decltype(YOGI_ConfigurationUpdateFromFile)> mock_ConfigurationUpdateFromFile_fn;
+static std::function<decltype(YOGI_ConfigurationUpdateFromFile)> mock_ConfigurationUpdateFromFile_fn = {};
 
 YOGI_API int YOGI_ConfigurationUpdateFromFile(void* config, const char* filename) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_ConfigurationUpdateFromFile_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_ConfigurationUpdateFromFile()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_ConfigurationUpdateFromFile_fn(config, filename);
@@ -450,13 +452,13 @@ YOGI_API void MOCK_ConfigurationUpdateFromFile(decltype(YOGI_ConfigurationUpdate
 }
 
 // Mock implementation for YOGI_ConfigurationDump
-static std::function<decltype(YOGI_ConfigurationDump)> mock_ConfigurationDump_fn;
+static std::function<decltype(YOGI_ConfigurationDump)> mock_ConfigurationDump_fn = {};
 
 YOGI_API int YOGI_ConfigurationDump(void* config, const char** json, int* jsonsize, int resvars, int indent) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_ConfigurationDump_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_ConfigurationDump()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_ConfigurationDump_fn(config, json, jsonsize, resvars, indent);
@@ -468,13 +470,13 @@ YOGI_API void MOCK_ConfigurationDump(decltype(YOGI_ConfigurationDump) fn) {
 }
 
 // Mock implementation for YOGI_ConfigurationWriteToFile
-static std::function<decltype(YOGI_ConfigurationWriteToFile)> mock_ConfigurationWriteToFile_fn;
+static std::function<decltype(YOGI_ConfigurationWriteToFile)> mock_ConfigurationWriteToFile_fn = {};
 
 YOGI_API int YOGI_ConfigurationWriteToFile(void* config, const char* filename, int resvars, int indent) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_ConfigurationWriteToFile_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_ConfigurationWriteToFile()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_ConfigurationWriteToFile_fn(config, filename, resvars, indent);
@@ -486,13 +488,13 @@ YOGI_API void MOCK_ConfigurationWriteToFile(decltype(YOGI_ConfigurationWriteToFi
 }
 
 // Mock implementation for YOGI_ConfigurationValidate
-static std::function<decltype(YOGI_ConfigurationValidate)> mock_ConfigurationValidate_fn;
+static std::function<decltype(YOGI_ConfigurationValidate)> mock_ConfigurationValidate_fn = {};
 
 YOGI_API int YOGI_ConfigurationValidate(void* config, const char* section, void* schema) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_ConfigurationValidate_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_ConfigurationValidate()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_ConfigurationValidate_fn(config, section, schema);
@@ -504,13 +506,13 @@ YOGI_API void MOCK_ConfigurationValidate(decltype(YOGI_ConfigurationValidate) fn
 }
 
 // Mock implementation for YOGI_ContextCreate
-static std::function<decltype(YOGI_ContextCreate)> mock_ContextCreate_fn;
+static std::function<decltype(YOGI_ContextCreate)> mock_ContextCreate_fn = {};
 
 YOGI_API int YOGI_ContextCreate(void** context) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_ContextCreate_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_ContextCreate()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_ContextCreate_fn(context);
@@ -522,13 +524,13 @@ YOGI_API void MOCK_ContextCreate(decltype(YOGI_ContextCreate) fn) {
 }
 
 // Mock implementation for YOGI_ContextPoll
-static std::function<decltype(YOGI_ContextPoll)> mock_ContextPoll_fn;
+static std::function<decltype(YOGI_ContextPoll)> mock_ContextPoll_fn = {};
 
 YOGI_API int YOGI_ContextPoll(void* context, int* count) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_ContextPoll_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_ContextPoll()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_ContextPoll_fn(context, count);
@@ -540,13 +542,13 @@ YOGI_API void MOCK_ContextPoll(decltype(YOGI_ContextPoll) fn) {
 }
 
 // Mock implementation for YOGI_ContextPollOne
-static std::function<decltype(YOGI_ContextPollOne)> mock_ContextPollOne_fn;
+static std::function<decltype(YOGI_ContextPollOne)> mock_ContextPollOne_fn = {};
 
 YOGI_API int YOGI_ContextPollOne(void* context, int* count) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_ContextPollOne_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_ContextPollOne()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_ContextPollOne_fn(context, count);
@@ -558,13 +560,13 @@ YOGI_API void MOCK_ContextPollOne(decltype(YOGI_ContextPollOne) fn) {
 }
 
 // Mock implementation for YOGI_ContextRun
-static std::function<decltype(YOGI_ContextRun)> mock_ContextRun_fn;
+static std::function<decltype(YOGI_ContextRun)> mock_ContextRun_fn = {};
 
 YOGI_API int YOGI_ContextRun(void* context, int* count, long long duration) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_ContextRun_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_ContextRun()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_ContextRun_fn(context, count, duration);
@@ -576,13 +578,13 @@ YOGI_API void MOCK_ContextRun(decltype(YOGI_ContextRun) fn) {
 }
 
 // Mock implementation for YOGI_ContextRunOne
-static std::function<decltype(YOGI_ContextRunOne)> mock_ContextRunOne_fn;
+static std::function<decltype(YOGI_ContextRunOne)> mock_ContextRunOne_fn = {};
 
 YOGI_API int YOGI_ContextRunOne(void* context, int* count, long long duration) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_ContextRunOne_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_ContextRunOne()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_ContextRunOne_fn(context, count, duration);
@@ -594,13 +596,13 @@ YOGI_API void MOCK_ContextRunOne(decltype(YOGI_ContextRunOne) fn) {
 }
 
 // Mock implementation for YOGI_ContextRunInBackground
-static std::function<decltype(YOGI_ContextRunInBackground)> mock_ContextRunInBackground_fn;
+static std::function<decltype(YOGI_ContextRunInBackground)> mock_ContextRunInBackground_fn = {};
 
 YOGI_API int YOGI_ContextRunInBackground(void* context) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_ContextRunInBackground_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_ContextRunInBackground()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_ContextRunInBackground_fn(context);
@@ -612,13 +614,13 @@ YOGI_API void MOCK_ContextRunInBackground(decltype(YOGI_ContextRunInBackground) 
 }
 
 // Mock implementation for YOGI_ContextStop
-static std::function<decltype(YOGI_ContextStop)> mock_ContextStop_fn;
+static std::function<decltype(YOGI_ContextStop)> mock_ContextStop_fn = {};
 
 YOGI_API int YOGI_ContextStop(void* context) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_ContextStop_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_ContextStop()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_ContextStop_fn(context);
@@ -630,13 +632,13 @@ YOGI_API void MOCK_ContextStop(decltype(YOGI_ContextStop) fn) {
 }
 
 // Mock implementation for YOGI_ContextWaitForRunning
-static std::function<decltype(YOGI_ContextWaitForRunning)> mock_ContextWaitForRunning_fn;
+static std::function<decltype(YOGI_ContextWaitForRunning)> mock_ContextWaitForRunning_fn = {};
 
 YOGI_API int YOGI_ContextWaitForRunning(void* context, long long duration) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_ContextWaitForRunning_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_ContextWaitForRunning()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_ContextWaitForRunning_fn(context, duration);
@@ -648,13 +650,13 @@ YOGI_API void MOCK_ContextWaitForRunning(decltype(YOGI_ContextWaitForRunning) fn
 }
 
 // Mock implementation for YOGI_ContextWaitForStopped
-static std::function<decltype(YOGI_ContextWaitForStopped)> mock_ContextWaitForStopped_fn;
+static std::function<decltype(YOGI_ContextWaitForStopped)> mock_ContextWaitForStopped_fn = {};
 
 YOGI_API int YOGI_ContextWaitForStopped(void* context, long long duration) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_ContextWaitForStopped_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_ContextWaitForStopped()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_ContextWaitForStopped_fn(context, duration);
@@ -666,13 +668,13 @@ YOGI_API void MOCK_ContextWaitForStopped(decltype(YOGI_ContextWaitForStopped) fn
 }
 
 // Mock implementation for YOGI_ContextPost
-static std::function<decltype(YOGI_ContextPost)> mock_ContextPost_fn;
+static std::function<decltype(YOGI_ContextPost)> mock_ContextPost_fn = {};
 
 YOGI_API int YOGI_ContextPost(void* context, void (*fn)(void* userarg), void* userarg) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_ContextPost_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_ContextPost()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_ContextPost_fn(context, fn, userarg);
@@ -684,13 +686,13 @@ YOGI_API void MOCK_ContextPost(decltype(YOGI_ContextPost) fn) {
 }
 
 // Mock implementation for YOGI_RaiseSignal
-static std::function<decltype(YOGI_RaiseSignal)> mock_RaiseSignal_fn;
+static std::function<decltype(YOGI_RaiseSignal)> mock_RaiseSignal_fn = {};
 
 YOGI_API int YOGI_RaiseSignal(int signal, void* sigarg, void (*fn)(void* sigarg, void* userarg), void* userarg) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_RaiseSignal_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_RaiseSignal()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_RaiseSignal_fn(signal, sigarg, fn, userarg);
@@ -702,13 +704,13 @@ YOGI_API void MOCK_RaiseSignal(decltype(YOGI_RaiseSignal) fn) {
 }
 
 // Mock implementation for YOGI_SignalSetCreate
-static std::function<decltype(YOGI_SignalSetCreate)> mock_SignalSetCreate_fn;
+static std::function<decltype(YOGI_SignalSetCreate)> mock_SignalSetCreate_fn = {};
 
 YOGI_API int YOGI_SignalSetCreate(void** sigset, void* context, int signals) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_SignalSetCreate_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_SignalSetCreate()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_SignalSetCreate_fn(sigset, context, signals);
@@ -720,14 +722,14 @@ YOGI_API void MOCK_SignalSetCreate(decltype(YOGI_SignalSetCreate) fn) {
 }
 
 // Mock implementation for YOGI_SignalSetAwaitSignalAsync
-static std::function<decltype(YOGI_SignalSetAwaitSignalAsync)> mock_SignalSetAwaitSignalAsync_fn;
+static std::function<decltype(YOGI_SignalSetAwaitSignalAsync)> mock_SignalSetAwaitSignalAsync_fn = {};
 
 YOGI_API int YOGI_SignalSetAwaitSignalAsync(void* sigset, void (*fn)(int res, int sig, void* sigarg, void* userarg),
                                             void* userarg) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_SignalSetAwaitSignalAsync_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_SignalSetAwaitSignalAsync()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_SignalSetAwaitSignalAsync_fn(sigset, fn, userarg);
@@ -739,13 +741,13 @@ YOGI_API void MOCK_SignalSetAwaitSignalAsync(decltype(YOGI_SignalSetAwaitSignalA
 }
 
 // Mock implementation for YOGI_SignalSetCancelAwaitSignal
-static std::function<decltype(YOGI_SignalSetCancelAwaitSignal)> mock_SignalSetCancelAwaitSignal_fn;
+static std::function<decltype(YOGI_SignalSetCancelAwaitSignal)> mock_SignalSetCancelAwaitSignal_fn = {};
 
 YOGI_API int YOGI_SignalSetCancelAwaitSignal(void* sigset) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_SignalSetCancelAwaitSignal_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_SignalSetCancelAwaitSignal()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_SignalSetCancelAwaitSignal_fn(sigset);
@@ -757,13 +759,13 @@ YOGI_API void MOCK_SignalSetCancelAwaitSignal(decltype(YOGI_SignalSetCancelAwait
 }
 
 // Mock implementation for YOGI_TimerCreate
-static std::function<decltype(YOGI_TimerCreate)> mock_TimerCreate_fn;
+static std::function<decltype(YOGI_TimerCreate)> mock_TimerCreate_fn = {};
 
 YOGI_API int YOGI_TimerCreate(void** timer, void* context) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_TimerCreate_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_TimerCreate()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_TimerCreate_fn(timer, context);
@@ -775,13 +777,13 @@ YOGI_API void MOCK_TimerCreate(decltype(YOGI_TimerCreate) fn) {
 }
 
 // Mock implementation for YOGI_TimerStartAsync
-static std::function<decltype(YOGI_TimerStartAsync)> mock_TimerStartAsync_fn;
+static std::function<decltype(YOGI_TimerStartAsync)> mock_TimerStartAsync_fn = {};
 
 YOGI_API int YOGI_TimerStartAsync(void* timer, long long duration, void (*fn)(int res, void* userarg), void* userarg) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_TimerStartAsync_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_TimerStartAsync()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_TimerStartAsync_fn(timer, duration, fn, userarg);
@@ -793,13 +795,13 @@ YOGI_API void MOCK_TimerStartAsync(decltype(YOGI_TimerStartAsync) fn) {
 }
 
 // Mock implementation for YOGI_TimerCancel
-static std::function<decltype(YOGI_TimerCancel)> mock_TimerCancel_fn;
+static std::function<decltype(YOGI_TimerCancel)> mock_TimerCancel_fn = {};
 
 YOGI_API int YOGI_TimerCancel(void* timer) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_TimerCancel_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_TimerCancel()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_TimerCancel_fn(timer);
@@ -811,13 +813,13 @@ YOGI_API void MOCK_TimerCancel(decltype(YOGI_TimerCancel) fn) {
 }
 
 // Mock implementation for YOGI_BranchCreate
-static std::function<decltype(YOGI_BranchCreate)> mock_BranchCreate_fn;
+static std::function<decltype(YOGI_BranchCreate)> mock_BranchCreate_fn = {};
 
 YOGI_API int YOGI_BranchCreate(void** branch, void* context, void* config, const char* section) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_BranchCreate_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_BranchCreate()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_BranchCreate_fn(branch, context, config, section);
@@ -829,13 +831,13 @@ YOGI_API void MOCK_BranchCreate(decltype(YOGI_BranchCreate) fn) {
 }
 
 // Mock implementation for YOGI_BranchGetInfo
-static std::function<decltype(YOGI_BranchGetInfo)> mock_BranchGetInfo_fn;
+static std::function<decltype(YOGI_BranchGetInfo)> mock_BranchGetInfo_fn = {};
 
 YOGI_API int YOGI_BranchGetInfo(void* branch, void* uuid, char* json, int jsonsize) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_BranchGetInfo_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_BranchGetInfo()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_BranchGetInfo_fn(branch, uuid, json, jsonsize);
@@ -847,14 +849,14 @@ YOGI_API void MOCK_BranchGetInfo(decltype(YOGI_BranchGetInfo) fn) {
 }
 
 // Mock implementation for YOGI_BranchGetConnectedBranches
-static std::function<decltype(YOGI_BranchGetConnectedBranches)> mock_BranchGetConnectedBranches_fn;
+static std::function<decltype(YOGI_BranchGetConnectedBranches)> mock_BranchGetConnectedBranches_fn = {};
 
 YOGI_API int YOGI_BranchGetConnectedBranches(void* branch, void* uuid, char* json, int jsonsize,
                                              void (*fn)(int res, void* userarg), void* userarg) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_BranchGetConnectedBranches_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_BranchGetConnectedBranches()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_BranchGetConnectedBranches_fn(branch, uuid, json, jsonsize, fn, userarg);
@@ -866,14 +868,14 @@ YOGI_API void MOCK_BranchGetConnectedBranches(decltype(YOGI_BranchGetConnectedBr
 }
 
 // Mock implementation for YOGI_BranchAwaitEventAsync
-static std::function<decltype(YOGI_BranchAwaitEventAsync)> mock_BranchAwaitEventAsync_fn;
+static std::function<decltype(YOGI_BranchAwaitEventAsync)> mock_BranchAwaitEventAsync_fn = {};
 
 YOGI_API int YOGI_BranchAwaitEventAsync(void* branch, int events, void* uuid, char* json, int jsonsize,
                                         void (*fn)(int res, int ev, int evres, void* userarg), void* userarg) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_BranchAwaitEventAsync_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_BranchAwaitEventAsync()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_BranchAwaitEventAsync_fn(branch, events, uuid, json, jsonsize, fn, userarg);
@@ -885,13 +887,13 @@ YOGI_API void MOCK_BranchAwaitEventAsync(decltype(YOGI_BranchAwaitEventAsync) fn
 }
 
 // Mock implementation for YOGI_BranchCancelAwaitEvent
-static std::function<decltype(YOGI_BranchCancelAwaitEvent)> mock_BranchCancelAwaitEvent_fn;
+static std::function<decltype(YOGI_BranchCancelAwaitEvent)> mock_BranchCancelAwaitEvent_fn = {};
 
 YOGI_API int YOGI_BranchCancelAwaitEvent(void* branch) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_BranchCancelAwaitEvent_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_BranchCancelAwaitEvent()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_BranchCancelAwaitEvent_fn(branch);
@@ -903,13 +905,13 @@ YOGI_API void MOCK_BranchCancelAwaitEvent(decltype(YOGI_BranchCancelAwaitEvent) 
 }
 
 // Mock implementation for YOGI_BranchSendBroadcast
-static std::function<decltype(YOGI_BranchSendBroadcast)> mock_BranchSendBroadcast_fn;
+static std::function<decltype(YOGI_BranchSendBroadcast)> mock_BranchSendBroadcast_fn = {};
 
 YOGI_API int YOGI_BranchSendBroadcast(void* branch, int enc, const void* data, int datasize, int block) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_BranchSendBroadcast_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_BranchSendBroadcast()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_BranchSendBroadcast_fn(branch, enc, data, datasize, block);
@@ -921,14 +923,14 @@ YOGI_API void MOCK_BranchSendBroadcast(decltype(YOGI_BranchSendBroadcast) fn) {
 }
 
 // Mock implementation for YOGI_BranchSendBroadcastAsync
-static std::function<decltype(YOGI_BranchSendBroadcastAsync)> mock_BranchSendBroadcastAsync_fn;
+static std::function<decltype(YOGI_BranchSendBroadcastAsync)> mock_BranchSendBroadcastAsync_fn = {};
 
 YOGI_API int YOGI_BranchSendBroadcastAsync(void* branch, int enc, const void* data, int datasize, int retry,
                                            void (*fn)(int res, int oid, void* userarg), void* userarg) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_BranchSendBroadcastAsync_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_BranchSendBroadcastAsync()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_BranchSendBroadcastAsync_fn(branch, enc, data, datasize, retry, fn, userarg);
@@ -940,13 +942,13 @@ YOGI_API void MOCK_BranchSendBroadcastAsync(decltype(YOGI_BranchSendBroadcastAsy
 }
 
 // Mock implementation for YOGI_BranchCancelSendBroadcast
-static std::function<decltype(YOGI_BranchCancelSendBroadcast)> mock_BranchCancelSendBroadcast_fn;
+static std::function<decltype(YOGI_BranchCancelSendBroadcast)> mock_BranchCancelSendBroadcast_fn = {};
 
 YOGI_API int YOGI_BranchCancelSendBroadcast(void* branch, int oid) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_BranchCancelSendBroadcast_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_BranchCancelSendBroadcast()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_BranchCancelSendBroadcast_fn(branch, oid);
@@ -958,14 +960,14 @@ YOGI_API void MOCK_BranchCancelSendBroadcast(decltype(YOGI_BranchCancelSendBroad
 }
 
 // Mock implementation for YOGI_BranchReceiveBroadcastAsync
-static std::function<decltype(YOGI_BranchReceiveBroadcastAsync)> mock_BranchReceiveBroadcastAsync_fn;
+static std::function<decltype(YOGI_BranchReceiveBroadcastAsync)> mock_BranchReceiveBroadcastAsync_fn = {};
 
 YOGI_API int YOGI_BranchReceiveBroadcastAsync(void* branch, void* uuid, int enc, void* data, int datasize,
                                               void (*fn)(int res, int size, void* userarg), void* userarg) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_BranchReceiveBroadcastAsync_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_BranchReceiveBroadcastAsync()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_BranchReceiveBroadcastAsync_fn(branch, uuid, enc, data, datasize, fn, userarg);
@@ -977,13 +979,13 @@ YOGI_API void MOCK_BranchReceiveBroadcastAsync(decltype(YOGI_BranchReceiveBroadc
 }
 
 // Mock implementation for YOGI_BranchCancelReceiveBroadcast
-static std::function<decltype(YOGI_BranchCancelReceiveBroadcast)> mock_BranchCancelReceiveBroadcast_fn;
+static std::function<decltype(YOGI_BranchCancelReceiveBroadcast)> mock_BranchCancelReceiveBroadcast_fn = {};
 
 YOGI_API int YOGI_BranchCancelReceiveBroadcast(void* branch) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_BranchCancelReceiveBroadcast_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_BranchCancelReceiveBroadcast()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_BranchCancelReceiveBroadcast_fn(branch);
@@ -995,13 +997,13 @@ YOGI_API void MOCK_BranchCancelReceiveBroadcast(decltype(YOGI_BranchCancelReceiv
 }
 
 // Mock implementation for YOGI_Destroy
-static std::function<decltype(YOGI_Destroy)> mock_Destroy_fn;
+static std::function<decltype(YOGI_Destroy)> mock_Destroy_fn = {};
 
 YOGI_API int YOGI_Destroy(void* obj) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_Destroy_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_Destroy()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_Destroy_fn(obj);
@@ -1013,13 +1015,13 @@ YOGI_API void MOCK_Destroy(decltype(YOGI_Destroy) fn) {
 }
 
 // Mock implementation for YOGI_DestroyAll
-static std::function<decltype(YOGI_DestroyAll)> mock_DestroyAll_fn;
+static std::function<decltype(YOGI_DestroyAll)> mock_DestroyAll_fn = {};
 
 YOGI_API int YOGI_DestroyAll() {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_DestroyAll_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_DestroyAll()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_DestroyAll_fn();
@@ -1031,13 +1033,13 @@ YOGI_API void MOCK_DestroyAll(decltype(YOGI_DestroyAll) fn) {
 }
 
 // Mock implementation for YOGI_WebServerCreate
-static std::function<decltype(YOGI_WebServerCreate)> mock_WebServerCreate_fn;
+static std::function<decltype(YOGI_WebServerCreate)> mock_WebServerCreate_fn = {};
 
 YOGI_API int YOGI_WebServerCreate(void** server, void* context, void* branch, void* config, const char* section) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_WebServerCreate_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_WebServerCreate()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_WebServerCreate_fn(server, context, branch, config, section);
@@ -1049,13 +1051,13 @@ YOGI_API void MOCK_WebServerCreate(decltype(YOGI_WebServerCreate) fn) {
 }
 
 // Mock implementation for YOGI_WebServerAddWorker
-static std::function<decltype(YOGI_WebServerAddWorker)> mock_WebServerAddWorker_fn;
+static std::function<decltype(YOGI_WebServerAddWorker)> mock_WebServerAddWorker_fn = {};
 
 YOGI_API int YOGI_WebServerAddWorker(void* server, void* context) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_WebServerAddWorker_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_WebServerAddWorker()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_WebServerAddWorker_fn(server, context);
@@ -1067,7 +1069,7 @@ YOGI_API void MOCK_WebServerAddWorker(decltype(YOGI_WebServerAddWorker) fn) {
 }
 
 // Mock implementation for YOGI_WebRouteCreate
-static std::function<decltype(YOGI_WebRouteCreate)> mock_WebRouteCreate_fn;
+static std::function<decltype(YOGI_WebRouteCreate)> mock_WebRouteCreate_fn = {};
 
 YOGI_API int YOGI_WebRouteCreate(void** route, void* server, const char* baseuri,
                                  void (*fn)(int res, int rid, const char* user, const char* owner, int method,
@@ -1076,7 +1078,7 @@ YOGI_API int YOGI_WebRouteCreate(void** route, void* server, const char* baseuri
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_WebRouteCreate_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_WebRouteCreate()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_WebRouteCreate_fn(route, server, baseuri, fn, userarg);
@@ -1088,14 +1090,14 @@ YOGI_API void MOCK_WebRouteCreate(decltype(YOGI_WebRouteCreate) fn) {
 }
 
 // Mock implementation for YOGI_WebRouteRespond
-static std::function<decltype(YOGI_WebRouteRespond)> mock_WebRouteRespond_fn;
+static std::function<decltype(YOGI_WebRouteRespond)> mock_WebRouteRespond_fn = {};
 
 YOGI_API int YOGI_WebRouteRespond(void* route, int rid, int finished, int status, const char* contype,
                                   const char* content) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_WebRouteRespond_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_WebRouteRespond()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_WebRouteRespond_fn(route, rid, finished, status, contype, content);
@@ -1107,7 +1109,7 @@ YOGI_API void MOCK_WebRouteRespond(decltype(YOGI_WebRouteRespond) fn) {
 }
 
 // Mock implementation for YOGI_WebProcessCreate
-static std::function<decltype(YOGI_WebProcessCreate)> mock_WebProcessCreate_fn;
+static std::function<decltype(YOGI_WebProcessCreate)> mock_WebProcessCreate_fn = {};
 
 YOGI_API int YOGI_WebProcessCreate(void** wproc, void* server, const char* name,
                                    void (*fn)(int res, int wpid, const char* user, int wpa, const void* data,
@@ -1116,7 +1118,7 @@ YOGI_API int YOGI_WebProcessCreate(void** wproc, void* server, const char* name,
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_WebProcessCreate_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_WebProcessCreate()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_WebProcessCreate_fn(wproc, server, name, fn, userarg);
@@ -1128,13 +1130,13 @@ YOGI_API void MOCK_WebProcessCreate(decltype(YOGI_WebProcessCreate) fn) {
 }
 
 // Mock implementation for YOGI_WebProcessUpdate
-static std::function<decltype(YOGI_WebProcessUpdate)> mock_WebProcessUpdate_fn;
+static std::function<decltype(YOGI_WebProcessUpdate)> mock_WebProcessUpdate_fn = {};
 
 YOGI_API int YOGI_WebProcessUpdate(void* wproc, int wpid, int wpu, int exitcode, const void* output, int outsize) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_WebProcessUpdate_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_WebProcessUpdate()" << std::endl;
-    return {};
+    return YOGI_ERR_UNKNOWN;
   }
 
   return mock_WebProcessUpdate_fn(wproc, wpid, wpu, exitcode, output, outsize);
@@ -1151,11 +1153,11 @@ YOGI_API void MOCK_ResetMocks() {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
 
   // :CODEGEN_BEGIN:
-  mock_GetVersion_fn                         = {};
-  mock_CheckBindingsCompatibility_fn         = {};
+  mock_GetVersion_fn                         = default_GetVersion;
+  mock_CheckBindingsCompatibility_fn         = default_CheckBindingsCompatibility;
   mock_GetErrorString_fn                     = {};
   mock_GetLastErrorDetails_fn                = {};
-  mock_GetConstant_fn                        = {};
+  mock_GetConstant_fn                        = default_GetConstant;
   mock_GetSchema_fn                          = {};
   mock_GetCurrentTime_fn                     = {};
   mock_FormatTime_fn                         = {};

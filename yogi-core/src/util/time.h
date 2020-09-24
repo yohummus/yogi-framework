@@ -32,9 +32,12 @@ class Timestamp {
   static Timestamp now();
   static Timestamp parse(std::string_view str, const char* fmt);
 
-  explicit Timestamp(long long ns_since_epoch) : ns_since_epoch_{ns_since_epoch} {}
+  explicit Timestamp(long long ns_since_epoch) : ns_since_epoch_{ns_since_epoch} {
+  }
 
-  long long ns_since_epoch() const { return ns_since_epoch_; }
+  long long ns_since_epoch() const {
+    return ns_since_epoch_;
+  }
 
   std::string format(const char* fmt) const;
   std::string to_javascript_string() const;
@@ -45,13 +48,25 @@ class Timestamp {
 
 class Duration {
  public:
-  static Duration inf() { return Duration{-1}; }
+  static Duration inf() {
+    return Duration{-1};
+  }
 
-  explicit Duration(long long ns, bool is_negative = false) : ns_{ns}, is_negative_{is_negative} {}
+  explicit Duration(long long ns, bool is_negative = false) : ns_{ns}, is_negative_{is_negative} {
+  }
 
-  long long ns() const { return ns_; }
-  bool is_neg() const { return is_negative_; }
-  bool is_inf() const { return ns_ < 0; }
+  long long ns() const {
+    return ns_;
+  }
+
+  bool is_neg() const {
+    return is_negative_;
+  }
+
+  bool is_inf() const {
+    return ns_ < 0;
+  }
+
   std::chrono::nanoseconds to_chrono_duration() const;
 
   std::string format(const char* durfmt, const char* infstr) const;
