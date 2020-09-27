@@ -165,7 +165,8 @@ NetworkInterfaceInfosVector get_network_interfaces() {
     ifaddrs* p;
     if (getifaddrs(&p) == -1) {
       char str[100] = {0};
-      strerror_r(errno, str, sizeof(str));
+      auto dummy    = strerror_r(errno, str, sizeof(str));
+      YOGI_UNUSED(dummy);
       throw DescriptiveError{YOGI_ERR_ENUMERATE_NETWORK_INTERFACES_FAILED} << str;
     }
     if_addr_list.reset(p);

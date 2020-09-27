@@ -177,7 +177,7 @@ std::string Timestamp::format(const char* fmt) const {
   gmtime_r(&time, &tm);
 #endif
 
-  char tmp[4];
+  char tmp[11];
   sprintf(tmp, "%03lld", (ns_since_epoch_ / 1000000) % 1000);
   boost::replace_all(s, "%3", tmp);
   sprintf(tmp, "%03lld", (ns_since_epoch_ / 1000) % 1000);
