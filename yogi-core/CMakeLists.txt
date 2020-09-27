@@ -8,6 +8,20 @@ conan_basic_setup()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if(MSVC)
+    set(CMAKE_CXX_FLAGS "/EHsc /permissive- /W4 /w14640")
+
+    set(windows_version 0x0603) # Windows 8.1
+    add_definitions(
+        -DWINVER=${windows_version}
+        -D_WIN32_WINNT=${windows_version}
+        -D_SCL_SECURE_NO_WARNINGS
+        -D_CRT_SECURE_NO_WARNINGS
+        -D_WINSOCK_DEPRECATED_NO_WARNINGS
+        -DNOMINMAX
+    )
+endif ()
+
 # Include dependencies
 find_package(nlohmann_json REQUIRED)
 find_package(nlohmann_json_schema_validator REQUIRED)
@@ -69,7 +83,8 @@ target_link_libraries(yogi-core
 
 if (WIN32)
     target_link_libraries(yogi-core
-        bcrypt.lib IPHLPAPI.lib
+        bcrypt.lib
+        IPHLPAPI.lib
     )
 endif ()
 
