@@ -23,7 +23,7 @@
 
 // MSVC-specific
 #ifdef _MSC_VER
-#  pragma warning(disable : 4250 4503 4127)
+#  pragma warning(disable : 4250 4503 4127 4100)
 #endif
 
 // Include the main DLL header file for the error codes
