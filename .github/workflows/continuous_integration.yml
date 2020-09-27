@@ -1,0 +1,45 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, macos-10.15]
+
+    steps:
+      - name: Check out the source code
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install Python packages
+        run: pip3 install -r requirements.txt
+
+      - name: Create default Conan profile
+        run: conan profile new default --detect
+
+      - name: Change libcxx setting
+        if: matrix.os == 'ubuntu-20.04'
+        run: conan profile update settings.compiler.libcxx=libstdc++11 default
+
+      - name: Build and package yogi-core
+        run: conan create yogi-core
+
+      - name: Build and package yogi-core-mock
+        run: conan create yogi-core-mock
+
+      - name: Build and package yogi-cpp
+        run: conan create yogi-cpp

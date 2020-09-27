@@ -71,6 +71,7 @@ set(test_files
 
 add_executable(yogi-cpp-test ${test_files})
 target_link_libraries(yogi-cpp-test
+    ${CMAKE_DL_LIBS}
     GTest::GTest
     gtest_main
 )

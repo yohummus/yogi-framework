@@ -17,12 +17,19 @@ class YogiCoreMockConan(ConanFile):
     build_requires = "cmake/3.18.2"
     requires = f"yogi-core/{version}"
 
+    @property
+    def lib_filename(self):
+        lut = {
+            "Macos": f"lib{self.name}.{self.version}.dylib",
+            "Windows": f"{self.name}.{self.version}.dll",
+            "Linux": f"lib{self.name}.so.{self.version}",
+        }
+        return lut.get(tools.detected_os(), lut["Linux"])
+
     def package_info(self):
-        lib_prefix = "" if tools.detected_os() == "Windows" else "lib"
-        lib_suffix = {"Macos": "dylib", "Windows": "dll"}.get(tools.detected_os(), "so")
-        lib_filename = f"{lib_prefix}yogi-core-mock.{lib_suffix}"
-        self.env_info.YOGI_CORE_LIBRARY = os.path.join(self.cpp_info.lib_paths[0], lib_filename)
-        self.cpp_info.libs = ["yogi-core-mock"]
+        self.env_info.YOGI_CORE_LIBRARY = os.path.join(self.package_folder, 'lib', self.lib_filename)
+        self.cpp_info.includedirs = ['include']
+        self.cpp_info.libs = [self.name]
 
     def export_sources(self):
         self.copy("src/*")
@@ -37,6 +44,4 @@ class YogiCoreMockConan(ConanFile):
 
     def package(self):
         self.copy("include/*.h")
-        self.copy("lib/*.so", symlinks=True)
-        self.copy("lib/*.dylib", symlinks=True)
-        self.copy("lib/*.dll", symlinks=True)
+        self.copy(f"lib/{self.lib_filename}")

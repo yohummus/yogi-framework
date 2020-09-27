@@ -20,12 +20,19 @@ class YogiCoreConan(ConanFile):
     requires = "boost/1.74.0", "nlohmann_json/3.9.1", "json-schema-validator/2.1.0"
     exports_sources = "src/*", "test/*", "include/*", "CMakeLists.txt"
 
+    @property
+    def lib_filename(self):
+        lut = {
+            "Macos": f"lib{self.name}.{self.version}.dylib",
+            "Windows": f"{self.name}.{self.version}.dll",
+            "Linux": f"lib{self.name}.so.{self.version}",
+        }
+        return lut.get(tools.detected_os(), lut["Linux"])
+
     def package_info(self):
-        lib_prefix = "" if tools.detected_os() == "Windows" else "lib"
-        lib_suffix = {"Macos": "dylib", "Windows": "dll"}.get(tools.detected_os(), "so")
-        lib_filename = f"{lib_prefix}yogi-core.{lib_suffix}"
-        self.env_info.YOGI_CORE_LIBRARY = os.path.join(self.cpp_info.lib_paths[0], lib_filename)
-        self.cpp_info.libs = ["yogi-core"]
+        self.env_info.YOGI_CORE_LIBRARY = os.path.join(self.package_folder, 'lib', self.lib_filename)
+        self.cpp_info.includedirs = ['include']
+        self.cpp_info.libs = [self.name]
 
     def build(self):
         cmake = CMake(self)
@@ -37,9 +44,7 @@ class YogiCoreConan(ConanFile):
 
     def package(self):
         self.copy("include/*.h")
-        self.copy("lib/*.so", symlinks=True)
-        self.copy("lib/*.dylib", symlinks=True)
-        self.copy("lib/*.dll", symlinks=True)
+        self.copy(f"lib/{self.lib_filename}")
 
     def imports(self):
         self.copy("license*", dst="licenses", folder=True, ignore_case=True)
