@@ -29,7 +29,9 @@ jobs:
         run: pip3 install -r requirements.txt
 
       - name: Create default Conan profile
-        run: conan profile new default --detect
+        run: |
+          conan profile new default --detect
+          conan profile show default
 
       - name: Change libcxx setting
         if: matrix.os == 'ubuntu-20.04'
