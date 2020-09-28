@@ -48,21 +48,19 @@ jobs:
 
       - name: Build and package yogi-core
         run: |
-          mkdir -p build
+          mkdir build
           conan install yogi-core --install-folder build/yogi-core
           conan build yogi-core --build-folder build/yogi-core --source-folder yogi-core
           conan export-pkg yogi-core --build-folder build/yogi-core
 
       - name: Build and package yogi-core-mock
         run: |
-          mkdir -p build
           conan install yogi-core-mock --install-folder build/yogi-core-mock
           conan build yogi-core-mock --build-folder build/yogi-core-mock --source-folder yogi-core-mock
           conan export-pkg yogi-core-mock --build-folder build/yogi-core-mock
 
       - name: Build and package yogi-cpp
         run: |
-          mkdir -p build
           conan install yogi-cpp --install-folder build/yogi-cpp
           conan build yogi-cpp --build-folder build/yogi-cpp --source-folder yogi-cpp
           conan export-pkg yogi-cpp --build-folder build/yogi-cpp
