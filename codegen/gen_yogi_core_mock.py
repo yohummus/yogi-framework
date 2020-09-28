@@ -100,7 +100,6 @@ def generate_yogi_core_mock_cc(core_api: munch.Munch) -> None:
 
 def generate_cmake_lists_txt(core_api: munch.Munch) -> None:
     """Replaces the code in the CMakeLists.txt file"""
-    version_lines = [f'    VERSION {VERSION}',
-                     f'    SOVERSION {VERSION_MAJOR}']
+    version_lines = [f'set(version "{VERSION}")']
 
     replace_block_in_file('yogi-core-mock/CMakeLists.txt', version_lines)

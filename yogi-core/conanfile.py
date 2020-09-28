@@ -21,16 +21,16 @@ class YogiCoreConan(ConanFile):
     exports_sources = "src/*", "test/*", "include/*", "CMakeLists.txt"
 
     @property
-    def lib_filename(self):
+    def lib_path(self):
         lut = {
-            "Macos": f"lib{self.name}.{self.version}.dylib",
-            "Windows": f"{self.name}.{self.version}.dll",
-            "Linux": f"lib{self.name}.so.{self.version}",
+            "Macos": f"lib/lib{self.name}.{self.version}.dylib",
+            "Windows": f"bin/lib{self.name}.{self.version}.dll",
+            "Linux": f"lib/lib{self.name}.so.{self.version}",
         }
         return lut.get(tools.detected_os(), lut["Linux"])
 
     def package_info(self):
-        self.env_info.YOGI_CORE_LIBRARY = os.path.join(self.package_folder, 'lib', self.lib_filename)
+        self.env_info.YOGI_CORE_LIBRARY = os.path.join(self.package_folder, self.lib_path)
         self.cpp_info.includedirs = ['include']
         self.cpp_info.libs = [self.name]
 
@@ -44,7 +44,7 @@ class YogiCoreConan(ConanFile):
 
     def package(self):
         self.copy("include/*.h")
-        self.copy(f"lib/{self.lib_filename}")
+        self.copy(self.lib_path)
 
     def imports(self):
         self.copy("license*", dst="licenses", folder=True, ignore_case=True)

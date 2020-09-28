@@ -1,5 +1,9 @@
 project(yogi-core-mock)
 
+# :CODEGEN_BEGIN:
+set(version "0.0.1-alpha")
+# :CODEGEN_END:
+
 # Integrate Conan
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
@@ -19,9 +23,11 @@ set(src_files
 
 add_library(yogi-core-mock SHARED ${src_files})
 
-set_target_properties(yogi-core-mock PROPERTIES
-    # :CODEGEN_BEGIN:
-    VERSION 0.0.1-alpha
-    SOVERSION 0
-    # :CODEGEN_END:
-)
+set_target_properties(yogi-core PROPERTIES VERSION ${version})
+
+
+if (WIN32)
+    set_target_properties (yogi-core-mock PROPERTIES
+        OUTPUT_NAME "libyogi-core-mock.${version}"
+    )
+endif ()

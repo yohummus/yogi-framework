@@ -1,5 +1,9 @@
 project(yogi-core)
 
+# :CODEGEN_BEGIN:
+set(version "0.0.1-alpha")
+# :CODEGEN_END:
+
 # Integrate Conan
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
@@ -90,18 +94,19 @@ if (WIN32)
 endif ()
 
 
-# ========== STATIC LIBRARY ==========
+# ========== SHARED LIBRARY ==========
 add_library(yogi-core SHARED ${src_files})
 target_link_libraries(yogi-core
     yogi-core-static
 )
 
-set_target_properties(yogi-core PROPERTIES
-    # :CODEGEN_BEGIN:
-    VERSION 0.0.1-alpha
-    SOVERSION 0
-    # :CODEGEN_END:
-)
+set_target_properties(yogi-core PROPERTIES VERSION ${version})
+
+if (WIN32)
+    set_target_properties (yogi-core PROPERTIES
+        OUTPUT_NAME "libyogi-core.${version}"
+    )
+endif ()
 
 
 # ========== TESTS ==========
