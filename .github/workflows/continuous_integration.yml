@@ -47,25 +47,10 @@ jobs:
         uses: ammaraskar/msvc-problem-matcher@master
 
       - name: Build and package yogi-core
-        run: |
-          mkdir -p build/yogi-core
-          conan install . --build-folder build/yogi-core
-          conan build . --build-folder build/yogi-core
-          conan package . --build-folder build/yogi-core
-          conan export-pkg . --build-folder build-yogi-core
+        run: conan create yogi-core
 
       - name: Build and package yogi-core-mock
-        run: |
-          mkdir -p build/yogi-core-mock
-          conan install . --build-folder build/yogi-core-mock
-          conan build . --build-folder build/yogi-core-mock
-          conan package . --build-folder build/yogi-core-mock
-          conan export-pkg . --build-folder build-yogi-mock
+        run: conan create yogi-core-mock
 
       - name: Build and package yogi-cpp
-        run: |
-          mkdir -p build/yogi-cpp
-          conan install . --build-folder build/yogi-cpp
-          conan build . --build-folder build/yogi-cpp
-          conan package . --build-folder build/yogi-cpp
-          conan export-pkg . --build-folder build-yogi-cpp
+        run: conan create yogi-cpp
