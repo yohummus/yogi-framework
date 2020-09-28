@@ -46,7 +46,9 @@ Byte LockFreeRingBuffer::front() const {
 }
 
 void LockFreeRingBuffer::pop() {
-  write_idx_.load(std::memory_order_acquire);  // TODO: Do we need this?
+  auto dummy = write_idx_.load(std::memory_order_acquire);  // TODO: Do we need this?
+  YOGI_UNUSED(dummy);
+
   auto ri = read_idx_.load(std::memory_order_relaxed);
 
   YOGI_ASSERT(!empty());
@@ -120,7 +122,9 @@ LockFreeRingBuffer::size_type LockFreeRingBuffer::discard(size_type max_size) {
 void LockFreeRingBuffer::commit_first_read_array(size_type n) {
   YOGI_ASSERT(n <= boost::asio::buffer_size(first_read_array()));
 
-  write_idx_.load(std::memory_order_acquire);  // TODO: Do we need this?
+  auto dummy = write_idx_.load(std::memory_order_acquire);  // TODO: Do we need this?
+  YOGI_UNUSED(dummy);
+
   auto ri = read_idx_.load(std::memory_order_relaxed);
 
   ri += n;
@@ -186,8 +190,9 @@ LockFreeRingBuffer::size_type LockFreeRingBuffer::write(const Byte* data, size_t
 void LockFreeRingBuffer::commit_first_write_array(size_type n) {
   YOGI_ASSERT(n <= boost::asio::buffer_size(first_write_array()));
 
-  auto wi = write_idx_.load(std::memory_order_relaxed);
-  read_idx_.load(std::memory_order_acquire);  // TODO: do we need this?
+  auto wi    = write_idx_.load(std::memory_order_relaxed);
+  auto dummy = read_idx_.load(std::memory_order_acquire);  // TODO: do we need this?
+  YOGI_UNUSED(dummy);
 
   wi += n;
   if (wi >= data_.size()) {

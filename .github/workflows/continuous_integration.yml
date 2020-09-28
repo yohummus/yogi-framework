@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-20.04, macos-10.15]
+        os: [ubuntu-20.04, macos-10.15, windows-2019]
 
     steps:
       - name: Check out the source code
@@ -23,13 +23,15 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: 3.7
 
       - name: Install Python packages
         run: pip3 install -r requirements.txt
 
       - name: Create default Conan profile
-        run: conan profile new default --detect
+        run: |
+          conan profile new default --detect
+          conan profile show default
 
       - name: Change libcxx setting
         if: matrix.os == 'ubuntu-20.04'

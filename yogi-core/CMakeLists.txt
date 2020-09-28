@@ -1,5 +1,9 @@
 project(yogi-core)
 
+# :CODEGEN_BEGIN:
+set(version "0.0.1-alpha")
+# :CODEGEN_END:
+
 # Integrate Conan
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
@@ -7,6 +11,21 @@ conan_basic_setup()
 # Compiler and linker flags
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+if(MSVC)
+    set(CMAKE_CXX_FLAGS "/EHsc /permissive- /W4 /w14640")
+
+    set(windows_version 0x0603) # Windows 8.1
+    add_definitions(
+        -DWINVER=${windows_version}
+        -D_WIN32_WINNT=${windows_version}
+        -D_SCL_SECURE_NO_WARNINGS
+        -D_CRT_SECURE_NO_WARNINGS
+        -D_WINSOCK_DEPRECATED_NO_WARNINGS
+        -D_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
+        -DNOMINMAX
+    )
+endif ()
 
 # Include dependencies
 find_package(nlohmann_json REQUIRED)
@@ -23,7 +42,7 @@ find_package(GTest REQUIRED)
 include_directories(include .)
 
 
-# ========== SHARED LIBRARY ==========
+# ========== STATIC LIBRARY ==========
 set(src_files
     # :CODEGEN_BEGIN:
     src/util/time.cc
@@ -58,8 +77,8 @@ set(src_files
     # :CODEGEN_END:
 )
 
-add_library(yogi-core SHARED ${src_files})
-target_link_libraries(yogi-core
+add_library(yogi-core-static STATIC ${src_files})
+target_link_libraries(yogi-core-static
     ${Boost_LIBRARIES}
     OpenSSL::Crypto
     OpenSSL::SSL
@@ -68,17 +87,26 @@ target_link_libraries(yogi-core
 )
 
 if (WIN32)
-    target_link_libraries(yogi-core
-        bcrypt.lib IPHLPAPI.lib
+    target_link_libraries(yogi-core-static
+        bcrypt.lib
+        IPHLPAPI.lib
     )
 endif ()
 
-set_target_properties(yogi-core PROPERTIES
-    # :CODEGEN_BEGIN:
-    VERSION 0.0.1-alpha
-    SOVERSION 0
-    # :CODEGEN_END:
+
+# ========== SHARED LIBRARY ==========
+add_library(yogi-core SHARED ${src_files})
+target_link_libraries(yogi-core
+    yogi-core-static
 )
+
+set_target_properties(yogi-core PROPERTIES VERSION ${version})
+
+if (WIN32)
+    set_target_properties (yogi-core PROPERTIES
+        OUTPUT_NAME "libyogi-core.${version}"
+    )
+endif ()
 
 
 # ========== TESTS ==========

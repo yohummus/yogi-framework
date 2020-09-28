@@ -19,6 +19,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#ifdef _MSC_VER
+#  define YOGI_API __declspec(dllexport)
+#else
+#  define YOGI_API __attribute__((visibility("default")))
+#endif
+
 #include <src/default_functions.h>
 #include <yogi_core_mock.h>
 

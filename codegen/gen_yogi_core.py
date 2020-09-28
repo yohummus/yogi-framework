@@ -144,16 +144,15 @@ def generate_schemas_h_cc() -> None:
 
 def generate_cmake_lists_txt(core_api: munch.Munch) -> None:
     """Replaces the code in the CMakeLists.txt file"""
+    version_lines = [f'set(version "{VERSION}")']
+
+    replace_block_in_file('yogi-core/CMakeLists.txt', version_lines, block_idx=0)
+
     src_lines = []
     for file in (ROOT / 'yogi-core/src').rglob('*.cc'):
         src_lines += [f'    {file.relative_to(ROOT  / "yogi-core")}']
 
-    replace_block_in_file('yogi-core/CMakeLists.txt', src_lines, block_idx=0)
-
-    version_lines = [f'    VERSION {VERSION}',
-                     f'    SOVERSION {VERSION_MAJOR}']
-
-    replace_block_in_file('yogi-core/CMakeLists.txt', version_lines, block_idx=1)
+    replace_block_in_file('yogi-core/CMakeLists.txt', src_lines, block_idx=1)
 
     test_lines = []
     for file in (ROOT / 'yogi-core/test').rglob('*.cc'):

@@ -23,9 +23,9 @@
 
 #ifndef YOGI_API
 #  ifdef _MSC_VER
-#    define YOGI_API __declspec(dllexport)
+#    define YOGI_API __declspec(dllimport)
 #  else
-#    define YOGI_API __attribute__((visibility("default")))
+#    define YOGI_API
 #  endif
 #endif
 

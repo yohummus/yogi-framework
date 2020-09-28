@@ -138,6 +138,7 @@ void ObjectRegister::stop_all_contexts(const ObjectsVector& objs) {
     context->stop();
     bool stopped = context->wait_for_stopped(Duration::inf());
     YOGI_ASSERT(stopped);
+    YOGI_UNUSED(stopped);
   }
 }
 
