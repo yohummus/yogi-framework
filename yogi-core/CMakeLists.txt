@@ -38,7 +38,7 @@ find_package(GTest REQUIRED)
 include_directories(include .)
 
 
-# ========== SHARED LIBRARY ==========
+# ========== STATIC LIBRARY ==========
 set(src_files
     # :CODEGEN_BEGIN:
     src/util/time.cc
@@ -73,8 +73,8 @@ set(src_files
     # :CODEGEN_END:
 )
 
-add_library(yogi-core SHARED ${src_files})
-target_link_libraries(yogi-core
+add_library(yogi-core-static STATIC ${src_files})
+target_link_libraries(yogi-core-static
     ${Boost_LIBRARIES}
     OpenSSL::Crypto
     OpenSSL::SSL
@@ -83,11 +83,18 @@ target_link_libraries(yogi-core
 )
 
 if (WIN32)
-    target_link_libraries(yogi-core
+    target_link_libraries(yogi-core-static
         bcrypt.lib
         IPHLPAPI.lib
     )
 endif ()
+
+
+# ========== STATIC LIBRARY ==========
+add_library(yogi-core SHARED ${src_files})
+target_link_libraries(yogi-core
+    yogi-core-static
+)
 
 set_target_properties(yogi-core PROPERTIES
     # :CODEGEN_BEGIN:
