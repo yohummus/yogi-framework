@@ -40,11 +40,11 @@ jobs:
 
       - name: Activate GCC problem matcher
         if: matrix.os != 'windows-2019'
-        uses: ammaraskar/gcc-problem-matcher@master
+        uses: echo "::add-matcher::.github/gcc_problem_matcher.json"
 
       - name: Activate MSVC problem matcher
         if: matrix.os == 'windows-2019'
-        uses: ammaraskar/msvc-problem-matcher@master
+        uses: echo "::add-matcher::.github/msvc_problem_matcher.json"
 
       - name: Build and package yogi-core
         run: |
