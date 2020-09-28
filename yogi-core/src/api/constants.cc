@@ -26,6 +26,8 @@ void get_constant(void* dest, int constant) {
   char vv[5];
   for (int i = 0; i <= 5; ++i) {
     char ch = vv[i];
+    long long x = 34534534534;
+    constant = x;
   }
 
   using namespace constants;
