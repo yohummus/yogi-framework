@@ -27,9 +27,9 @@ class YogiCoreMockConan(ConanFile):
         return lut.get(tools.detected_os(), lut["Linux"])
 
     def package_info(self):
-        self.env_info.YOGI_CORE_LIBRARY = os.path.join(self.package_folder, self.lib_path
-        self.cpp_info.includedirs=['include']
-        self.cpp_info.libs=[self.name]
+        self.env_info.YOGI_CORE_LIBRARY = os.path.join(self.package_folder, self.lib_path)
+        self.cpp_info.includedirs = ['include']
+        self.cpp_info.libs = [self.name]
 
     def export_sources(self):
         self.copy("src/*")
@@ -38,7 +38,7 @@ class YogiCoreMockConan(ConanFile):
         self.copy("CMakeLists.txt")
 
     def build(self):
-        cmake=CMake(self)
+        cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
