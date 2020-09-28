@@ -16,6 +16,7 @@ class YogiCoreMockConan(ConanFile):
     generators = "cmake", "cmake_find_package", "virtualenv"
     build_requires = "cmake/3.18.2"
     requires = f"yogi-core/{version}"
+    exports_sources = "CMakeLists.txt"
     no_copy_source = True
 
     @property
@@ -34,7 +35,7 @@ class YogiCoreMockConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure()
+        cmake.configure(source_dir=self.source_folder)
         cmake.build()
 
     def package(self):
