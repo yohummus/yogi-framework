@@ -16,7 +16,6 @@ class YogiCoreMockConan(ConanFile):
     generators = "cmake", "cmake_find_package", "virtualenv"
     build_requires = "cmake/3.18.2"
     requires = f"yogi-core/{version}"
-    exports_sources = "CMakeLists.txt"
     no_copy_source = True
 
     @property
