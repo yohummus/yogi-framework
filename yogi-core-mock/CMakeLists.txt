@@ -23,7 +23,7 @@ set(src_files
 
 add_library(yogi-core-mock SHARED ${src_files})
 
-set_target_properties(yogi-core PROPERTIES VERSION ${version})
+set_target_properties(yogi-core-mock PROPERTIES VERSION ${version})
 
 
 if (WIN32)
