@@ -29,7 +29,7 @@ Test::Test() {
 Test::~Test() {
 }
 
-void* const Test::kPointer = reinterpret_cast<void*>(0xDEADBEAF);
+void* const Test::kPointer = reinterpret_cast<void*>(0xDEADBEAFl);
 
 yogi::ContextPtr Test::create_context() {
   MOCK_ContextCreate([](void** context) {
