@@ -34,7 +34,7 @@ class YogiCoreMockConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(source_dir=self.source_folder)
+        cmake.configure()
         cmake.build()
 
     def package(self):

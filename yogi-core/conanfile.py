@@ -36,7 +36,7 @@ class YogiCoreConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(source_dir=self.source_folder)
+        cmake.configure()
         cmake.build()
 
         if self.options.build_tests:

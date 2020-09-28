@@ -26,7 +26,7 @@ class YogiCppConan(ConanFile):
 
         # Build and run the tests
         cmake = CMake(self)
-        cmake.configure(source_dir=self.source_folder)
+        cmake.configure()
         cmake.build()
         cmake.test()
 
