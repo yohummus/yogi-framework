@@ -23,6 +23,11 @@
 #include <src/api/errors.h>
 
 void get_constant(void* dest, int constant) {
+  char vv[5];
+  for (int i = 0; i <= 5; ++i) {
+    char ch = vv[i];
+  }
+
   using namespace constants;
 
   // clang-format off
