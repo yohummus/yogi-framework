@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: Continuous Integration
 
 on:
   push:
@@ -8,13 +8,18 @@ on:
   pull_request:
     branches: [master]
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
-  build:
+  Build:
     runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
         os: [ubuntu-20.04, macos-10.15, windows-2019]
+      fail-fast: false
 
     steps:
       - name: Check out the source code
@@ -37,11 +42,29 @@ jobs:
         if: matrix.os == 'ubuntu-20.04'
         run: conan profile update settings.compiler.libcxx=libstdc++11 default
 
+      - name: Activate GCC problem matcher
+        if: matrix.os != 'windows-2019'
+        run: echo "::add-matcher::.github/gcc_problem_matcher.json"
+
+      - name: Activate MSVC problem matcher
+        if: matrix.os == 'windows-2019'
+        run: echo "::add-matcher::.github/msvc_problem_matcher.json"
+
       - name: Build and package yogi-core
-        run: conan create yogi-core
+        run: |
+          mkdir build
+          conan install yogi-core --install-folder build/yogi-core
+          conan build yogi-core --build-folder build/yogi-core --source-folder yogi-core
+          conan export-pkg yogi-core --build-folder build/yogi-core
 
       - name: Build and package yogi-core-mock
-        run: conan create yogi-core-mock
+        run: |
+          conan install yogi-core-mock --install-folder build/yogi-core-mock
+          conan build yogi-core-mock --build-folder build/yogi-core-mock --source-folder yogi-core-mock
+          conan export-pkg yogi-core-mock --build-folder build/yogi-core-mock
 
       - name: Build and package yogi-cpp
-        run: conan create yogi-cpp
+        run: |
+          conan install yogi-cpp --install-folder build/yogi-cpp
+          conan build yogi-cpp --build-folder build/yogi-cpp --source-folder yogi-cpp
+          conan export-pkg yogi-cpp --build-folder build/yogi-cpp
