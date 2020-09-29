@@ -17,12 +17,6 @@ class YogiCoreMockConan(ConanFile):
     build_requires = "cmake/3.18.2"
     requires = f"yogi-core/{version}"
 
-    def export_sources(self):
-        self.copy("src/*")
-        self.copy("include/*")
-        self.copy("../yogi-core/include/yogi_core.h", dst="include")
-        self.copy("CMakeLists.txt")
-
     @property
     def lib_path(self):
         lut = {
@@ -31,6 +25,12 @@ class YogiCoreMockConan(ConanFile):
             "Linux": f"lib/lib{self.name}.so.{self.version}",
         }
         return lut.get(tools.detected_os(), lut["Linux"])
+
+    def export_sources(self):
+        self.copy("src/*")
+        self.copy("include/*")
+        self.copy("../yogi-core/include/yogi_core.h", dst="include")
+        self.copy("CMakeLists.txt")
 
     def package_info(self):
         self.env_info.YOGI_CORE_LIBRARY = os.path.join(self.package_folder, self.lib_path)
