@@ -34,7 +34,7 @@
 #include <string>
 
 std::mutex global_mock_mutex;
-fuck();
+
 // :CODEGEN_BEGIN:
 
 // Mock implementation for YOGI_GetVersion
