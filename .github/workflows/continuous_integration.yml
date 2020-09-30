@@ -68,3 +68,9 @@ jobs:
           conan install yogi-cpp --install-folder build/yogi-cpp
           conan build yogi-cpp --build-folder build/yogi-cpp --source-folder yogi-cpp
           conan export-pkg yogi-cpp --build-folder build/yogi-cpp
+
+      - name: Build and package yogi-python
+        run: |
+          conan install yogi-python --install-folder build/yogi-python
+          conan build yogi-python --build-folder build/yogi-python --source-folder yogi-python
+          conan export-pkg yogi-python --build-folder build/yogi-python
