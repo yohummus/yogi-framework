@@ -18,13 +18,18 @@ class YogiPythonConan(ConanFile):
     generators = "virtualenv"
     build_requires = f"yogi-core-mock/{version}"
     requires = f"yogi-core/{version}"
-    exports_sources = "yogi/*", "test/*"
+    exports_sources = "yogi/*", "test/*", "requirements.txt"
 
     def build(self):
         if not self.options.build_tests:
             return  # No need to do anything
 
-        self.run("py.test", cwd=self.source_folder)
+        commands = [f"python3 -m venv yogi-python-venv",
+                    f"source yogi-python-venv/bin/activate",
+                    f"pip install -r {self.source_folder}/requirements.txt",
+                    f"pip install pytest",
+                    f"py.test {self.source_folder}"]
+        self.run(" && ".join(commands))
 
     def package(self):
         self.copy("yogi/*.py")
