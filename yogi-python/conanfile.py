@@ -1,4 +1,5 @@
 import os
+import sys
 from conans import ConanFile, CMake, tools
 
 
@@ -24,8 +25,8 @@ class YogiPythonConan(ConanFile):
         if not self.options.build_tests:
             return  # No need to do anything
 
-        commands = [f"python3 -m venv yogi-python-venv",
-                    f"source yogi-python-venv/bin/activate",
+        commands = [f"{sys.executable} -m venv yogi-python-venv",
+                    f". yogi-python-venv/bin/activate",
                     f"pip install -r {self.source_folder}/requirements.txt",
                     f"pip install pytest",
                     f"py.test {self.source_folder}"]
