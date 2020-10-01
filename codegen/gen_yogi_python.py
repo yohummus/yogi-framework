@@ -13,6 +13,7 @@ def generate(core_api: munch.Munch) -> None:
     generate_common_py(core_api)
     generate_version_py()
     generate_constants_py(core_api)
+    generate_library_py(core_api)
     generate_copyright_headers(core_api, 'yogi-python')
     generate_conanfile_py('yogi-python')
 
@@ -77,6 +78,36 @@ def generate_constants_py(core_api: munch.Munch) -> None:
         lines += [f'    {name}: {props.type.py} = {wrap_start}get_constant({val}, {ctypes_type}){wrap_end}']
 
     replace_block_in_file('yogi-python/yogi/_constants.py', lines)
+
+
+def generate_library_py(core_api: munch.Munch) -> None:
+    """Replaces the code in the _library.py file"""
+    version_lines = [f"bindings_version = '{VERSION}'"]
+
+    replace_block_in_file('yogi-python/yogi/_library.py', version_lines, block_idx=0)
+
+    api_fn_lines = []
+    for name, props in core_api.functions.items():
+        restype = core_api.type_mappings[props.return_type].py
+        fns_returning_c_int = ['YOGI_CheckBindingsCompatibility', 'YOGI_TimerCancel', 'YOGI_SignalSetCancelAwaitSignal']
+        if restype == 'c_int' and name not in fns_returning_c_int:
+            restype = 'api_result_handler'
+
+        argtypes = []
+        for arg_name, c_type in props.args.items():
+            if isinstance(c_type, munch.Munch):
+                argtypes += [make_cfunctype_mock_code(core_api, c_type)]
+            elif arg_name == 'sigarg':
+                argtypes += ['py_object']
+            else:
+                argtypes += [core_api.type_mappings[c_type].py]
+
+        api_fn_lines += [textwrap.dedent(f'''
+            yogi_core.{name}.restype = {restype}
+            yogi_core.{name}.argtypes = [{', '.join(argtypes)}]
+        ''').lstrip()]
+
+    replace_block_in_file('yogi-python/yogi/_library.py', api_fn_lines, block_idx=1)
 
 
 def make_cfunctype_mock_code(core_api: munch.Munch, fn_props: munch.Munch) -> str:

@@ -48,16 +48,16 @@ except OSError as e:
 yogi_core.YOGI_CheckBindingsCompatibility.restype = int
 yogi_core.YOGI_CheckBindingsCompatibility.argtypes = [c_char_p, c_char_p, c_int]
 
-# :BEGIN_CODEGEN: gen_python_version
+# :CODEGEN_BEGIN:
 bindings_version = '0.0.1-alpha'
-# :END_CODEGEN:
+# :CODEGEN_END:
 
 err = create_string_buffer(256)
 if yogi_core.YOGI_CheckBindingsCompatibility(bindings_version.encode(), err, sizeof(err)) != 0:
     raise ImportError(err.value.decode())
 
 # Setup Yogi Core API function signatures
-# :BEGIN_CODEGEN: gen_python_api_fns
+# :CODEGEN_BEGIN:
 yogi_core.YOGI_GetVersion.restype = c_char_p
 yogi_core.YOGI_GetVersion.argtypes = []
 
@@ -248,4 +248,5 @@ yogi_core.YOGI_WebProcessCreate.argtypes = [POINTER(c_void_p), c_void_p, c_char_
 
 yogi_core.YOGI_WebProcessUpdate.restype = api_result_handler
 yogi_core.YOGI_WebProcessUpdate.argtypes = [c_void_p, c_int, c_int, c_int, c_void_p, c_int]
-# :END_CODEGEN:
+
+# :CODEGEN_END:
