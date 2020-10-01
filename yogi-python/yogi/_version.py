@@ -25,13 +25,13 @@ from ._constants import constants
 
 class BindingsInfo(NamedTuple):
     """Information about the Python bindings"""
-    # :BEGIN_CODEGEN: gen_python_version
+    # :CODEGEN_BEGIN:
     VERSION: str = '0.0.1-alpha'
     VERSION_MAJOR: int = 0
     VERSION_MINOR: int = 0
     VERSION_PATCH: int = 1
     VERSION_SUFFIX: str = '-alpha'
-    # :END_CODEGEN:
+    # :CODEGEN_END:
 
 
 bindings_info = BindingsInfo()

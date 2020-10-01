@@ -11,6 +11,7 @@ from common import generate_conanfile_py
 def generate(core_api: munch.Munch) -> None:
     """Replaces the code in yogi-python from the loaded core API YAML file"""
     generate_common_py(core_api)
+    generate_version_py()
     generate_copyright_headers(core_api, 'yogi-python')
     generate_conanfile_py('yogi-python')
 
@@ -34,6 +35,22 @@ def generate_common_py(core_api: munch.Munch) -> None:
         lines += [f'    {x}' if x else '' for x in block.split('\n')]
 
     replace_block_in_file('yogi-python/test/common.py', lines + [''])
+
+
+def generate_version_py() -> None:
+    """Replaces the code in the _version.py file"""
+    block = textwrap.dedent(f'''
+        VERSION: str = '{VERSION}'
+        VERSION_MAJOR: int = {VERSION_MAJOR}
+        VERSION_MINOR: int = {VERSION_MINOR}
+        VERSION_PATCH: int = {VERSION_PATCH}
+        VERSION_SUFFIX: str = '{VERSION_SUFFIX}'
+    '''.strip())
+
+    # Fix indentation
+    lines = [f'    {x}' for x in block.split('\n')]
+
+    replace_block_in_file('yogi-python/yogi/_version.py', lines)
 
 
 def make_cfunctype_mock_code(core_api: munch.Munch, fn_props: munch.Munch) -> str:
