@@ -25,12 +25,7 @@ class YogiPythonConan(ConanFile):
         if not self.options.build_tests:
             return  # No need to do anything
 
-        commands = [f"{sys.executable} -m venv yogi-python-venv",
-                    f"{'source' if tools.detected_os() == 'Windows' else '.'} yogi-python-venv/bin/activate",
-                    f"pip install -r {self.source_folder}/requirements.txt",
-                    f"pip install pytest",
-                    f"py.test {self.source_folder}"]
-        self.run(" && ".join(commands))
+        self.run(f"{sys.executable} -m pytest {self.source_folder}")
 
     def package(self):
         self.copy("yogi/*.py")
