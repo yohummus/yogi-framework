@@ -72,7 +72,24 @@ class TestCase(unittest.TestCase):
         self.MOCK_ConfigurationCreate(fn)
         return yogi.Configuration(flags)
 
-    # :BEGIN_CODEGEN: gen_python_api_fns
+    # :CODEGEN_BEGIN:
+
+    def MOCK_GetVersion(self, fn):
+        mock_fn = yogi._library.yogi_core.MOCK_GetVersion
+        mock_fn.restype = None
+        mock_fn.argtypes = [CFUNCTYPE(c_char_p)]
+        wrapped_fn = mock_fn.argtypes[0](fn)
+        self.keepalive.append(wrapped_fn)
+        mock_fn(wrapped_fn)
+
+    def MOCK_CheckBindingsCompatibility(self, fn):
+        mock_fn = yogi._library.yogi_core.MOCK_CheckBindingsCompatibility
+        mock_fn.restype = None
+        mock_fn.argtypes = [CFUNCTYPE(c_int, c_char_p)]
+        wrapped_fn = mock_fn.argtypes[0](fn)
+        self.keepalive.append(wrapped_fn)
+        mock_fn(wrapped_fn)
+
     def MOCK_GetErrorString(self, fn):
         mock_fn = yogi._library.yogi_core.MOCK_GetErrorString
         mock_fn.restype = None
@@ -85,6 +102,14 @@ class TestCase(unittest.TestCase):
         mock_fn = yogi._library.yogi_core.MOCK_GetLastErrorDetails
         mock_fn.restype = None
         mock_fn.argtypes = [CFUNCTYPE(c_char_p)]
+        wrapped_fn = mock_fn.argtypes[0](fn)
+        self.keepalive.append(wrapped_fn)
+        mock_fn(wrapped_fn)
+
+    def MOCK_GetConstant(self, fn):
+        mock_fn = yogi._library.yogi_core.MOCK_GetConstant
+        mock_fn.restype = None
+        mock_fn.argtypes = [CFUNCTYPE(c_int, c_void_p, c_int)]
         wrapped_fn = mock_fn.argtypes[0](fn)
         self.keepalive.append(wrapped_fn)
         mock_fn(wrapped_fn)
@@ -544,4 +569,4 @@ class TestCase(unittest.TestCase):
         self.keepalive.append(wrapped_fn)
         mock_fn(wrapped_fn)
 
-    # :END_CODEGEN:
+    # :CODEGEN_END:

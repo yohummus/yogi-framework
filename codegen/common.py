@@ -33,7 +33,7 @@ def generate_copyright_headers(core_api: munch.Munch, rel_dir_path: str) -> None
             shebang = (content[:content.index('\n')] + '\n\n') if content.startswith('#!') else ''
             copyright_text = ''.join([f'# {x}'.rstrip() + '\n' for x in raw_copyright_lines])
             code_content = '\n'.join(itertools.dropwhile(lambda x: not x or x.startswith('#'), content.split('\n')))
-            new_content = f'{shebang}{copyright_text}\n{code_content}'
+            new_content = f'{shebang}{copyright_text}\n{code_content}'.rstrip() + '\n'
         else:
             new_content = content
 
@@ -63,7 +63,8 @@ def replace_block_in_file(rel_file_path: str, lines: List[str], *, block_idx: in
     if file.suffix in ['.h', '.cc']:
         formatted_new_content = subprocess.check_output(['clang-format'], input=new_content, text=True, cwd=file.parent)
     else:
-        formatted_new_content = new_content
+        formatted_new_content = subprocess.check_output(['autopep8', '--max-line-length=120', '-'], input=new_content,
+                                                        text=True)
 
     if formatted_new_content != content:
         with open(file, 'w') as f:
