@@ -31,7 +31,7 @@ class DocIntEnum(IntEnum):
 
 class ErrorCode(DocIntEnum):
     """Error codes returned by functions from the Yogi Core library"""
-    # :BEGIN_CODEGEN: gen_python_enums
+    # :CODEGEN_BEGIN:
     OK = 0, 'Success'
     UNKNOWN = -1, 'Unknown internal error occured'
     OBJECT_STILL_USED = -2, 'The object is still being used by another object'
@@ -83,12 +83,12 @@ class ErrorCode(DocIntEnum):
     CONFIGURATION_VALIDATION_FAILED = -48, 'Validating the configuration failed'
     WORKER_ALREADY_ADDED = -49, 'The context has already been added as a worker'
     OPEN_FILE_FAILED = -50, 'Could not open file'
-    # :END_CODEGEN:
+    # :CODEGEN_END:
 
 
 class Verbosity(DocIntEnum):
     """Levels of how verbose logging output is"""
-    # :BEGIN_CODEGEN: gen_python_enums
+    # :CODEGEN_BEGIN:
     NONE = -1, 'Used to disable logging'
     FATAL = 0, 'Errors that require a process restart'
     ERROR = 1, 'Errors that the system can recover from'
@@ -96,15 +96,15 @@ class Verbosity(DocIntEnum):
     INFO = 3, 'General information about the system state'
     DEBUG = 4, 'Information for debugging'
     TRACE = 5, 'Detailed debugging'
-    # :END_CODEGEN:
+    # :CODEGEN_END:
 
 
 class Stream(DocIntEnum):
     """Output streams for writing to the terminal"""
-    # :BEGIN_CODEGEN: gen_python_enums
+    # :CODEGEN_BEGIN:
     STDOUT = 0, 'Standard output'
     STDERR = 1, 'Standard error output'
-    # :END_CODEGEN:
+    # :CODEGEN_END:
 
 
 class Schema(DocIntEnum):
@@ -114,26 +114,26 @@ class Schema(DocIntEnum):
     as configurations or results passed back to the library user (e.g. branch
     information).
     """
-    # :BEGIN_CODEGEN: gen_python_enums
+    # :CODEGEN_BEGIN:
     BRANCH_PROPERTIES = 0, 'All possible branch properties'
     BRANCH_CONFIG = 1, 'Properties for creating a branch'
     LOCAL_BRANCH_INFO = 2, 'Information about a local branch'
     REMOTE_BRANCH_INFO = 3, 'Information about a remote branch'
     BRANCH_EVENT = 4, 'Information about a branch event'
-    # :END_CODEGEN:
+    # :CODEGEN_END:
 
 
 class Encoding(DocIntEnum):
     """Possible data/payload encoding types"""
-    # :BEGIN_CODEGEN: gen_python_enums
+    # :CODEGEN_BEGIN:
     JSON = 0, 'Data is encoded as JSON'
     MSGPACK = 1, 'Data is encoded as MessagePack'
-    # :END_CODEGEN:
+    # :CODEGEN_END:
 
 
 class HttpStatus(DocIntEnum):
     """HTTP response status codes"""
-    # :BEGIN_CODEGEN: gen_python_enums
+    # :CODEGEN_BEGIN:
     HTTP_200 = 200, 'OK'
     HTTP_201 = 201, 'Created'
     HTTP_202 = 202, 'Accepted'
@@ -180,46 +180,33 @@ class HttpStatus(DocIntEnum):
     HTTP_504 = 504, 'Gateway Timeout'
     HTTP_505 = 505, 'HTTP Version Not Supported'
     HTTP_511 = 511, 'Network Authentication Required'
-    # :END_CODEGEN:
+    # :CODEGEN_END:
 
 
 class WebProcessAction(DocIntEnum):
     """Actions on a web process, originating from a web client"""
-    # :BEGIN_CODEGEN: gen_python_enums
+    # :CODEGEN_BEGIN:
     START = 0, 'Client requests to start a process'
     INPUT = 1, 'Client sent some input to the process'
     CANCELED = 2, 'Client canceled the process'
-    # :END_CODEGEN:
+    # :CODEGEN_END:
 
 
 class WebProcessUpdate(DocIntEnum):
     """Updates from a web process, originating from the web server"""
-    # :BEGIN_CODEGEN: gen_python_enums
+    # :CODEGEN_BEGIN:
     STARTED = 0, 'Process has been started'
     FAILED_TO_START = 1, 'Process could not be started'
     FINISHED = 2, 'Process finished gracefully'
     CRASHED = 3, 'Process finished by crashing'
     CANCELED = 4, 'Process finished by cancelation'
     OUTPUT = 5, 'Process created some output'
-    # :END_CODEGEN:
-
-
-class HttpMethods(DocIntEnum):
-    """HTTP request methods"""
-    # :BEGIN_CODEGEN: gen_python_enums
-    NONE = 0, 'No methods.'
-    GET = 1 << 0, 'GET method for retrieving data.'
-    HEAD = 1 << 1, 'HEAD method for retrieving the same header as with the GET request but without the response body.'
-    POST = 1 << 2, 'POST method for submitting data.'
-    PUT = 1 << 3, 'PUT method for modifying data.'
-    DELETE = 1 << 4, 'DELETE method for deleting data.'
-    PATCH = 1 << 5, 'PATCH method for partially modifying data.'
-    # :END_CODEGEN:
+    # :CODEGEN_END:
 
 
 class Signals(DocIntEnum):
     """Signals"""
-    # :BEGIN_CODEGEN: gen_python_enums
+    # :CODEGEN_BEGIN:
     NONE = 0, 'No signal'
     INT = 1 << 0, 'Interrupt (e.g. by pressing STRG + C)'
     TERM = 1 << 1, 'Termination request'
@@ -232,21 +219,21 @@ class Signals(DocIntEnum):
     USR7 = 1 << 30, 'User-defined signal 7'
     USR8 = 1 << 31, 'User-defined signal 8'
     ALL = INT[0] | TERM[0] | USR1[0] | USR2[0] | USR3[0] | USR4[0] | USR5[0] | USR6[0] | USR7[0] | USR8[0], 'All signals'
-    # :END_CODEGEN:
+    # :CODEGEN_END:
 
 
 class ConfigurationFlags(DocIntEnum):
     """Flags used to change a configuration object's behaviour"""
-    # :BEGIN_CODEGEN: gen_python_enums
+    # :CODEGEN_BEGIN:
     NONE = 0, 'No flags'
     DISABLE_VARIABLES = 1 << 0, 'Disables support for variables in the configuration'
     MUTABLE_CMD_LINE = 1 << 1, 'Makes configuration options given directly on the command line overridable'
-    # :END_CODEGEN:
+    # :CODEGEN_END:
 
 
 class CommandLineOptions(DocIntEnum):
     """Flags used to adjust how command line options are parsed"""
-    # :BEGIN_CODEGEN: gen_python_enums
+    # :CODEGEN_BEGIN:
     NONE = 0, 'No options'
     LOGGING = 1 << 0, 'Include the --log... switches for configuring file logging'
     BRANCH_NAME = 1 << 1, 'Include the --name switch for setting the branch name'
@@ -261,22 +248,35 @@ class CommandLineOptions(DocIntEnum):
     BRANCH_TIMEOUT = 1 << 10, 'Include the --timeout switch for setting the branch timeout'
     BRANCH_GHOST_MODE = 1 << 11, 'Include the --ghost_mode switch for enabling ghost mode for the branch'
     FILES = 1 << 12, 'Parse configuration files given on the command line'
-    FILES_REQUIRED = 1 << 13, 'At one configuration file must be given'
+    FILES_REQUIRED = 1 << 13, 'At least one configuration file must be given'
     OVERRIDES = 1 << 14, 'Include the --override switch for overriding arbitrary configuration sections'
     VARIABLES = 1 << 15, 'Include the --var switch for setting variables'
     BRANCH_ALL = BRANCH_NAME[0] | BRANCH_DESCRIPTION[0] | BRANCH_NETWORK[0] | BRANCH_PASSWORD[0] | BRANCH_PATH[0] | BRANCH_ADV_IFS[
         0] | BRANCH_ADV_ADDR[0] | BRANCH_ADV_PORT[0] | BRANCH_ADV_INT[0] | BRANCH_TIMEOUT[0] | BRANCH_GHOST_MODE[0], 'Combination of all branch flags'
     ALL = LOGGING[0] | BRANCH_ALL[0] | FILES[0] | FILES_REQUIRED[0] | OVERRIDES[0] | VARIABLES[0], 'Combination of all flags'
-    # :END_CODEGEN:
+    # :CODEGEN_END:
 
 
 class BranchEvents(DocIntEnum):
     """Events that can be observed on a branch"""
-    # :BEGIN_CODEGEN: gen_python_enums
+    # :CODEGEN_BEGIN:
     NONE = 0, 'No event (passed to event handler function if wait operation failed)'
     BRANCH_DISCOVERED = 1 << 0, 'A new branch has been discovered'
     BRANCH_QUERIED = 1 << 1, 'Querying a new branch for information finished (successfully or not)'
     CONNECT_FINISHED = 1 << 2, 'Connecting to a branch finished (successfully or not)'
     CONNECTION_LOST = 1 << 3, 'The connection to a branch was lost'
     ALL = BRANCH_DISCOVERED[0] | BRANCH_QUERIED[0] | CONNECT_FINISHED[0] | CONNECTION_LOST[0], 'All branch events'
-    # :END_CODEGEN:
+    # :CODEGEN_END:
+
+
+class HttpMethods(DocIntEnum):
+    """HTTP request methods"""
+    # :CODEGEN_BEGIN:
+    NONE = 0, 'No methods'
+    GET = 1 << 0, 'GET method for retrieving data'
+    HEAD = 1 << 1, 'HEAD method for retrieving the same header as with the GET request but'
+    POST = 1 << 2, 'POST method for submitting data'
+    PUT = 1 << 3, 'PUT method for modifying data'
+    DELETE = 1 << 4, 'DELETE method for deleting data'
+    PATCH = 1 << 5, 'PATCH method for partially modifying data'
+    # :CODEGEN_END:

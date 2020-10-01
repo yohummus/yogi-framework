@@ -62,9 +62,11 @@ def replace_block_in_file(rel_file_path: str, lines: List[str], *, block_idx: in
 
     if file.suffix in ['.h', '.cc']:
         formatted_new_content = subprocess.check_output(['clang-format'], input=new_content, text=True, cwd=file.parent)
-    else:
+    elif file.suffix == '.py':
         formatted_new_content = subprocess.check_output(['autopep8', '--max-line-length=120', '-'], input=new_content,
                                                         text=True)
+    else:
+        formatted_new_content = new_content
 
     if formatted_new_content != content:
         with open(file, 'w') as f:

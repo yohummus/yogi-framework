@@ -14,6 +14,7 @@ def generate(core_api: munch.Munch) -> None:
     generate_version_py()
     generate_constants_py(core_api)
     generate_library_py(core_api)
+    generate_enums_py(core_api)
     generate_copyright_headers(core_api, 'yogi-python')
     generate_conanfile_py('yogi-python')
 
@@ -108,6 +109,51 @@ def generate_library_py(core_api: munch.Munch) -> None:
         ''').lstrip()]
 
     replace_block_in_file('yogi-python/yogi/_library.py', api_fn_lines, block_idx=1)
+
+
+def generate_enums_py(core_api: munch.Munch) -> None:
+    """Replaces the code in the _enums.py file"""
+    line_blocks = []
+
+    # Normal enums
+    for enum, elems in core_api.enums.items():
+        name_prefix = ''
+        if enum == 'error_code':
+            values = range(0, -len(elems), -1)
+        elif enum == 'verbosity':
+            values = range(-1, len(elems) - 1)
+        elif enum == 'http_status':
+            name_prefix = 'HTTP_'
+            values = elems.keys()
+        else:
+            values = range(len(elems))
+
+        lines = [f"    {name_prefix}{name} = {val}, '{comment}'"
+                 for val, (name, comment) in zip(values, elems.items())]
+
+        line_blocks += [lines]
+
+    # Flags
+    for enum, flags in core_api.flags.items():
+        lines = []
+        for name, props in flags.items():
+            line = f'    {name} = '
+
+            if 'bit' in props:
+                line += '0' if props.bit is None else f'1 << {props.bit}'
+            else:
+                combine_names = [f'{x}[0]' for x in props.combine]
+                line += ' | '.join(combine_names)
+
+            comment = props.help.split('\n')[0]
+            line += f", '{comment}'"
+
+            lines += [line]
+
+        line_blocks += [lines]
+
+    for block_idx, lines in enumerate(line_blocks):
+        replace_block_in_file('yogi-python/yogi/_enums.py', lines, block_idx=block_idx)
 
 
 def make_cfunctype_mock_code(core_api: munch.Munch, fn_props: munch.Munch) -> str:
