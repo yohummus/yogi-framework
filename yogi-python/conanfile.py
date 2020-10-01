@@ -26,7 +26,7 @@ class YogiPythonConan(ConanFile):
             return  # No need to do anything
 
         commands = [f"{sys.executable} -m venv yogi-python-venv",
-                    f"if command -v source > /dev/null; then CMD=source; else CMD=.; fi; $CMD yogi-python-venv/bin/activate",
+                    f"if type . > /dev/null; then CMD=.; else CMD=source; fi; $CMD yogi-python-venv/bin/activate",
                     f"pip install -r {self.source_folder}/requirements.txt",
                     f"pip install pytest",
                     f"py.test {self.source_folder}"]
