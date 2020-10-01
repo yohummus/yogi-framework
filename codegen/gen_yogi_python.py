@@ -143,10 +143,17 @@ def generate_enums_py(core_api: munch.Munch) -> None:
                 line += '0' if props.bit is None else f'1 << {props.bit}'
             else:
                 combine_names = [f'{x}[0]' for x in props.combine]
-                line += ' | '.join(combine_names)
+                line += ' | \\\n'.join(combine_names)
 
-            comment = props.help.split('\n')[0]
-            line += f", '{comment}'"
+            if '\n' in props.help:
+                comment = props.help.rstrip().replace('\\', '\\\\').replace('\n', "\\n'\n'")
+                comment = f"('{comment}')\n"
+            else:
+                comment = f"'{props.help}'"
+
+            line += f', {comment}'
+            if 'combine' in props and not line.endswith('\n'):
+                line += '\n'
 
             lines += [line]
 

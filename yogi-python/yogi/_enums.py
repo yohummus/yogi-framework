@@ -218,7 +218,17 @@ class Signals(DocIntEnum):
     USR6 = 1 << 29, 'User-defined signal 6'
     USR7 = 1 << 30, 'User-defined signal 7'
     USR8 = 1 << 31, 'User-defined signal 8'
-    ALL = INT[0] | TERM[0] | USR1[0] | USR2[0] | USR3[0] | USR4[0] | USR5[0] | USR6[0] | USR7[0] | USR8[0], 'All signals'
+    ALL = INT[0] | \
+        TERM[0] | \
+        USR1[0] | \
+        USR2[0] | \
+        USR3[0] | \
+        USR4[0] | \
+        USR5[0] | \
+        USR6[0] | \
+        USR7[0] | \
+        USR8[0], 'All signals'
+
     # :CODEGEN_END:
 
 
@@ -226,9 +236,44 @@ class ConfigurationFlags(DocIntEnum):
     """Flags used to change a configuration object's behaviour"""
     # :CODEGEN_BEGIN:
     NONE = 0, 'No flags'
-    DISABLE_VARIABLES = 1 << 0, 'Disables support for variables in the configuration'
-    MUTABLE_CMD_LINE = 1 << 1, 'Makes configuration options given directly on the command line overridable'
-    # :CODEGEN_END:
+    DISABLE_VARIABLES = 1 << 0, ('Disables support for variables in the configuration\n'
+                                 '\n'
+                                 'Variables are used to define common values (or parts of values) in a\n'
+                                 'pre-defined  section. They can then be used in multiple other parts of the\n'
+                                 'configuration.\n'
+                                 '\n'
+                                 '\\note\n'
+                                 '  Variables can *not* be used in keys.\n'
+                                 '\n'
+                                 'Variables are defined in the *variables* section of the configuration:\n'
+                                 '\n'
+                                 '\\code\n'
+                                 '{\n'
+                                 '  "variables": {\n'
+                                 '    "ROOT":         "/usr/share/my-app",\n'
+                                 '    "DATA_DIR":     "${ROOT}/data"\n'
+                                 '    "DURATION":     30,\n'
+                                 '    "MAX_DURATION": "${DURATION}",\n'
+                                 '...\n'
+                                 '\\endcode\n'
+                                 'These variables can then be used anywhere in the configuration, even in the\n'
+                                 '*variables* section itself as shown above.\n'
+                                 '\n'
+                                 '\\note\n'
+                                 '  Even if the value of a variable is not a string, the placeholder *${name}*\n'
+                                 '  always has to be a string to conform to the JSON format. When resolving a\n'
+                                 '  placeholder for a non-string variable, the type of the target value will\n'
+                                 '  be changed accordingly if and only if the placeholder is surrounded by\n'
+                                 '  quotation marks as shown for the *MAX_DURATION* variable above. Otherwise,\n'
+                                 '  the target value will remain a string and the placeholder will be replaced\n'
+                                 '  with the stringified value of the variable.')
+
+    MUTABLE_CMD_LINE = 1 << 1, ('Makes configuration options given directly on the command line overridable\n'
+                                '\n'
+                                'By default, configuration options given direclty on the command line are\n'
+                                'immutable, i.e. they will never be updated from another source.')
+
+# :CODEGEN_END:
 
 
 class CommandLineOptions(DocIntEnum):
@@ -247,26 +292,119 @@ class CommandLineOptions(DocIntEnum):
     BRANCH_ADV_INT = 1 << 9, 'Include the --adv-int switch for setting the branch advertising interval'
     BRANCH_TIMEOUT = 1 << 10, 'Include the --timeout switch for setting the branch timeout'
     BRANCH_GHOST_MODE = 1 << 11, 'Include the --ghost_mode switch for enabling ghost mode for the branch'
-    FILES = 1 << 12, 'Parse configuration files given on the command line'
+    FILES = 1 << 12, ('Parse configuration files given on the command line\n'
+                      '\n'
+                      'The files will be parsed from left to right, i.e. if the same value is set\n'
+                      'in two supplied configuration files, then the value from the rightmost file\n'
+                      'will be used. However, values given directly on the command line, i.e. not\n'
+                      'through files, have higher priority.')
+
     FILES_REQUIRED = 1 << 13, 'At least one configuration file must be given'
-    OVERRIDES = 1 << 14, 'Include the --override switch for overriding arbitrary configuration sections'
+    OVERRIDES = 1 << 14, ('Include the --override switch for overriding arbitrary configuration sections\n'
+                          '\n'
+                          'This is useful for supplying arbitrary parameters on the command line\n'
+                          'without having to store them in a file.\n'
+                          '\n'
+                          '\\note\n'
+                          '  Parameters supplied in this way override the same parameters in any\n'
+                          '  given configuration file. If the same parameter is set directly on the\n'
+                          '  command line multiple times, then the rightmost value is used.')
+
     VARIABLES = 1 << 15, 'Include the --var switch for setting variables'
-    BRANCH_ALL = BRANCH_NAME[0] | BRANCH_DESCRIPTION[0] | BRANCH_NETWORK[0] | BRANCH_PASSWORD[0] | BRANCH_PATH[0] | BRANCH_ADV_IFS[
-        0] | BRANCH_ADV_ADDR[0] | BRANCH_ADV_PORT[0] | BRANCH_ADV_INT[0] | BRANCH_TIMEOUT[0] | BRANCH_GHOST_MODE[0], 'Combination of all branch flags'
-    ALL = LOGGING[0] | BRANCH_ALL[0] | FILES[0] | FILES_REQUIRED[0] | OVERRIDES[0] | VARIABLES[0], 'Combination of all flags'
-    # :CODEGEN_END:
+    BRANCH_ALL = BRANCH_NAME[0] | \
+        BRANCH_DESCRIPTION[0] | \
+        BRANCH_NETWORK[0] | \
+        BRANCH_PASSWORD[0] | \
+        BRANCH_PATH[0] | \
+        BRANCH_ADV_IFS[0] | \
+        BRANCH_ADV_ADDR[0] | \
+        BRANCH_ADV_PORT[0] | \
+        BRANCH_ADV_INT[0] | \
+        BRANCH_TIMEOUT[0] | \
+        BRANCH_GHOST_MODE[0], 'Combination of all branch flags'
+
+    ALL = LOGGING[0] | \
+        BRANCH_ALL[0] | \
+        FILES[0] | \
+        FILES_REQUIRED[0] | \
+        OVERRIDES[0] | \
+        VARIABLES[0], ('Combination of all flags\n'
+                       '\n'
+                       'This is usually used with the application object.')
+
+# :CODEGEN_END:
 
 
 class BranchEvents(DocIntEnum):
     """Events that can be observed on a branch"""
     # :CODEGEN_BEGIN:
     NONE = 0, 'No event (passed to event handler function if wait operation failed)'
-    BRANCH_DISCOVERED = 1 << 0, 'A new branch has been discovered'
-    BRANCH_QUERIED = 1 << 1, 'Querying a new branch for information finished (successfully or not)'
-    CONNECT_FINISHED = 1 << 2, 'Connecting to a branch finished (successfully or not)'
-    CONNECTION_LOST = 1 << 3, 'The connection to a branch was lost'
-    ALL = BRANCH_DISCOVERED[0] | BRANCH_QUERIED[0] | CONNECT_FINISHED[0] | CONNECTION_LOST[0], 'All branch events'
-    # :CODEGEN_END:
+    BRANCH_DISCOVERED = 1 << 0, ('A new branch has been discovered\n'
+                                 '\n'
+                                 'A remote branch is considered to be a _new branch_ if it is neither already\n'
+                                 'connected nor in the process of being connected to. This means if we\n'
+                                 'discover a branch and connect to it but connecting to it fails and the\n'
+                                 'remote branch itself has not connected to us, then the next time an\n'
+                                 'we receive an advertisement message we consider the branch new again.\n'
+                                 '\n'
+                                 'Associated event information:\n'
+                                 '\n'
+                                 '\\code\n'
+                                 '  {\n'
+                                 '    "uuid":               "123e4567-e89b-12d3-a456-426655440000",\n'
+                                 '    "tcp_server_address": "fe80::f086:b106:2c1b:c45",\n'
+                                 '    "tcp_server_port":    43384\n'
+                                 '  }\n'
+                                 '\\endcode')
+
+    BRANCH_QUERIED = 1 << 1, ('Querying a new branch for information finished (successfully or not)\n'
+                              '\n'
+                              'Associated event information:\n'
+                              '\n'
+                              '\\code\n'
+                              '  {\n'
+                              '    "uuid":                 "123e4567-e89b-12d3-a456-426655440000",\n'
+                              '    "name":                 "Pump Safety Logic",\n'
+                              '    "description":          "Monitors the pump for safety",\n'
+                              '    "network_name":         "Hardware Control",\n'
+                              '    "path":                 "/Cooling System/Pump/Safety",\n'
+                              '    "hostname":             "beaglebone",\n'
+                              '    "pid":                  3321,\n'
+                              '    "tcp_server_address":   "fe80::f086:b106:2c1b:c45",\n'
+                              '    "tcp_server_port":      43384,\n'
+                              '    "start_time":           "2018-04-23T18:25:43.511Z",\n'
+                              '    "timeout":              3.0,\n'
+                              '    "advertising_interval": 1.0,\n'
+                              '    "ghost_mode":           false\n'
+                              '  }\n'
+                              '\\endcode')
+
+    CONNECT_FINISHED = 1 << 2, ('Connecting to a branch finished (successfully or not)\n'
+                                '\n'
+                                'Associated event information:\n'
+                                '\n'
+                                '\\code\n'
+                                '  {\n'
+                                '    "uuid": "123e4567-e89b-12d3-a456-426655440000"\n'
+                                '  }\n'
+                                '\\endcode')
+
+    CONNECTION_LOST = 1 << 3, ('The connection to a branch was lost\n'
+                               '\n'
+                               'Associated event information:\n'
+                               '\n'
+                               '\\code\n'
+                               '  {\n'
+                               '    "uuid": "123e4567-e89b-12d3-a456-426655440000"\n'
+                               '  }\n'
+                               '\\endcode')
+
+    ALL = BRANCH_DISCOVERED[0] | \
+        BRANCH_QUERIED[0] | \
+        CONNECT_FINISHED[0] | \
+        CONNECTION_LOST[0], 'All branch events'
+
+# :CODEGEN_END:
 
 
 class HttpMethods(DocIntEnum):
@@ -274,9 +412,11 @@ class HttpMethods(DocIntEnum):
     # :CODEGEN_BEGIN:
     NONE = 0, 'No methods'
     GET = 1 << 0, 'GET method for retrieving data'
-    HEAD = 1 << 1, 'HEAD method for retrieving the same header as with the GET request but'
+    HEAD = 1 << 1, ('HEAD method for retrieving the same header as with the GET request but\n'
+                    'without the response body')
+
     POST = 1 << 2, 'POST method for submitting data'
     PUT = 1 << 3, 'PUT method for modifying data'
     DELETE = 1 << 4, 'DELETE method for deleting data'
     PATCH = 1 << 5, 'PATCH method for partially modifying data'
-    # :CODEGEN_END:
+# :CODEGEN_END:
