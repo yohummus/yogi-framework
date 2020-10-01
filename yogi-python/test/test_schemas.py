@@ -14,16 +14,10 @@
 # along with this library. If not, see <http://www.gnu.org/licenses/>.
 
 import yogi
-from ctypes import addressof
 
 from .common import TestCase
 
 
 class TestSchemas(TestCase):
     def test_get_schema(self):
-        def fn(schema):
-            self.assertEqual(schema, yogi.Schema.BRANCH_EVENT)
-            return self.hello_bytes  # TODO: Causes memory leak
-
-        self.MOCK_GetSchema(fn)
-        self.assertEqual(yogi.get_schema(yogi.Schema.BRANCH_EVENT), 'hello')
+        self.assertEqual(yogi.get_schema(yogi.Schema.BRANCH_EVENT), '{"I_am_a":"dummy_schema"}')

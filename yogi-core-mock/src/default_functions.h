@@ -82,13 +82,13 @@ int default_GetConstant(void* dest, int constant) {
 }
 
 const char* default_GetErrorString(int err) {
-  return "I'm an error string";
+  return "Dummy error string";
 }
 
 const char* default_GetLastErrorDetails() {
   return "Error details...";
 }
 
-const char* default_GetSchema() {
+const char* default_GetSchema(int schema) {
   return "{\"I_am_a\":\"dummy_schema\"}";
 }

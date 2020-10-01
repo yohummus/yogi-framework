@@ -40,10 +40,6 @@ class TestCase(unittest.TestCase):
         self.keepalive = []
         self.MOCK_Destroy(lambda _: yogi.ErrorCode.OK)
 
-    def setUp(self):
-        self.MOCK_GetLastErrorDetails(lambda: self.hello_bytes)  # TODO: Causes memory  leak
-        self.MOCK_GetErrorString(lambda _: self.hello_bytes)  # TODO: Causes memory  leak
-
     def tearDown(self):
         yogi._library.yogi_core.MOCK_ResetMocks()
         self.keepalive = []

@@ -27,7 +27,7 @@ class TestErrors(TestCase):
         self.assertEqual(yogi.Result(10).value, 10)
         self.assertEqual(yogi.Result(3), yogi.Result(3))
         self.assertNotEqual(yogi.Result(2), yogi.Result(3))
-        self.assertEqual(str(yogi.Result(yogi.ErrorCode.BAD_ALLOC)), 'hello')
+        self.assertEqual(str(yogi.Result(yogi.ErrorCode.BAD_ALLOC)), 'Dummy error string')
         self.assertNotEqual(hash(yogi.Result(1)), hash(yogi.Result(2)))
         self.assertIsInstance(yogi.Result(yogi.ErrorCode.BAD_ALLOC).error_code, yogi.ErrorCode)
         self.assertEqual(yogi.Result(0).error_code, yogi.Result(1).error_code)
