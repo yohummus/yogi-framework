@@ -12,6 +12,7 @@ def generate(core_api: munch.Munch) -> None:
     """Replaces the code in yogi-python from the loaded core API YAML file"""
     generate_common_py(core_api)
     generate_version_py()
+    generate_constants_py(core_api)
     generate_copyright_headers(core_api, 'yogi-python')
     generate_conanfile_py('yogi-python')
 
@@ -51,6 +52,31 @@ def generate_version_py() -> None:
     lines = [f'    {x}' for x in block.split('\n')]
 
     replace_block_in_file('yogi-python/yogi/_version.py', lines)
+
+
+def generate_constants_py(core_api: munch.Munch) -> None:
+    """Replaces the code in the _constants.py file"""
+    lines = ['    """Constants built into the Yogi Core library.',
+             '',
+             '    Attributes:']
+
+    max_name_len = max([len(x) for x in core_api.constants])
+    for name, props in core_api.constants.items():
+        lines += [f'        {name:{max_name_len}s}  {props.help}']
+    lines += ['    """']
+
+    for val, (name, props) in enumerate(core_api.constants.items(), start=1):
+        wrap_start = {
+            'Duration': 'Duration.from_nanoseconds(',
+            'Verbosity': 'Verbosity(',
+        }.get(props.type.py, '')
+        wrap_end = ')' if wrap_start else ''
+
+        ctypes_type = core_api.type_mappings[props.type.c].py
+
+        lines += [f'    {name}: {props.type.py} = {wrap_start}get_constant({val}, {ctypes_type}){wrap_end}']
+
+    replace_block_in_file('yogi-python/yogi/_constants.py', lines)
 
 
 def make_cfunctype_mock_code(core_api: munch.Munch, fn_props: munch.Munch) -> str:

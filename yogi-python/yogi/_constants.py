@@ -32,14 +32,14 @@ def get_constant(api_id, api_type) -> Union[str, int]:
 
 
 class Constants:
-    # :BEGIN_CODEGEN: gen_python_constants
+    # :CODEGEN_BEGIN:
     """Constants built into the Yogi Core library.
 
     Attributes:
         VERSION                        Whole version string of the core library
         VERSION_MAJOR                  Major version number of the core library
-        VERSION_MINOR                  Major version number of the core library
-        VERSION_PATCH                  Major version number of the core library
+        VERSION_MINOR                  Minor version number of the core library
+        VERSION_PATCH                  Patch version number of the core library
         VERSION_SUFFIX                 Suffix of the core library version
         DEFAULT_ADV_INTERFACES         Default network interfaces to use for advertising
         DEFAULT_ADV_ADDRESS            Default multicast addresses to use for advertising
@@ -111,7 +111,7 @@ class Constants:
     DEFAULT_SSL_PRIVATE_KEY: str = get_constant(35, c_char_p)
     DEFAULT_SSL_CERTIFICATE_CHAIN: str = get_constant(36, c_char_p)
     DEFAULT_SSL_DH_PARAMS: str = get_constant(37, c_char_p)
-    # :END_CODEGEN:
+    # :CODEGEN_END:
 
 
 constants = Constants()

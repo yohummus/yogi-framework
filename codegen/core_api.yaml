@@ -22,177 +22,177 @@ copyright: |
 constants:
   VERSION:
     help: Whole version string of the core library
-    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    type: { c: const char*, cpp: std::string, cs: string, py: str }
     value: YOGI_HDR_VERSION
 
   VERSION_MAJOR:
     help: Major version number of the core library
-    type: { c: int, cpp: int, cs: int, py: c_int }
+    type: { c: int, cpp: int, cs: int, py: int }
     value: YOGI_HDR_VERSION_MAJOR
 
   VERSION_MINOR:
     help: Minor version number of the core library
-    type: { c: int, cpp: int, cs: int, py: c_int }
+    type: { c: int, cpp: int, cs: int, py: int }
     value: YOGI_HDR_VERSION_MINOR
 
   VERSION_PATCH:
     help: Patch version number of the core library
-    type: { c: int, cpp: int, cs: int, py: c_int }
+    type: { c: int, cpp: int, cs: int, py: int }
     value: YOGI_HDR_VERSION_PATCH
 
   VERSION_SUFFIX:
     help: Suffix of the core library version
-    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    type: { c: const char*, cpp: std::string, cs: string, py: str }
     value: YOGI_HDR_VERSION_SUFFIX
 
   DEFAULT_ADV_INTERFACES:
     help: Default network interfaces to use for advertising
-    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    type: { c: const char*, cpp: std::string, cs: string, py: str }
     value: ["localhost"]
 
   DEFAULT_ADV_ADDRESS:
     help: Default multicast addresses to use for advertising
-    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    type: { c: const char*, cpp: std::string, cs: string, py: str }
     value: ff02::8000:2439
 
   DEFAULT_ADV_PORT:
     help: Default port to use for advertising via UDP IPv6 multicasts
-    type: { c: int, cpp: int, cs: int, py: c_int }
+    type: { c: int, cpp: int, cs: int, py: int }
     value: 13531
 
   DEFAULT_ADV_INTERVAL:
     help: Default advertising interval in nanoseconds
-    type: { c: long long, cpp: Duration, cs: long, py: c_longlong }
+    type: { c: long long, cpp: Duration, cs: long, py: Duration }
     value: 1.e+9
 
   DEFAULT_CONNECTION_TIMEOUT:
     help: Default connection timeout in nanoseconds
-    type: { c: long long, cpp: Duration, cs: long, py: c_longlong }
+    type: { c: long long, cpp: Duration, cs: long, py: Duration }
     value: 3.e+9
 
   DEFAULT_LOGGER_VERBOSITY:
     help: Default logging verbosity
-    type: { c: int, cpp: Verbosity, cs: int, py: c_int }
+    type: { c: int, cpp: Verbosity, cs: int, py: Verbosity }
     value: YOGI_VB_INFO
 
   DEFAULT_LOG_TIME_FORMAT:
     help: Default textual format for timestamps in log entries
-    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    type: { c: const char*, cpp: std::string, cs: string, py: str }
     value: "%F %T.%3"
 
   DEFAULT_LOG_FORMAT:
     help: Default textual format for log entries
-    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    type: { c: const char*, cpp: std::string, cs: string, py: str }
     value: "$t [T$T] $<$s $c: $m$>"
 
   MAX_MESSAGE_PAYLOAD_SIZE:
     help: Maximum size of the payload in a message
-    type: { c: int, cpp: int, cs: int, py: c_int }
+    type: { c: int, cpp: int, cs: int, py: int }
     value: 32768
 
   DEFAULT_TIME_FORMAT:
     help: Default textual format for timestamps
-    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    type: { c: const char*, cpp: std::string, cs: string, py: str }
     value: "%FT%T.%3Z"
 
   DEFAULT_INF_DURATION_STRING:
     help: Default string to denote an infinite duration
-    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    type: { c: const char*, cpp: std::string, cs: string, py: str }
     value: "%-inf"
 
   DEFAULT_DURATION_FORMAT:
     help: Default textual format for duration strings
-    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    type: { c: const char*, cpp: std::string, cs: string, py: str }
     value: "%-%dd %T.%3%6%9"
 
   DEFAULT_INVALID_HANDLE_STRING:
     help: Default string to denote an invalid object handle
-    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    type: { c: const char*, cpp: std::string, cs: string, py: str }
     value: INVALID HANDLE
 
   DEFAULT_OBJECT_FORMAT:
     help: Default textual format for strings describing an object
-    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    type: { c: const char*, cpp: std::string, cs: string, py: str }
     value: "$T [$x]"
 
   MIN_TX_QUEUE_SIZE:
     help: Minimum size of a send queue for a remote branch
-    type: { c: int, cpp: int, cs: int, py: c_int }
+    type: { c: int, cpp: int, cs: int, py: int }
     value: &min_tx_queue_size 35000
 
   MAX_TX_QUEUE_SIZE:
     help: Maximum size of a send queue for a remote branch
-    type: { c: int, cpp: int, cs: int, py: c_int }
+    type: { c: int, cpp: int, cs: int, py: int }
     value: 10.e+6
 
   DEFAULT_TX_QUEUE_SIZE:
     help: Default size of a send queue for a remote branch
-    type: { c: int, cpp: int, cs: int, py: c_int }
+    type: { c: int, cpp: int, cs: int, py: int }
     value: *min_tx_queue_size
 
   MIN_RX_QUEUE_SIZE:
     help: Minimum size of a receive queue for a remote branch
-    type: { c: int, cpp: int, cs: int, py: c_int }
+    type: { c: int, cpp: int, cs: int, py: int }
     value: &min_rx_queue_size 35000
 
   MAX_RX_QUEUE_SIZE:
     help: Maximum size of a receive queue for a remote branch
-    type: { c: int, cpp: int, cs: int, py: c_int }
+    type: { c: int, cpp: int, cs: int, py: int }
     value: 10.e+6
 
   DEFAULT_RX_QUEUE_SIZE:
     help: Default size of a receive queue for a remote branch
-    type: { c: int, cpp: int, cs: int, py: c_int }
+    type: { c: int, cpp: int, cs: int, py: int }
     value: *min_rx_queue_size
 
   DEFAULT_WEB_PORT:
     help: Default port for the web server to listen on for client connections
-    type: { c: int, cpp: int, cs: int, py: c_int }
+    type: { c: int, cpp: int, cs: int, py: int }
     value: 8443
 
   DEFAULT_WEB_INTERFACES:
     help: Default network interfaces to use for the web server
-    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    type: { c: const char*, cpp: std::string, cs: string, py: str }
     value: ["localhost"]
 
   DEFAULT_WEB_TIMEOUT:
     help: Default timeout for web server connections in nanoseconds
-    type: { c: long long, cpp: Duration, cs: long, py: c_longlong }
+    type: { c: long long, cpp: Duration, cs: long, py: Duration }
     value: 30.e+9
 
   DEFAULT_HTTP_HEADER_LIMIT:
     help: Default maximum HTTP header size of incoming requests in bytes
-    type: { c: int, cpp: int, cs: int, py: c_int }
+    type: { c: int, cpp: int, cs: int, py: int }
     value: 1000
 
   DEFAULT_HTTP_BODY_LIMIT:
     help: Default maximum HTTP body size of incoming requests in bytes
-    type: { c: int, cpp: int, cs: int, py: c_int }
+    type: { c: int, cpp: int, cs: int, py: int }
     value: 10000
 
   DEFAULT_WEB_CACHE_SIZE:
     help: Default size of the web server cache in bytes
-    type: { c: int, cpp: int, cs: int, py: c_int }
+    type: { c: int, cpp: int, cs: int, py: int }
     value: 25.e+6
 
   MAX_WEB_CACHE_SIZE:
     help: Maximum size of the web server cache in bytes
-    type: { c: int, cpp: int, cs: int, py: c_int }
+    type: { c: int, cpp: int, cs: int, py: int }
     value: 1.e+9
 
   DEFAULT_ADMIN_USER:
     help: Default user name for the administrator account
-    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    type: { c: const char*, cpp: std::string, cs: string, py: str }
     value: admin
 
   DEFAULT_ADMIN_PASSWORD:
     help: Default password for the administrator account
-    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    type: { c: const char*, cpp: std::string, cs: string, py: str }
     value: admin
 
   DEFAULT_SSL_PRIVATE_KEY:
     help: Default private key to use for SSL connections
-    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    type: { c: const char*, cpp: std::string, cs: string, py: str }
     value: |
       -----BEGIN PRIVATE KEY-----
       MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDccyREZEfU28sW
@@ -225,7 +225,7 @@ constants:
 
   DEFAULT_SSL_CERTIFICATE_CHAIN:
     help: Default certificate chain to use for SSL connections
-    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    type: { c: const char*, cpp: std::string, cs: string, py: str }
     value: |
       -----BEGIN CERTIFICATE-----
       MIICvjCCAaYCCQCL4CgivAdrbzANBgkqhkiG9w0BAQsFADAhMQswCQYDVQQGEwJV
@@ -247,7 +247,7 @@ constants:
 
   DEFAULT_SSL_DH_PARAMS:
     help: Default DH parameters to use for SSL connections
-    type: { c: const char*, cpp: std::string, cs: string, py: c_char_p }
+    type: { c: const char*, cpp: std::string, cs: string, py: str }
     value: |
       -----BEGIN DH PARAMETERS-----
       MIIBCAKCAQEA4iRXTwOzm97m19J21Pg67Vda5Ocw1PS6/CS+0ks//CpvNaYz0hJA
