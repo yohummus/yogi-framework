@@ -8,6 +8,14 @@ _destroy_mock_fn_keepalive = []
 
 
 @pytest.fixture
+def hello_bytes():
+    """Provides a byte array that persists until the test finishes"""
+    data = b'hello'
+    yield data
+    # The data variable should still be alive here
+
+
+@pytest.fixture
 def mocks():
     """Provides Yogi Core API function mocks"""
     mocks_inst = Mocks()
@@ -35,6 +43,17 @@ def signal_set(mocks, context):
 
     mocks.MOCK_SignalSetCreate(fn)
     return yogi.SignalSet(context, signals=yogi.Signals.TERM)
+
+
+@pytest.fixture
+def configuration(mocks):
+    """Provides a mocked Configuration instance"""
+    def fn(config, flags):
+        config.contents.value = 1234
+        return yogi.ErrorCode.OK
+
+    mocks.MOCK_ConfigurationCreate(fn)
+    return yogi.Configuration()
 
 
 class Mocks:
