@@ -146,8 +146,8 @@ def generate_enums_py(core_api: munch.Munch) -> None:
                 line += ' | \\\n'.join(combine_names)
 
             if '\n' in props.help:
-                comment = props.help.rstrip().replace('\\', '\\\\').replace('\n', "\\n'\n'")
-                comment = f"('{comment}')\n"
+                indented_comment = '\n'.join([f'        {x}' for x in props.help.split('\n')])
+                comment = f"textwrap.dedent(r'''\n{indented_comment}''').strip()\n"
             else:
                 comment = f"'{props.help}'"
 

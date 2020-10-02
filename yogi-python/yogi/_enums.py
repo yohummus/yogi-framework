@@ -17,10 +17,11 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-from enum import IntEnum
+import enum
+import textwrap
 
 
-class DocIntEnum(IntEnum):
+class DocIntEnum(enum.IntEnum):
     def __new__(cls, value, doc=None):
         self = int.__new__(cls, value)
         self._value_ = value
@@ -236,42 +237,46 @@ class ConfigurationFlags(DocIntEnum):
     """Flags used to change a configuration object's behaviour"""
     # :CODEGEN_BEGIN:
     NONE = 0, 'No flags'
-    DISABLE_VARIABLES = 1 << 0, ('Disables support for variables in the configuration\n'
-                                 '\n'
-                                 'Variables are used to define common values (or parts of values) in a\n'
-                                 'pre-defined  section. They can then be used in multiple other parts of the\n'
-                                 'configuration.\n'
-                                 '\n'
-                                 '\\note\n'
-                                 '  Variables can *not* be used in keys.\n'
-                                 '\n'
-                                 'Variables are defined in the *variables* section of the configuration:\n'
-                                 '\n'
-                                 '\\code\n'
-                                 '{\n'
-                                 '  "variables": {\n'
-                                 '    "ROOT":         "/usr/share/my-app",\n'
-                                 '    "DATA_DIR":     "${ROOT}/data"\n'
-                                 '    "DURATION":     30,\n'
-                                 '    "MAX_DURATION": "${DURATION}",\n'
-                                 '...\n'
-                                 '\\endcode\n'
-                                 'These variables can then be used anywhere in the configuration, even in the\n'
-                                 '*variables* section itself as shown above.\n'
-                                 '\n'
-                                 '\\note\n'
-                                 '  Even if the value of a variable is not a string, the placeholder *${name}*\n'
-                                 '  always has to be a string to conform to the JSON format. When resolving a\n'
-                                 '  placeholder for a non-string variable, the type of the target value will\n'
-                                 '  be changed accordingly if and only if the placeholder is surrounded by\n'
-                                 '  quotation marks as shown for the *MAX_DURATION* variable above. Otherwise,\n'
-                                 '  the target value will remain a string and the placeholder will be replaced\n'
-                                 '  with the stringified value of the variable.')
+    DISABLE_VARIABLES = 1 << 0, textwrap.dedent(r'''
+        Disables support for variables in the configuration
+        
+        Variables are used to define common values (or parts of values) in a
+        pre-defined  section. They can then be used in multiple other parts of the
+        configuration.
+        
+        \note
+          Variables can *not* be used in keys.
+        
+        Variables are defined in the *variables* section of the configuration:
+        
+        \code
+        {
+          "variables": {
+            "ROOT":         "/usr/share/my-app",
+            "DATA_DIR":     "${ROOT}/data"
+            "DURATION":     30,
+            "MAX_DURATION": "${DURATION}",
+        ...
+        \endcode
+        These variables can then be used anywhere in the configuration, even in the
+        *variables* section itself as shown above.
+        
+        \note
+          Even if the value of a variable is not a string, the placeholder *${name}*
+          always has to be a string to conform to the JSON format. When resolving a
+          placeholder for a non-string variable, the type of the target value will
+          be changed accordingly if and only if the placeholder is surrounded by
+          quotation marks as shown for the *MAX_DURATION* variable above. Otherwise,
+          the target value will remain a string and the placeholder will be replaced
+          with the stringified value of the variable.
+        ''').strip()
 
-    MUTABLE_CMD_LINE = 1 << 1, ('Makes configuration options given directly on the command line overridable\n'
-                                '\n'
-                                'By default, configuration options given direclty on the command line are\n'
-                                'immutable, i.e. they will never be updated from another source.')
+    MUTABLE_CMD_LINE = 1 << 1, textwrap.dedent(r'''
+        Makes configuration options given directly on the command line overridable
+        
+        By default, configuration options given direclty on the command line are
+        immutable, i.e. they will never be updated from another source.
+        ''').strip()
 
 # :CODEGEN_END:
 
@@ -292,23 +297,27 @@ class CommandLineOptions(DocIntEnum):
     BRANCH_ADV_INT = 1 << 9, 'Include the --adv-int switch for setting the branch advertising interval'
     BRANCH_TIMEOUT = 1 << 10, 'Include the --timeout switch for setting the branch timeout'
     BRANCH_GHOST_MODE = 1 << 11, 'Include the --ghost_mode switch for enabling ghost mode for the branch'
-    FILES = 1 << 12, ('Parse configuration files given on the command line\n'
-                      '\n'
-                      'The files will be parsed from left to right, i.e. if the same value is set\n'
-                      'in two supplied configuration files, then the value from the rightmost file\n'
-                      'will be used. However, values given directly on the command line, i.e. not\n'
-                      'through files, have higher priority.')
+    FILES = 1 << 12, textwrap.dedent(r'''
+        Parse configuration files given on the command line
+        
+        The files will be parsed from left to right, i.e. if the same value is set
+        in two supplied configuration files, then the value from the rightmost file
+        will be used. However, values given directly on the command line, i.e. not
+        through files, have higher priority.
+        ''').strip()
 
     FILES_REQUIRED = 1 << 13, 'At least one configuration file must be given'
-    OVERRIDES = 1 << 14, ('Include the --override switch for overriding arbitrary configuration sections\n'
-                          '\n'
-                          'This is useful for supplying arbitrary parameters on the command line\n'
-                          'without having to store them in a file.\n'
-                          '\n'
-                          '\\note\n'
-                          '  Parameters supplied in this way override the same parameters in any\n'
-                          '  given configuration file. If the same parameter is set directly on the\n'
-                          '  command line multiple times, then the rightmost value is used.')
+    OVERRIDES = 1 << 14, textwrap.dedent(r'''
+        Include the --override switch for overriding arbitrary configuration sections
+        
+        This is useful for supplying arbitrary parameters on the command line
+        without having to store them in a file.
+        
+        \note
+          Parameters supplied in this way override the same parameters in any
+          given configuration file. If the same parameter is set directly on the
+          command line multiple times, then the rightmost value is used.
+        ''').strip()
 
     VARIABLES = 1 << 15, 'Include the --var switch for setting variables'
     BRANCH_ALL = BRANCH_NAME[0] | \
@@ -328,9 +337,11 @@ class CommandLineOptions(DocIntEnum):
         FILES[0] | \
         FILES_REQUIRED[0] | \
         OVERRIDES[0] | \
-        VARIABLES[0], ('Combination of all flags\n'
-                       '\n'
-                       'This is usually used with the application object.')
+        VARIABLES[0], textwrap.dedent(r'''
+        Combination of all flags
+        
+        This is usually used with the application object.
+        ''').strip()
 
 # :CODEGEN_END:
 
@@ -339,65 +350,73 @@ class BranchEvents(DocIntEnum):
     """Events that can be observed on a branch"""
     # :CODEGEN_BEGIN:
     NONE = 0, 'No event (passed to event handler function if wait operation failed)'
-    BRANCH_DISCOVERED = 1 << 0, ('A new branch has been discovered\n'
-                                 '\n'
-                                 'A remote branch is considered to be a _new branch_ if it is neither already\n'
-                                 'connected nor in the process of being connected to. This means if we\n'
-                                 'discover a branch and connect to it but connecting to it fails and the\n'
-                                 'remote branch itself has not connected to us, then the next time an\n'
-                                 'we receive an advertisement message we consider the branch new again.\n'
-                                 '\n'
-                                 'Associated event information:\n'
-                                 '\n'
-                                 '\\code\n'
-                                 '  {\n'
-                                 '    "uuid":               "123e4567-e89b-12d3-a456-426655440000",\n'
-                                 '    "tcp_server_address": "fe80::f086:b106:2c1b:c45",\n'
-                                 '    "tcp_server_port":    43384\n'
-                                 '  }\n'
-                                 '\\endcode')
+    BRANCH_DISCOVERED = 1 << 0, textwrap.dedent(r'''
+        A new branch has been discovered
+        
+        A remote branch is considered to be a _new branch_ if it is neither already
+        connected nor in the process of being connected to. This means if we
+        discover a branch and connect to it but connecting to it fails and the
+        remote branch itself has not connected to us, then the next time an
+        we receive an advertisement message we consider the branch new again.
+        
+        Associated event information:
+        
+        \code
+          {
+            "uuid":               "123e4567-e89b-12d3-a456-426655440000",
+            "tcp_server_address": "fe80::f086:b106:2c1b:c45",
+            "tcp_server_port":    43384
+          }
+        \endcode
+        ''').strip()
 
-    BRANCH_QUERIED = 1 << 1, ('Querying a new branch for information finished (successfully or not)\n'
-                              '\n'
-                              'Associated event information:\n'
-                              '\n'
-                              '\\code\n'
-                              '  {\n'
-                              '    "uuid":                 "123e4567-e89b-12d3-a456-426655440000",\n'
-                              '    "name":                 "Pump Safety Logic",\n'
-                              '    "description":          "Monitors the pump for safety",\n'
-                              '    "network_name":         "Hardware Control",\n'
-                              '    "path":                 "/Cooling System/Pump/Safety",\n'
-                              '    "hostname":             "beaglebone",\n'
-                              '    "pid":                  3321,\n'
-                              '    "tcp_server_address":   "fe80::f086:b106:2c1b:c45",\n'
-                              '    "tcp_server_port":      43384,\n'
-                              '    "start_time":           "2018-04-23T18:25:43.511Z",\n'
-                              '    "timeout":              3.0,\n'
-                              '    "advertising_interval": 1.0,\n'
-                              '    "ghost_mode":           false\n'
-                              '  }\n'
-                              '\\endcode')
+    BRANCH_QUERIED = 1 << 1, textwrap.dedent(r'''
+        Querying a new branch for information finished (successfully or not)
+        
+        Associated event information:
+        
+        \code
+          {
+            "uuid":                 "123e4567-e89b-12d3-a456-426655440000",
+            "name":                 "Pump Safety Logic",
+            "description":          "Monitors the pump for safety",
+            "network_name":         "Hardware Control",
+            "path":                 "/Cooling System/Pump/Safety",
+            "hostname":             "beaglebone",
+            "pid":                  3321,
+            "tcp_server_address":   "fe80::f086:b106:2c1b:c45",
+            "tcp_server_port":      43384,
+            "start_time":           "2018-04-23T18:25:43.511Z",
+            "timeout":              3.0,
+            "advertising_interval": 1.0,
+            "ghost_mode":           false
+          }
+        \endcode
+        ''').strip()
 
-    CONNECT_FINISHED = 1 << 2, ('Connecting to a branch finished (successfully or not)\n'
-                                '\n'
-                                'Associated event information:\n'
-                                '\n'
-                                '\\code\n'
-                                '  {\n'
-                                '    "uuid": "123e4567-e89b-12d3-a456-426655440000"\n'
-                                '  }\n'
-                                '\\endcode')
+    CONNECT_FINISHED = 1 << 2, textwrap.dedent(r'''
+        Connecting to a branch finished (successfully or not)
+        
+        Associated event information:
+        
+        \code
+          {
+            "uuid": "123e4567-e89b-12d3-a456-426655440000"
+          }
+        \endcode
+        ''').strip()
 
-    CONNECTION_LOST = 1 << 3, ('The connection to a branch was lost\n'
-                               '\n'
-                               'Associated event information:\n'
-                               '\n'
-                               '\\code\n'
-                               '  {\n'
-                               '    "uuid": "123e4567-e89b-12d3-a456-426655440000"\n'
-                               '  }\n'
-                               '\\endcode')
+    CONNECTION_LOST = 1 << 3, textwrap.dedent(r'''
+        The connection to a branch was lost
+        
+        Associated event information:
+        
+        \code
+          {
+            "uuid": "123e4567-e89b-12d3-a456-426655440000"
+          }
+        \endcode
+        ''').strip()
 
     ALL = BRANCH_DISCOVERED[0] | \
         BRANCH_QUERIED[0] | \
@@ -412,8 +431,10 @@ class HttpMethods(DocIntEnum):
     # :CODEGEN_BEGIN:
     NONE = 0, 'No methods'
     GET = 1 << 0, 'GET method for retrieving data'
-    HEAD = 1 << 1, ('HEAD method for retrieving the same header as with the GET request but\n'
-                    'without the response body')
+    HEAD = 1 << 1, textwrap.dedent(r'''
+        HEAD method for retrieving the same header as with the GET request but
+        without the response body
+        ''').strip()
 
     POST = 1 << 2, 'POST method for submitting data'
     PUT = 1 << 3, 'PUT method for modifying data'
