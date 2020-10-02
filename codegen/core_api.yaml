@@ -727,43 +727,36 @@ functions:
   YOGI_GetVersion:
     return_type: const char*
     args: {}
-    mock: false
 
   YOGI_CheckBindingsCompatibility:
     return_type: int
     args:
       bindver: const char*
-    mock: false
 
   YOGI_GetErrorString:
     return_type: const char*
     args:
       err: int
-    mock: false
 
   YOGI_GetLastErrorDetails:
     return_type: const char*
     args: {}
-    mock: false
 
   YOGI_GetConstant:
     return_type: int
     args:
       dest: void*
       constant: int
-    mock: false
 
   YOGI_GetSchema:
     return_type: const char*
     args:
       schema: int
-    mock: false
 
   YOGI_GetCurrentTime:
     return_type: int
     args:
       timestamp: long long*
-    mock: true
 
   YOGI_FormatTime:
     return_type: int
@@ -772,7 +765,6 @@ functions:
       str: const char**
       strsize: int*
       timefmt: const char*
-    mock: true
 
   YOGI_ParseTime:
     return_type: int
@@ -780,7 +772,6 @@ functions:
       timestamp: long long*
       str: const char*
       timefmt: const char*
-    mock: true
 
   YOGI_FormatDuration:
     return_type: int
@@ -791,7 +782,6 @@ functions:
       strsize: int*
       durfmt: const char*
       inffmt: const char*
-    mock: true
 
   YOGI_FormatObject:
     return_type: int
@@ -801,7 +791,6 @@ functions:
       strsize: int*
       objfmt: const char*
       nullstr: const char*
-    mock: true
 
   YOGI_ConfigureConsoleLogging:
     return_type: int
@@ -811,7 +800,6 @@ functions:
       color: int
       timefmt: const char*
       fmt: const char*
-    mock: true
 
   YOGI_ConfigureHookLogging:
     return_type: int
@@ -829,7 +817,6 @@ functions:
           msg: const char*
           userarg: void*
       userarg: void*
-    mock: true
 
   YOGI_ConfigureFileLogging:
     return_type: int
@@ -840,28 +827,24 @@ functions:
       genfnsize: int*
       timefmt: const char*
       fmt: const char*
-    mock: true
 
   YOGI_LoggerCreate:
     return_type: int
     args:
       logger: void**
       component: const char*
-    mock: true
 
   YOGI_LoggerGetVerbosity:
     return_type: int
     args:
       logger: void*
       verbosity: int*
-    mock: true
 
   YOGI_LoggerSetVerbosity:
     return_type: int
     args:
       logger: void*
       verbosity: int
-    mock: true
 
   YOGI_LoggerSetComponentsVerbosity:
     return_type: int
@@ -869,7 +852,6 @@ functions:
       components: const char*
       verbosity: int
       count: int*
-    mock: true
 
   YOGI_LoggerLog:
     return_type: int
@@ -879,14 +861,12 @@ functions:
       file: const char*
       line: int
       msg: const char*
-    mock: true
 
   YOGI_ConfigurationCreate:
     return_type: int
     args:
       config: void**
       flags: int
-    mock: true
 
   YOGI_ConfigurationUpdateFromCommandLine:
     return_type: int
@@ -895,21 +875,18 @@ functions:
       argc: int
       argv: const char* const*
       options: int
-    mock: true
 
   YOGI_ConfigurationUpdateFromJson:
     return_type: int
     args:
       config: void*
       json: const char*
-    mock: true
 
   YOGI_ConfigurationUpdateFromFile:
     return_type: int
     args:
       config: void*
       filename: const char*
-    mock: true
 
   YOGI_ConfigurationDump:
     return_type: int
@@ -919,7 +896,6 @@ functions:
       jsonsize: int*
       resvars: int
       indent: int
-    mock: true
 
   YOGI_ConfigurationWriteToFile:
     return_type: int
@@ -928,7 +904,6 @@ functions:
       filename: const char*
       resvars: int
       indent: int
-    mock: true
 
   YOGI_ConfigurationValidate:
     return_type: int
@@ -936,27 +911,23 @@ functions:
       config: void*
       section: const char*
       schema: void*
-    mock: true
 
   YOGI_ContextCreate:
     return_type: int
     args:
       context: void**
-    mock: true
 
   YOGI_ContextPoll:
     return_type: int
     args:
       context: void*
       count: int*
-    mock: true
 
   YOGI_ContextPollOne:
     return_type: int
     args:
       context: void*
       count: int*
-    mock: true
 
   YOGI_ContextRun:
     return_type: int
@@ -964,7 +935,6 @@ functions:
       context: void*
       count: int*
       duration: long long
-    mock: true
 
   YOGI_ContextRunOne:
     return_type: int
@@ -972,33 +942,28 @@ functions:
       context: void*
       count: int*
       duration: long long
-    mock: true
 
   YOGI_ContextRunInBackground:
     return_type: int
     args:
       context: void*
-    mock: true
 
   YOGI_ContextStop:
     return_type: int
     args:
       context: void*
-    mock: true
 
   YOGI_ContextWaitForRunning:
     return_type: int
     args:
       context: void*
       duration: long long
-    mock: true
 
   YOGI_ContextWaitForStopped:
     return_type: int
     args:
       context: void*
       duration: long long
-    mock: true
 
   YOGI_ContextPost:
     return_type: int
@@ -1009,7 +974,6 @@ functions:
         args:
           userarg: void*
       userarg: void*
-    mock: true
 
   YOGI_RaiseSignal:
     return_type: int
@@ -1022,7 +986,6 @@ functions:
           sigarg: void*
           userarg: void*
       userarg: void*
-    mock: true
 
   YOGI_SignalSetCreate:
     return_type: int
@@ -1030,7 +993,6 @@ functions:
       sigset: void**
       context: void*
       signals: int
-    mock: true
 
   YOGI_SignalSetAwaitSignalAsync:
     return_type: int
@@ -1044,20 +1006,17 @@ functions:
           sigarg: void*
           userarg: void*
       userarg: void*
-    mock: true
 
   YOGI_SignalSetCancelAwaitSignal:
     return_type: int
     args:
       sigset: void*
-    mock: true
 
   YOGI_TimerCreate:
     return_type: int
     args:
       timer: void**
       context: void*
-    mock: true
 
   YOGI_TimerStartAsync:
     return_type: int
@@ -1070,13 +1029,11 @@ functions:
           res: int
           userarg: void*
       userarg: void*
-    mock: true
 
   YOGI_TimerCancel:
     return_type: int
     args:
       timer: void*
-    mock: true
 
   YOGI_BranchCreate:
     return_type: int
@@ -1085,7 +1042,6 @@ functions:
       context: void*
       config: void*
       section: const char*
-    mock: true
 
   YOGI_BranchGetInfo:
     return_type: int
@@ -1094,7 +1050,6 @@ functions:
       uuid: void*
       json: char*
       jsonsize: int
-    mock: true
 
   YOGI_BranchGetConnectedBranches:
     return_type: int
@@ -1109,7 +1064,6 @@ functions:
           res: int
           userarg: void*
       userarg: void*
-    mock: true
 
   YOGI_BranchAwaitEventAsync:
     return_type: int
@@ -1127,13 +1081,11 @@ functions:
           evres: int
           userarg: void*
       userarg: void*
-    mock: true
 
   YOGI_BranchCancelAwaitEvent:
     return_type: int
     args:
       branch: void*
-    mock: true
 
   YOGI_BranchSendBroadcast:
     return_type: int
@@ -1143,7 +1095,6 @@ functions:
       data: const void*
       datasize: int
       block: int
-    mock: true
 
   YOGI_BranchSendBroadcastAsync:
     return_type: int
@@ -1160,14 +1111,12 @@ functions:
           oid: int
           userarg: void*
       userarg: void*
-    mock: true
 
   YOGI_BranchCancelSendBroadcast:
     return_type: int
     args:
       branch: void*
       oid: int
-    mock: true
 
   YOGI_BranchReceiveBroadcastAsync:
     return_type: int
@@ -1184,24 +1133,20 @@ functions:
           size: int
           userarg: void*
       userarg: void*
-    mock: true
 
   YOGI_BranchCancelReceiveBroadcast:
     return_type: int
     args:
       branch: void*
-    mock: true
 
   YOGI_Destroy:
     return_type: int
     args:
       obj: void*
-    mock: true
 
   YOGI_DestroyAll:
     return_type: int
     args: {}
-    mock: true
 
   YOGI_WebServerCreate:
     return_type: int
@@ -1211,14 +1156,12 @@ functions:
       branch: void*
       config: void*
       section: const char*
-    mock: true
 
   YOGI_WebServerAddWorker:
     return_type: int
     args:
       server: void*
       context: void*
-    mock: true
 
   YOGI_WebRouteCreate:
     return_type: int
@@ -1238,7 +1181,6 @@ functions:
           qparams: const char* const*
           userarg: void*
       userarg: void*
-    mock: true
 
   YOGI_WebRouteRespond:
     return_type: int
@@ -1249,7 +1191,6 @@ functions:
       status: int
       contype: const char*
       content: const char*
-    mock: true
 
   YOGI_WebProcessCreate:
     return_type: int
@@ -1268,7 +1209,6 @@ functions:
           sizes: const int*
           userarg: void*
       userarg: void*
-    mock: true
 
   YOGI_WebProcessUpdate:
     return_type: int
@@ -1279,7 +1219,6 @@ functions:
       exitcode: int
       output: const void*
       outsize: int
-    mock: true
 
 type_mappings:
   void: { py: None, cs: void }
