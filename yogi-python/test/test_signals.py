@@ -19,161 +19,153 @@
 
 import yogi
 
-from .common import TestCase
+from .conftest import Mocks
 
 
-class TestSignals(TestCase):
-    def create_signal_set(self):
-        def fn(timer, context, signals):
-            timer.contents.value = self.pointer.value
-            return yogi.ErrorCode.OK
+def test_raise_signal(mocks: Mocks):
+    """Verifies that the signals can be raised"""
+    called = False
 
-        self.MOCK_SignalSetCreate(fn)
-        return yogi.SignalSet(self.create_context(), signals=yogi.Signals.TERM)
+    def handler_fn():
+        nonlocal called
+        called = True
 
-    def test_raise_signal(self):
-        called = False
+    def fn(signal, sigarg, fn_, userarg):
+        assert signal == yogi.Signals.TERM
+        assert sigarg is None
+        assert fn_
+        assert userarg is None
+        fn_(sigarg, userarg)
+        return yogi.ErrorCode.OK
 
-        def handler_fn():
-            nonlocal called
-            called = True
+    mocks.MOCK_RaiseSignal(fn)
+    yogi.raise_signal(yogi.Signals.TERM, None, handler_fn)
+    assert called
 
-        def fn(signal, sigarg, fn_, userarg):
-            self.assertEqual(signal, yogi.Signals.TERM)
-            self.assertIsNone(sigarg)
-            self.assertTrue(fn_)
-            self.assertIsNone(userarg)
-            fn_(sigarg, userarg)
-            return yogi.ErrorCode.OK
+    def handler_fn2(sigarg):  # This handler has a parameter
+        assert sigarg is None
 
-        self.MOCK_RaiseSignal(fn)
-        yogi.raise_signal(yogi.Signals.TERM, None, handler_fn)
-        self.assertTrue(called)
+    yogi.raise_signal(yogi.Signals.TERM, None, handler_fn2)
 
-        def handler_fn2(sigarg):  # This handler has a parameter
-            self.assertIsNone(sigarg)
 
-        yogi.raise_signal(yogi.Signals.TERM, None, handler_fn2)
+def test_create_signal_set(context: yogi.Context):
+    """Verifies that SignalSet can be instantiated"""
+    pass  # Already tested by requesting the context fixture
 
-    def test_raise_signal_no_handler(self):
-        called = False
 
-        def fn(signal, sigarg, fn_, userarg):
-            nonlocal called
-            called = True
-            return yogi.ErrorCode.OK
+def test_raise_signal_no_handler(mocks: Mocks, context: yogi.Context):
+    """Verifies that signals can be raised without having registered a signal handler"""
+    called = False
 
-        self.MOCK_RaiseSignal(fn)
-        yogi.raise_signal(yogi.Signals.TERM)
-        self.assertTrue(called)
+    def fn(signal, sigarg, fn_, userarg):
+        nonlocal called
+        called = True
+        return yogi.ErrorCode.OK
 
-        called = False
-        yogi.raise_signal(yogi.Signals.TERM, 'foo')
-        self.assertTrue(called)
+    mocks.MOCK_RaiseSignal(fn)
+    yogi.raise_signal(yogi.Signals.TERM)
+    assert called
 
-    def test_raise_signal_with_sigarg(self):
-        called = False
+    called = False
+    yogi.raise_signal(yogi.Signals.TERM, 'foo')
+    assert called
 
-        def handler_fn():
-            nonlocal called
-            called = True
 
-        def fn(signal, sigarg, fn_, userarg):
-            self.assertEqual(signal, yogi.Signals.TERM)
-            self.assertIsNotNone(sigarg)
-            self.assertTrue(fn_)
-            self.assertIsNone(userarg)
-            fn_(sigarg, userarg)
-            return yogi.ErrorCode.OK
+def test_raise_signal_with_sigarg(mocks: Mocks):
+    """Verifies that signals can be raised with a signal argument"""
+    called = False
 
-        self.MOCK_RaiseSignal(fn)
-        yogi.raise_signal(yogi.Signals.TERM, 'foo', handler_fn)
-        self.assertTrue(called)
+    def handler_fn():
+        nonlocal called
+        called = True
 
-        def handler_fn2(sigarg):
-            self.assertEqual(sigarg, 'foo')
+    def fn(signal, sigarg, fn_, userarg):
+        assert signal == yogi.Signals.TERM
+        assert sigarg is not None
+        assert fn_
+        assert userarg is None
+        fn_(sigarg, userarg)
+        return yogi.ErrorCode.OK
 
-        yogi.raise_signal(yogi.Signals.TERM, 'foo', handler_fn2)
+    mocks.MOCK_RaiseSignal(fn)
+    yogi.raise_signal(yogi.Signals.TERM, 'foo', handler_fn)
+    assert called
 
-    def test_create_signal_set(self):
-        def fn(timer, context, signals):
-            self.assertTrue(timer)
-            self.assertEqual(context, self.pointer.value)
-            self.assertEqual(signals, yogi.Signals.USR3)
-            timer.contents.value = self.pointer.value
-            return yogi.ErrorCode.OK
+    def handler_fn2(sigarg):
+        assert sigarg == 'foo'
 
-        self.MOCK_SignalSetCreate(fn)
-        return yogi.SignalSet(self.create_context(), yogi.Signals.USR3)
+    yogi.raise_signal(yogi.Signals.TERM, 'foo', handler_fn2)
 
-    def test_await_signal(self):
-        sigset = self.create_signal_set()
-        called = False
 
-        def handler_fn(res, signal):
-            self.assertIsInstance(res, yogi.Failure)
-            self.assertEqual(res.error_code, yogi.ErrorCode.WRONG_OBJECT_TYPE)
-            self.assertEqual(signal, yogi.Signals.USR6)
-            nonlocal called
-            called = True
+def test_await_signal(mocks: Mocks, signal_set: yogi.SignalSet):
+    """Verifies that we can wait for a signal to arrive"""
+    called = False
 
-        def fn(sigset, fn_, userarg):
-            self.assertEqual(sigset, self.pointer.value)
-            self.assertTrue(fn_)
-            self.assertIsNone(userarg)
-            fn_(yogi.ErrorCode.WRONG_OBJECT_TYPE, yogi.Signals.USR6, None, userarg)
-            return yogi.ErrorCode.OK
+    def handler_fn(res, signal):
+        assert isinstance(res, yogi.Failure)
+        assert res.error_code == yogi.ErrorCode.WRONG_OBJECT_TYPE
+        assert signal == yogi.Signals.USR6
+        nonlocal called
+        called = True
 
-        self.MOCK_SignalSetAwaitSignalAsync(fn)
-        sigset.await_signal_async(handler_fn)
-        self.assertTrue(called)
+    def fn(sigset, fn_, userarg):
+        assert sigset == 1234
+        assert fn_
+        assert userarg is None
+        fn_(yogi.ErrorCode.WRONG_OBJECT_TYPE, yogi.Signals.USR6, None, userarg)
+        return yogi.ErrorCode.OK
 
-        called = False
+    mocks.MOCK_SignalSetAwaitSignalAsync(fn)
+    signal_set.await_signal_async(handler_fn)
+    assert called
 
-        def handler_fn2(res, signal, sigarg):
-            self.assertIsNone(sigarg)
-            nonlocal called
-            called = True
+    called = False
 
-        sigset.await_signal_async(handler_fn2)
-        self.assertTrue(called)
+    def handler_fn2(res, signal, sigarg):
+        assert sigarg is None
+        nonlocal called
+        called = True
 
-    def test_await_signal_with_sigarg(self):
-        sigset = self.create_signal_set()
-        called = False
+    signal_set.await_signal_async(handler_fn2)
+    assert called
 
-        def handler_fn(res, signal, sigarg):
-            self.assertIsInstance(res, yogi.Failure)
-            self.assertEqual(res.error_code, yogi.ErrorCode.WRONG_OBJECT_TYPE)
-            self.assertEqual(signal, yogi.Signals.USR6)
-            self.assertEqual(sigarg, 'foo')
-            nonlocal called
-            called = True
 
-        def fn(sigset, fn_, userarg):
-            self.assertEqual(sigset, self.pointer.value)
-            self.assertTrue(fn_)
-            self.assertIsNone(userarg)
-            fn_(yogi.ErrorCode.WRONG_OBJECT_TYPE, yogi.Signals.USR6, 'foo', userarg)
-            return yogi.ErrorCode.OK
+def test_await_signal_with_sigarg(mocks: Mocks, signal_set: yogi.SignalSet):
+    """Verifies that we can wait for a signal to arrive with a signal argument"""
+    called = False
 
-        self.MOCK_SignalSetAwaitSignalAsync(fn)
-        sigset.await_signal_async(handler_fn)
-        self.assertTrue(called)
+    def handler_fn(res, signal, sigarg):
+        assert isinstance(res, yogi.Failure)
+        assert res.error_code == yogi.ErrorCode.WRONG_OBJECT_TYPE
+        assert signal == yogi.Signals.USR6
+        assert sigarg == 'foo'
+        nonlocal called
+        called = True
 
-    def test_cancel_await_signal(self):
-        sigset = self.create_signal_set()
+    def fn(sigset, fn_, userarg):
+        assert sigset == 1234
+        assert fn_
+        assert userarg is None
+        fn_(yogi.ErrorCode.WRONG_OBJECT_TYPE, yogi.Signals.USR6, 'foo', userarg)
+        return yogi.ErrorCode.OK
 
-        def fn(sigset):
-            self.assertEqual(sigset, self.pointer.value)
-            return yogi.ErrorCode.OK
+    mocks.MOCK_SignalSetAwaitSignalAsync(fn)
+    signal_set.await_signal_async(handler_fn)
+    assert called
 
-        self.MOCK_SignalSetCancelAwaitSignal(fn)
-        self.assertTrue(sigset.cancel_await_signal())
 
-        def fn2(sigset):
-            self.assertEqual(sigset, self.pointer.value)
-            return yogi.ErrorCode.OPERATION_NOT_RUNNING
+def test_cancel_await_signal(mocks: Mocks, signal_set: yogi.SignalSet):
+    """Verifies that waiting for a signal to arrive can be interrupted"""
+    def fn(sigset):
+        assert sigset == 1234
+        return yogi.ErrorCode.OK
 
-        self.MOCK_SignalSetCancelAwaitSignal(fn2)
-        self.assertFalse(sigset.cancel_await_signal())
+    mocks.MOCK_SignalSetCancelAwaitSignal(fn)
+    assert signal_set.cancel_await_signal()
+
+    def fn2(sigset):
+        assert sigset == 1234
+        return yogi.ErrorCode.OPERATION_NOT_RUNNING
+
+    mocks.MOCK_SignalSetCancelAwaitSignal(fn2)
+    assert not signal_set.cancel_await_signal()
