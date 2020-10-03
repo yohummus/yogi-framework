@@ -74,3 +74,9 @@ jobs:
           conan install yogi-python --install-folder build/yogi-python
           conan build yogi-python --build-folder build/yogi-python --source-folder yogi-python
           conan export-pkg yogi-python --build-folder build/yogi-python
+
+      - name: Build and package yogi-dotnet
+        run: |
+          conan install yogi-dotnet --install-folder build/yogi-dotnet
+          conan build yogi-dotnet --build-folder build/yogi-dotnet --source-folder yogi-dotnet
+          conan export-pkg yogi-dotnet --build-folder build/yogi-dotnet
