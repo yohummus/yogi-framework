@@ -19,87 +19,81 @@
 
 import yogi
 
-from .common import TestCase
+from .conftest import Mocks
 
 
-class TestTimer(TestCase):
-    def create_timer(self):
-        def fn(timer, context):
-            timer.contents.value = self.pointer.value
-            return yogi.ErrorCode.OK
+def test_create(mocks: Mocks, context: yogi.Context):
+    """Verifies that Timer can be instantiated"""
+    called = False
 
-        self.MOCK_TimerCreate(fn)
-        return yogi.Timer(self.create_context())
+    def fn(timer, context):
+        assert timer
+        assert context == 1234
+        timer.contents.value = 1234
+        nonlocal called
+        called = True
+        return yogi.ErrorCode.OK
 
-    def test_create(self):
-        called = False
+    mocks.MOCK_TimerCreate(fn)
+    yogi.Timer(context)
+    assert called
 
-        def fn(timer, context):
-            self.assertTrue(timer)
-            self.assertEqual(context, self.pointer.value)
-            timer.contents.value = self.pointer.value
-            nonlocal called
-            called = True
-            return yogi.ErrorCode.OK
 
-        self.MOCK_TimerCreate(fn)
-        yogi.Timer(self.create_context())
-        self.assertTrue(called)
+def test_start_async(mocks: Mocks, timer: yogi.Timer):
+    """Verifies that a timer can be started with a callback function"""
+    called = False
 
-    def test_start_async(self):
-        timer = self.create_timer()
-        called = False
+    def handler_fn(result):
+        assert isinstance(result, yogi.Success)
+        assert result.error_code == yogi.ErrorCode.OK
+        nonlocal called
+        called = True
 
-        def handler_fn(result):
-            self.assertIsInstance(result, yogi.Success)
-            self.assertEqual(result.error_code, yogi.ErrorCode.OK)
-            nonlocal called
-            called = True
+    def fn(timer, duration, fn_, userarg):
+        assert timer == 1234
+        assert duration == 1234
+        assert fn_
+        assert userarg is None
+        fn_(yogi.ErrorCode.OK, userarg)
+        return yogi.ErrorCode.OK
 
-        def fn(timer, duration, fn_, userarg):
-            self.assertEqual(timer, self.pointer.value)
-            self.assertEqual(duration, 1234)
-            self.assertTrue(fn_)
-            self.assertIsNone(userarg)
-            fn_(yogi.ErrorCode.OK, userarg)
-            return yogi.ErrorCode.OK
+    mocks.MOCK_TimerStartAsync(fn)
+    timer.start_async(yogi.Duration.from_nanoseconds(1234), handler_fn)
+    assert called
 
-        self.MOCK_TimerStartAsync(fn)
-        timer.start_async(yogi.Duration.from_nanoseconds(1234), handler_fn)
-        self.assertTrue(called)
 
-    def test_start_async_callback_cancel(self):
-        timer = self.create_timer()
-        called = False
+def test_start_async_callback_cancel(mocks: Mocks, timer: yogi.Timer):
+    """Verifies that canceled timers call the previously registered callback function with an error"""
+    called = False
 
-        def handler_fn(result):
-            self.assertIsInstance(result, yogi.Failure)
-            self.assertEqual(result.error_code, yogi.ErrorCode.CANCELED)
-            nonlocal called
-            called = True
+    def handler_fn(result):
+        assert isinstance(result, yogi.Failure)
+        assert result.error_code == yogi.ErrorCode.CANCELED
+        nonlocal called
+        called = True
 
-        def fn(timer, duration, fn_, userarg):
-            self.assertTrue(fn_)
-            fn_(yogi.ErrorCode.CANCELED, userarg)
-            return yogi.ErrorCode.OK
+    def fn(timer, duration, fn_, userarg):
+        assert fn_
+        fn_(yogi.ErrorCode.CANCELED, userarg)
+        return yogi.ErrorCode.OK
 
-        self.MOCK_TimerStartAsync(fn)
-        timer.start_async(yogi.Duration.from_nanoseconds(1234), handler_fn)
-        self.assertTrue(called)
+    mocks.MOCK_TimerStartAsync(fn)
+    timer.start_async(yogi.Duration.from_nanoseconds(1234), handler_fn)
+    assert called
 
-    def test_cancel(self):
-        timer = self.create_timer()
 
-        def fn(timer):
-            self.assertEqual(timer, self.pointer.value)
-            return yogi.ErrorCode.OK
+def test_cancel(mocks: Mocks, timer: yogi.Timer):
+    """Verifies that a timer can be canceled"""
+    def fn(timer):
+        assert timer == 1234
+        return yogi.ErrorCode.OK
 
-        self.MOCK_TimerCancel(fn)
-        self.assertTrue(timer.cancel())
+    mocks.MOCK_TimerCancel(fn)
+    assert timer.cancel()
 
-        def fn2(timer):
-            self.assertEqual(timer, self.pointer.value)
-            return yogi.ErrorCode.TIMER_EXPIRED
+    def fn2(timer):
+        assert timer == 1234
+        return yogi.ErrorCode.TIMER_EXPIRED
 
-        self.MOCK_TimerCancel(fn2)
-        self.assertFalse(timer.cancel())
+    mocks.MOCK_TimerCancel(fn2)
+    assert not timer.cancel()

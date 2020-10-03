@@ -19,175 +19,227 @@
 
 import yogi
 import datetime
+import pytest
 
-from .common import TestCase
+from .conftest import Mocks
 
 
-class TestTimestamp(TestCase):
-    def test_from_duration_since_epoch(self):
-        self.assertEqual(yogi.Timestamp.from_duration_since_epoch(
-            yogi.Duration.from_days(123)).duration_since_epoch, yogi.Duration.from_days(123))
-        self.assertRaises(ArithmeticError, lambda: yogi.Timestamp.from_duration_since_epoch(yogi.Duration.INF))
-        self.assertRaises(ArithmeticError, lambda: yogi.Timestamp.from_duration_since_epoch(
-            yogi.Duration.from_days(-1)))
+def test_from_duration_since_epoch():
+    """Verifies that a Timestamp instance can be created from a duration"""
+    assert yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(123)).duration_since_epoch \
+        == yogi.Duration.from_days(123)
 
-    def test_now(self):
-        def fn(timestamp):
-            timestamp.contents.value = 5555555555
-            return yogi.ErrorCode.OK
+    with pytest.raises(ArithmeticError):
+        yogi.Timestamp.from_duration_since_epoch(yogi.Duration.INF)
 
-        self.MOCK_GetCurrentTime(fn)
-        self.assertEqual(5555555555, yogi.Timestamp.now().duration_since_epoch.nanoseconds_count)
+    with pytest.raises(ArithmeticError):
+        yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(-1))
 
-    def test_now_error(self):
-        self.MOCK_GetCurrentTime(self.error_mock)
-        with self.assertRaises(yogi.FailureException):
-            yogi.Timestamp.now()
 
-    def test_parse(self):
-        def fn(timestamp, str_, timefmt):
-            self.assertEqual(str_, b'foo')
-            self.assertIsNone(timefmt)
-            timestamp.contents.value = 1234356789123000000
-            return yogi.ErrorCode.OK
+def test_now(mocks: Mocks):
+    """Checks that we can retrieve the current time"""
+    def fn(timestamp):
+        timestamp.contents.value = 5555555555
+        return yogi.ErrorCode.OK
 
-        self.MOCK_ParseTime(fn)
-        self.assertEqual(1234356789123000000, yogi.Timestamp.parse('foo').duration_since_epoch.nanoseconds_count)
+    mocks.MOCK_GetCurrentTime(fn)
+    assert 5555555555 == yogi.Timestamp.now().duration_since_epoch.nanoseconds_count
 
-    def test_parse_error(self):
-        def fn(timestamp, str, timefmt):
-            self.assertEqual(timefmt, b'bar')
-            return yogi.ErrorCode.UNKNOWN
 
-        self.MOCK_ParseTime(fn)
-        with self.assertRaises(yogi.FailureException):
-            yogi.Timestamp.parse('foo', 'bar')
+def test_now_error(mocks: Mocks):
+    """Verifies that errors that occur when getting the current time get reported"""
+    mocks.MOCK_GetCurrentTime(lambda *_: yogi.ErrorCode.WRONG_OBJECT_TYPE)
 
-    def test_constructor(self):
-        t = yogi.Timestamp()
-        self.assertEqual(t.duration_since_epoch.nanoseconds_count, 0)
+    with pytest.raises(yogi.FailureException):
+        yogi.Timestamp.now()
 
-    def test_duration_since_epoch(self):
-        dur = yogi.Duration.from_days(123)
-        t = yogi.Timestamp.from_duration_since_epoch(dur)
-        self.assertEqual(t.duration_since_epoch, dur)
 
-    def test_nanoseconds(self):
-        dur = yogi.Duration.from_nanoseconds(123456789)
-        t = yogi.Timestamp.from_duration_since_epoch(dur)
-        self.assertEqual(t.nanoseconds, 789)
+def test_parse(mocks: Mocks):
+    """Verifies that a Timestamp instance can be created from a string"""
+    def fn(timestamp, str_, timefmt):
+        assert str_ == b'foo'
+        assert timefmt is None
+        timestamp.contents.value = 1234356789123000000
+        return yogi.ErrorCode.OK
 
-    def test_microseconds(self):
-        dur = yogi.Duration.from_nanoseconds(123456789)
-        t = yogi.Timestamp.from_duration_since_epoch(dur)
-        self.assertEqual(t.microseconds, 456)
+    mocks.MOCK_ParseTime(fn)
+    assert 1234356789123000000 == yogi.Timestamp.parse('foo').duration_since_epoch.nanoseconds_count
 
-    def test_milliseconds(self):
-        dur = yogi.Duration.from_nanoseconds(123456789)
-        t = yogi.Timestamp.from_duration_since_epoch(dur)
-        self.assertEqual(t.milliseconds, 123)
 
-    def test_to_datetime(self):
-        dur = yogi.Duration.from_nanoseconds(123456789123456789)
-        dt = yogi.Timestamp.from_duration_since_epoch(dur).to_datetime()
-        self.assertIsInstance(dt, datetime.datetime)
-        self.assertEqual(dt.microsecond, 123456)
+def test_parse_error(mocks: Mocks):
+    """Verifies that errors that occur while parsing a string get reported"""
+    def fn(timestamp, str, timefmt):
+        assert timefmt == b'bar'
+        return yogi.ErrorCode.UNKNOWN
 
-    def test_format(self):
-        def fn(timestamp, str_, strsize, timefmt):
-            self.assertEqual(timestamp, 123456789123456789)
-            self.assertFalse(timefmt)
-            self.assertFalse(strsize)
-            str_.contents.value = self.hello_bytes
-            return yogi.ErrorCode.OK
+    mocks.MOCK_ParseTime(fn)
 
-        self.MOCK_FormatTime(fn)
-        t = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_nanoseconds(123456789123456789))
-        self.assertEqual(t.format(), 'hello')
+    with pytest.raises(yogi.FailureException):
+        yogi.Timestamp.parse('foo', 'bar')
 
-    def test_format_error(self):
-        def fn(timestamp, str_, strsize, timefmt):
-            self.assertEqual(timefmt, b'foo')
-            return yogi.ErrorCode.UNKNOWN
 
-        self.MOCK_FormatTime(fn)
-        t = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_nanoseconds(123456789123456789))
-        with self.assertRaises(yogi.FailureException):
-            t.format('foo')
+def test_constructor():
+    """Verifies that the default constructor creates a timestamp representing the epoch"""
+    t = yogi.Timestamp()
+    assert t.duration_since_epoch.nanoseconds_count == 0
 
-    def test_str(self):
-        def fn(timestamp, str_, strsize, timefmt):
-            self.assertEqual(timestamp, 123456789123456789)
-            self.assertFalse(timefmt)
-            self.assertFalse(strsize)
-            str_.contents.value = self.hello_bytes
-            return yogi.ErrorCode.OK
 
-        self.MOCK_FormatTime(fn)
-        t = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_nanoseconds(123456789123456789))
-        self.assertEqual(str(t), 'hello')
+def test_duration_since_epoch():
+    """Verifies that a Duration instance can be obtained from the epoch to the time that the timestamp represents"""
+    dur = yogi.Duration.from_days(123)
+    t = yogi.Timestamp.from_duration_since_epoch(dur)
+    assert t.duration_since_epoch == dur
 
-    def test_add(self):
-        t = yogi.Timestamp()
-        t = t + yogi.Duration.from_nanoseconds(8)
-        self.assertEqual(t.duration_since_epoch.nanoseconds_count, 8)
-        self.assertRaises(ArithmeticError, lambda: t + yogi.Duration.from_milliseconds(-1))
 
-    def test_sub(self):
-        t = yogi.Timestamp()
-        t += yogi.Duration.from_nanoseconds(8)
-        t = t - yogi.Duration.from_nanoseconds(2)
-        self.assertEqual(t.duration_since_epoch.nanoseconds_count, 6)
-        self.assertEqual(
-            (t - yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_nanoseconds(2))).nanoseconds_count, 4)
-        self.assertRaises(ArithmeticError, lambda: t - yogi.Duration.from_milliseconds(1))
+def test_nanoseconds():
+    """Verifies that the nanoseconds fraction of a timestamp can be retrieved"""
+    dur = yogi.Duration.from_nanoseconds(123456789)
+    t = yogi.Timestamp.from_duration_since_epoch(dur)
+    assert t.nanoseconds == 789
 
-    def test_eq(self):
-        t1 = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(2))
-        t2 = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(3))
 
-        self.assertTrue(t1 == t1)
-        self.assertFalse(t2 == t1)
+def test_microseconds():
+    """Verifies that the microseconds fraction of a timestamp can be retrieved"""
+    dur = yogi.Duration.from_nanoseconds(123456789)
+    t = yogi.Timestamp.from_duration_since_epoch(dur)
+    assert t.microseconds == 456
 
-    def test_ne(self):
-        t1 = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(2))
-        t2 = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(3))
 
-        self.assertFalse(t1 != t1)
-        self.assertTrue(t2 != t1)
+def test_milliseconds():
+    """Verifies that the milliseconds fraction of a timestamp can be retrieved"""
+    dur = yogi.Duration.from_nanoseconds(123456789)
+    t = yogi.Timestamp.from_duration_since_epoch(dur)
+    assert t.milliseconds == 123
 
-    def test_lt(self):
-        t1 = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(2))
-        t2 = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(3))
 
-        self.assertTrue(t1 < t2)
-        self.assertFalse(t2 < t1)
-        self.assertFalse(t2 < t2)
+def test_to_datetime():
+    """Verifies that a Timestamp instance can be converted to a datetime.datetime instance"""
+    dur = yogi.Duration.from_nanoseconds(123456789123456789)
+    dt = yogi.Timestamp.from_duration_since_epoch(dur).to_datetime()
+    assert isinstance(dt, datetime.datetime)
+    assert dt.microsecond == 123456
 
-    def test_gt(self):
-        t1 = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(2))
-        t2 = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(3))
 
-        self.assertFalse(t1 > t2)
-        self.assertTrue(t2 > t1)
-        self.assertFalse(t2 > t2)
+def test_format(mocks: Mocks, hello_bytes: bytes):
+    """Verifies that a Timestamp instance can be formatted as a string"""
+    def fn(timestamp, str_, strsize, timefmt):
+        assert timestamp == 123456789123456789
+        assert not timefmt
+        assert not strsize
+        str_.contents.value = hello_bytes
+        return yogi.ErrorCode.OK
 
-    def test_le(self):
-        t1 = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(2))
-        t2 = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(3))
+    mocks.MOCK_FormatTime(fn)
+    t = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_nanoseconds(123456789123456789))
+    assert t.format() == 'hello'
 
-        self.assertTrue(t1 <= t2)
-        self.assertFalse(t2 <= t1)
-        self.assertTrue(t2 <= t2)
 
-    def test_ge(self):
-        t1 = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(2))
-        t2 = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(3))
+def test_format_error(mocks: Mocks):
+    """Verifies that errors that occur while formatting a Timestamp instance to a string get reported"""
+    def fn(timestamp, str_, strsize, timefmt):
+        assert timefmt == b'foo'
+        return yogi.ErrorCode.UNKNOWN
 
-        self.assertFalse(t1 >= t2)
-        self.assertTrue(t2 >= t1)
-        self.assertTrue(t2 >= t2)
+    mocks.MOCK_FormatTime(fn)
+    t = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_nanoseconds(123456789123456789))
+    with pytest.raises(yogi.FailureException):
+        t.format('foo')
 
-    def test_hash(self):
-        self.assertNotEqual(hash(yogi.Timestamp.from_duration_since_epoch(
-            yogi.Duration.from_seconds(1))), hash(yogi.Timestamp()))
+
+def test_str(mocks: Mocks, hello_bytes: bytes):
+    """Verifies that a Timestmap instance can be converted to a string"""
+    def fn(timestamp, str_, strsize, timefmt):
+        assert timestamp == 123456789123456789
+        assert not timefmt
+        assert not strsize
+        str_.contents.value = hello_bytes
+        return yogi.ErrorCode.OK
+
+    mocks.MOCK_FormatTime(fn)
+    t = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_nanoseconds(123456789123456789))
+    assert str(t) == 'hello'
+
+
+def test_add():
+    """Verifies that a Duration instance can be added to a Timestmap instance"""
+    t = yogi.Timestamp()
+    t = t + yogi.Duration.from_nanoseconds(8)
+    assert t.duration_since_epoch.nanoseconds_count == 8
+
+    with pytest.raises(ArithmeticError):
+        t + yogi.Duration.from_milliseconds(-1)
+
+
+def test_sub():
+    """Verifies that a Duration instance can be subtracted from a Timestmap instance"""
+    t = yogi.Timestamp()
+    t += yogi.Duration.from_nanoseconds(8)
+    t = t - yogi.Duration.from_nanoseconds(2)
+    assert t.duration_since_epoch.nanoseconds_count == 6
+    assert (t - yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_nanoseconds(2))).nanoseconds_count == 4
+
+    with pytest.raises(ArithmeticError):
+        t - yogi.Duration.from_milliseconds(1)
+
+
+def test_eq():
+    """Verifies that Timestamp implements the equality operator"""
+    t1 = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(2))
+    t2 = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(3))
+
+    assert t1 == t1
+    assert not t2 == t1
+
+
+def test_ne():
+    """Verifies that Timestamp implements the inequality operator"""
+    t1 = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(2))
+    t2 = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(3))
+
+    assert not t1 != t1
+    assert t2 != t1
+
+
+def test_lt():
+    """Verifies that Timestamp implements the less-than operator"""
+    t1 = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(2))
+    t2 = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(3))
+
+    assert t1 < t2
+    assert not t2 < t1
+    assert not t2 < t2
+
+
+def test_gt():
+    """Verifies that Timestamp implements the greater-than operator"""
+    t1 = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(2))
+    t2 = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(3))
+
+    assert not t1 > t2
+    assert t2 > t1
+    assert not t2 > t2
+
+
+def test_le():
+    """Verifies that Timestamp implements the less-or-equal operator"""
+    t1 = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(2))
+    t2 = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(3))
+
+    assert t1 <= t2
+    assert not t2 <= t1
+    assert t2 <= t2
+
+
+def test_ge():
+    """Verifies that Timestamp implements the greater-or-equal operator"""
+    t1 = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(2))
+    t2 = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_days(3))
+
+    assert not t1 >= t2
+    assert t2 >= t1
+    assert t2 >= t2
+
+
+def test_hash():
+    """Verifies that a hash can be computed from a Timestamp instance"""
+    assert hash(yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_seconds(1))) != hash(yogi.Timestamp())

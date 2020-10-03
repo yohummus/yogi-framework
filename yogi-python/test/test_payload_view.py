@@ -19,68 +19,78 @@
 
 import yogi
 
-from .common import TestCase
+
+def test_from_json_view():
+    """Verifies that a payload can be constructed from a JsonView"""
+    jsn = yogi.JsonView("[1]")
+    view = yogi.PayloadView(jsn)
+    assert view.data == jsn.data
+    assert view.size == jsn.size
 
 
-class TestPayloadView(TestCase):
-    def test_from_json_view(self):
-        jsn = yogi.JsonView("[1]")
-        view = yogi.PayloadView(jsn)
-        self.assertEqual(view.data, jsn.data)
-        self.assertEqual(view.size, jsn.size)
+def test_from_msgpack_view():
+    """Verifies that a payload can be constructed from a MsgpackView"""
+    mp = yogi.MsgpackView([1, 2])
+    view = yogi.PayloadView(mp)
+    assert view.data == mp.data
+    assert view.size == mp.size
 
-    def test_from_msgpack_view(self):
-        mp = yogi.MsgpackView([1, 2])
-        view = yogi.PayloadView(mp)
-        self.assertEqual(view.data, mp.data)
-        self.assertEqual(view.size, mp.size)
 
-    def test_from_buffer(self):
-        buf = bytearray([1, 2, 0])
-        view = yogi.PayloadView(buf, len(buf), yogi.Encoding.JSON)
-        self.assertEqual(view.data, buf)
-        self.assertEqual(view.size, len(buf))
-        self.assertEqual(view.encoding, yogi.Encoding.JSON)
+def test_from_buffer():
+    """Verifies that a payload can be constructed from a byte array"""
+    buf = bytearray([1, 2, 0])
+    view = yogi.PayloadView(buf, len(buf), yogi.Encoding.JSON)
+    assert view.data == buf
+    assert view.size == len(buf)
+    assert view.encoding == yogi.Encoding.JSON
 
-        buf = bytearray([0x92, 1, 2])
-        view = yogi.PayloadView(buf, len(buf), yogi.Encoding.MSGPACK)
-        self.assertEqual(view.data, buf)
-        self.assertEqual(view.size, len(buf))
-        self.assertEqual(view.encoding, yogi.Encoding.MSGPACK)
+    buf = bytearray([0x92, 1, 2])
+    view = yogi.PayloadView(buf, len(buf), yogi.Encoding.MSGPACK)
+    assert view.data == buf
+    assert view.size == len(buf)
+    assert view.encoding == yogi.Encoding.MSGPACK
 
-    def test_len_operator(self):
-        view = yogi.MsgpackView([1, 2, 3])
-        self.assertEqual(len(view), view.size)
 
-    def test_comparison_operators_payload_view(self):
-        a = yogi.PayloadView(bytearray([0x92, 1, 0]), 3, yogi.Encoding.MSGPACK)
-        b = yogi.PayloadView(bytearray([0x92, 1, 0]), 3, yogi.Encoding.MSGPACK)
-        c = yogi.PayloadView(bytearray([0x92, 1, 0]), 3, yogi.Encoding.JSON)
+def test_len_operator():
+    """Verifies that len() returns a sensible value"""
+    view = yogi.MsgpackView([1, 2, 3])
+    assert len(view) == view.size
 
-        self.assertTrue(a == b)
-        self.assertFalse(a == c)
 
-        self.assertFalse(a != b)
-        self.assertTrue(a != c)
+def test_comparison_operators_payload_view():
+    """Verifies that two PayloadView instances can be compared for equality"""
+    a = yogi.PayloadView(bytearray([0x92, 1, 0]), 3, yogi.Encoding.MSGPACK)
+    b = yogi.PayloadView(bytearray([0x92, 1, 0]), 3, yogi.Encoding.MSGPACK)
+    c = yogi.PayloadView(bytearray([0x92, 1, 0]), 3, yogi.Encoding.JSON)
 
-    def test_comparison_operators_json_view(self):
-        view = yogi.PayloadView(yogi.JsonView("[1]"))
-        a = yogi.JsonView("[1]")
-        b = yogi.JsonView("[2]")
+    assert a == b
+    assert not a == c
 
-        self.assertTrue(view == a)
-        self.assertFalse(view == b)
+    assert not a != b
+    assert a != c
 
-        self.assertFalse(view != a)
-        self.assertTrue(view != b)
 
-    def test_comparison_operators_msgpack_view(self):
-        view = yogi.PayloadView(yogi.MsgpackView([1]))
-        a = yogi.MsgpackView([1])
-        b = yogi.MsgpackView([2])
+def test_comparison_operators_json_view():
+    """Verifies that a PayloadView instance can be compared to a JsonView for equality"""
+    view = yogi.PayloadView(yogi.JsonView("[1]"))
+    a = yogi.JsonView("[1]")
+    b = yogi.JsonView("[2]")
 
-        self.assertTrue(view == a)
-        self.assertFalse(view == b)
+    assert view == a
+    assert not view == b
 
-        self.assertFalse(view != a)
-        self.assertTrue(view != b)
+    assert not view != a
+    assert view != b
+
+
+def test_comparison_operators_msgpack_view():
+    """Verifies that a PayloadView instance can be compared to a MsgpackView for equality"""
+    view = yogi.PayloadView(yogi.MsgpackView([1]))
+    a = yogi.MsgpackView([1])
+    b = yogi.MsgpackView([2])
+
+    assert view == a
+    assert not view == b
+
+    assert not view != a
+    assert view != b

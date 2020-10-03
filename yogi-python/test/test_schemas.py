@@ -19,9 +19,7 @@
 
 import yogi
 
-from .common import TestCase
 
-
-class TestSchemas(TestCase):
-    def test_get_schema(self):
-        self.assertEqual(yogi.get_schema(yogi.Schema.BRANCH_EVENT), '{"I_am_a":"dummy_schema"}')
+def test_get_schema():
+    """Verifies that built-in JSON schemas can be retrieved"""
+    assert yogi.get_schema(yogi.Schema.BRANCH_EVENT) == '{"I_am_a":"dummy_schema"}'

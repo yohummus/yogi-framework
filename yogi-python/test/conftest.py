@@ -86,6 +86,17 @@ def logger(mocks):
     return yogi.Logger('foo')
 
 
+@pytest.fixture
+def timer(mocks, context):
+    """Provides a mocked Timer instance"""
+    def fn(timer, context):
+        timer.contents.value = 1234
+        return yogi.ErrorCode.OK
+
+    mocks.MOCK_TimerCreate(fn)
+    return yogi.Timer(context)
+
+
 class Mocks:
     """All mocks for the API function in Yogi Core"""
 
