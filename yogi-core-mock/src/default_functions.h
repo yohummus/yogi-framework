@@ -80,3 +80,15 @@ int default_GetConstant(void* dest, int constant) {
 
   return YOGI_OK;
 }
+
+const char* default_GetErrorString(int err) {
+  return "Dummy error string";
+}
+
+const char* default_GetLastErrorDetails() {
+  return "Error details...";
+}
+
+const char* default_GetSchema(int schema) {
+  return "{\"I_am_a\":\"dummy_schema\"}";
+}

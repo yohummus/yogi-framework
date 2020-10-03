@@ -739,8 +739,7 @@ enum class CommandLineOptions {
   //! At least one configuration file must be given
   kFilesRequired = (1 << 13),
 
-  //! Include the --override switch for overriding arbitrary configuration
-  //! sections
+  //! Include the --override switch for overriding arbitrary configuration sections
   //!
   //! This is useful for supplying arbitrary parameters on the command line
   //! without having to store them in a file.

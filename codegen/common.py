@@ -1,6 +1,7 @@
 import munch
 import pathlib
 import subprocess
+import itertools
 from typing import List
 
 ROOT = pathlib.Path(__file__).parent.parent
@@ -15,17 +16,26 @@ with open(ROOT / 'version.txt') as f:
 
 def generate_copyright_headers(core_api: munch.Munch, rel_dir_path: str) -> None:
     """Replaces the copyright headers at the beginning of over source file"""
-    copyright_text = ''.join([f' * {x}'.rstrip() + '\n' for x in core_api.copyright.strip().split('\n')])
-
-    file_extensions = ['h', 'cc']
+    raw_copyright_lines = core_api.copyright.strip().split('\n')
+    file_extensions = ['h', 'cc', 'py']
     files = [file for ext in file_extensions for file in (ROOT / rel_dir_path).rglob(f'*.{ext}')]
+    files = [x for x in files if x.name not in ['conanfile.py']]
 
     for file in files:
         print(f'Updating copyright header in {file}...')
         with open(file, 'r') as f:
             content = f.read()
 
-        new_content = f'/*\n{copyright_text} {content[content.index("*/"):]}'
+        if file.suffix in ['.h', '.cc']:
+            copyright_text = ''.join([f' * {x}'.rstrip() + '\n' for x in raw_copyright_lines])
+            new_content = f'/*\n{copyright_text} */{content[content.index("*/") + 2:]}'
+        elif file.suffix == '.py':
+            shebang = (content[:content.index('\n')] + '\n\n') if content.startswith('#!') else ''
+            copyright_text = ''.join([f'# {x}'.rstrip() + '\n' for x in raw_copyright_lines])
+            code_content = '\n'.join(itertools.dropwhile(lambda x: not x or x.startswith('#'), content.split('\n')))
+            new_content = f'{shebang}{copyright_text}\n{code_content}'.rstrip() + '\n'
+        else:
+            new_content = content
 
         if new_content != content:
             print(f'Updating copyright header in {file}...')
@@ -52,6 +62,9 @@ def replace_block_in_file(rel_file_path: str, lines: List[str], *, block_idx: in
 
     if file.suffix in ['.h', '.cc']:
         formatted_new_content = subprocess.check_output(['clang-format'], input=new_content, text=True, cwd=file.parent)
+    elif file.suffix == '.py':
+        formatted_new_content = subprocess.check_output(['autopep8', '--max-line-length=120', '-'], input=new_content,
+                                                        text=True)
     else:
         formatted_new_content = new_content
 

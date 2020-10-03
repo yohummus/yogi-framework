@@ -75,7 +75,7 @@ YOGI_API void MOCK_CheckBindingsCompatibility(decltype(YOGI_CheckBindingsCompati
 }
 
 // Mock implementation for YOGI_GetErrorString
-static std::function<decltype(YOGI_GetErrorString)> mock_GetErrorString_fn = {};
+static std::function<decltype(YOGI_GetErrorString)> mock_GetErrorString_fn = default_GetErrorString;
 
 YOGI_API const char* YOGI_GetErrorString(int err) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
@@ -93,7 +93,7 @@ YOGI_API void MOCK_GetErrorString(decltype(YOGI_GetErrorString) fn) {
 }
 
 // Mock implementation for YOGI_GetLastErrorDetails
-static std::function<decltype(YOGI_GetLastErrorDetails)> mock_GetLastErrorDetails_fn = {};
+static std::function<decltype(YOGI_GetLastErrorDetails)> mock_GetLastErrorDetails_fn = default_GetLastErrorDetails;
 
 YOGI_API const char* YOGI_GetLastErrorDetails() {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
@@ -129,7 +129,7 @@ YOGI_API void MOCK_GetConstant(decltype(YOGI_GetConstant) fn) {
 }
 
 // Mock implementation for YOGI_GetSchema
-static std::function<decltype(YOGI_GetSchema)> mock_GetSchema_fn = {};
+static std::function<decltype(YOGI_GetSchema)> mock_GetSchema_fn = default_GetSchema;
 
 YOGI_API const char* YOGI_GetSchema(int schema) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
@@ -1161,10 +1161,10 @@ YOGI_API void MOCK_ResetMocks() {
   // :CODEGEN_BEGIN:
   mock_GetVersion_fn                         = default_GetVersion;
   mock_CheckBindingsCompatibility_fn         = default_CheckBindingsCompatibility;
-  mock_GetErrorString_fn                     = {};
-  mock_GetLastErrorDetails_fn                = {};
+  mock_GetErrorString_fn                     = default_GetErrorString;
+  mock_GetLastErrorDetails_fn                = default_GetLastErrorDetails;
   mock_GetConstant_fn                        = default_GetConstant;
-  mock_GetSchema_fn                          = {};
+  mock_GetSchema_fn                          = default_GetSchema;
   mock_GetCurrentTime_fn                     = {};
   mock_FormatTime_fn                         = {};
   mock_ParseTime_fn                          = {};

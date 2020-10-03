@@ -1,16 +1,25 @@
+"""
+Auto-generates the code for all sub-projects
+
+To run code-generation for specific sub-projects only, list them on the command line, e.g.:
+python codegen yogi-core yogi-cpp
+"""
+
 import yaml
 import munch
 import pathlib
+import sys
+import importlib
 
-import gen_yogi_core
-import gen_yogi_core_mock
-import gen_yogi_cpp
+CODEGEN_DIR = pathlib.Path(__file__).parent
 
 # Parse the core api YAML file
-with open(pathlib.Path(__file__).with_name('core_api.yaml')) as f:
+with open(CODEGEN_DIR / 'core_api.yaml') as f:
     core_api = munch.Munch().fromYAML(f)
 
 # Generate the code for the various sub-projects
-gen_yogi_core.generate(core_api)
-gen_yogi_core_mock.generate(core_api)
-gen_yogi_cpp.generate(core_api)
+mods_from_cmdline = ['gen_' + x.replace('-', '_') for x in sys.argv[1:]]
+all_mods = [x.stem for x in CODEGEN_DIR.glob('gen_*.py')]
+
+for mod in mods_from_cmdline or all_mods:
+    importlib.import_module(mod).generate(core_api)
