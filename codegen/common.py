@@ -17,16 +17,16 @@ with open(ROOT / 'version.txt') as f:
 def generate_copyright_headers(core_api: munch.Munch, rel_dir_path: str) -> None:
     """Replaces the copyright headers at the beginning of over source file"""
     raw_copyright_lines = core_api.copyright.strip().split('\n')
-    file_extensions = ['h', 'cc', 'py']
+    file_extensions = ['h', 'cc', 'cs', 'py']
     files = [file for ext in file_extensions for file in (ROOT / rel_dir_path).rglob(f'*.{ext}')]
-    files = [x for x in files if x.name not in ['conanfile.py']]
+    files = [x for x in files if x.name not in ['conanfile.py'] and 'obj' not in x.parts]
 
     for file in files:
         print(f'Updating copyright header in {file}...')
         with open(file, 'r') as f:
             content = f.read()
 
-        if file.suffix in ['.h', '.cc']:
+        if file.suffix in ['.h', '.cc', '.cs']:
             copyright_text = ''.join([f' * {x}'.rstrip() + '\n' for x in raw_copyright_lines])
             new_content = f'/*\n{copyright_text} */{content[content.index("*/") + 2:]}'
         elif file.suffix == '.py':
@@ -38,7 +38,6 @@ def generate_copyright_headers(core_api: munch.Munch, rel_dir_path: str) -> None
             new_content = content
 
         if new_content != content:
-            print(f'Updating copyright header in {file}...')
             with open(file, 'w') as f:
                 f.write(new_content)
 
