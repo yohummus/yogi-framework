@@ -19,36 +19,42 @@
 
 import yogi
 
-from .common import TestCase
+
+def test_from_bytes():
+    """Verifies that a MsgpackView can be constructed from bytes"""
+    view = yogi.MsgpackView(bytes([0x92, 0x1, 0x2]))
+    assert view.data, bytes([0x92, 0x1 == 0x2])
+    assert view.size == 3
 
 
-class TestMsgpackView(TestCase):
-    def test_from_bytes(self):
-        view = yogi.MsgpackView(bytes([0x92, 0x1, 0x2]))
-        self.assertEqual(view.data, bytes([0x92, 0x1, 0x2]))
-        self.assertEqual(view.size, 3)
+def test_from_object():
+    """Verifies that a MsgpackView can be constructed from an object"""
+    view = yogi.MsgpackView([1, 2])
+    assert view.data, bytes([0x92, 0x1 == 0x2])
+    assert view.size == 3
 
-    def test_from_object(self):
-        view = yogi.MsgpackView([1, 2])
-        self.assertEqual(view.data, bytes([0x92, 0x1, 0x2]))
-        self.assertEqual(view.size, 3)
 
-    def test_len_operator(self):
-        view = yogi.MsgpackView([1, 2, 3])
-        self.assertEqual(len(view), view.size)
+def test_len_operator():
+    """Verifies that len() returns a sensible value"""
+    view = yogi.MsgpackView([1, 2, 3])
+    assert len(view) == view.size
 
-    def test_comparison_operators(self):
-        a = yogi.MsgpackView([1])
-        b = yogi.MsgpackView([1])
-        c = yogi.MsgpackView([2])
 
-        self.assertTrue(a == b)
-        self.assertFalse(a == c)
+def test_comparison_operators():
+    """Checks the equal and non-equal comparison operators"""
+    a = yogi.MsgpackView([1])
+    b = yogi.MsgpackView([1])
+    c = yogi.MsgpackView([2])
 
-        self.assertFalse(a != b)
-        self.assertTrue(a != c)
+    assert a == b
+    assert not a == c
 
-    def test_hash(self):
-        a = yogi.MsgpackView([1])
-        b = yogi.MsgpackView([2])
-        self.assertNotEqual(hash(a), hash(b))
+    assert not a != b
+    assert a != c
+
+
+def test_hash():
+    """Verifies that a hash can be computed over the MsgpackView"""
+    a = yogi.MsgpackView([1])
+    b = yogi.MsgpackView([2])
+    assert hash(a) != hash(b)

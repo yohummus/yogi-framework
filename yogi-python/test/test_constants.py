@@ -20,20 +20,22 @@
 import yogi
 import re
 
-from .common import TestCase
+from .conftest import Mocks
 
 
-class TestConstants(TestCase):
-    def test_some(self):
-        self.assertGreater(len(yogi.constants.VERSION), 4)
-        self.assertEqual(yogi.constants.DEFAULT_ADV_PORT, 1)
-        self.assertNotEqual(yogi.constants.DEFAULT_LOGGER_VERBOSITY, yogi.Verbosity.FATAL)
-        self.assertGreater(yogi.constants.DEFAULT_ADV_INTERVAL.total_milliseconds, 1)
+def test_some(mocks: Mocks):
+    """Checks the values of some constants with different types"""
+    assert len(yogi.constants.VERSION) > 4
+    assert yogi.constants.DEFAULT_ADV_PORT == 1
+    assert yogi.constants.DEFAULT_LOGGER_VERBOSITY != yogi.Verbosity.FATAL
+    assert yogi.constants.DEFAULT_ADV_INTERVAL.total_milliseconds > 1
 
-    def test_types(self):
-        Constants = type(yogi.constants)
-        names = [name for name in Constants.__dict__.keys() if re.match(r'^[A-Z_]+$', name)]
-        for name in names:
-            claimed_type = Constants.__annotations__[name]  # pylint: disable=no-member
-            actual_type = type(getattr(Constants, name))
-            self.assertEqual(claimed_type, actual_type)
+
+def test_types(mocks: Mocks):
+    """Verifies that the constants actually have the type they claim in their type annotations"""
+    Constants = type(yogi.constants)
+    names = [name for name in Constants.__dict__.keys() if re.match(r'^[A-Z_]+$', name)]
+    for name in names:
+        claimed_type = Constants.__annotations__[name]  # pylint: disable=no-member
+        actual_type = type(getattr(Constants, name))
+        assert claimed_type == actual_type

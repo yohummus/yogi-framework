@@ -17,21 +17,13 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+import yogi
 import pytest
 import gc
 from ctypes import c_void_p, c_char, c_char_p, c_int, c_longlong, CFUNCTYPE, POINTER, py_object
 
-import yogi
 
 _destroy_mock_fn_keepalive = []
-
-
-@pytest.fixture
-def hello_bytes():
-    """Provides a byte array that persists until the test finishes"""
-    data = b'hello'
-    yield data
-    # The data variable should still be alive here
 
 
 @pytest.fixture
@@ -40,6 +32,14 @@ def mocks():
     mocks_inst = Mocks()
     with mocks_inst:
         yield mocks_inst
+
+
+@pytest.fixture
+def hello_bytes():
+    """Provides a byte array that persists until the test finishes"""
+    data = b'hello'
+    yield data
+    # The data variable should still be alive here
 
 
 @pytest.fixture
@@ -73,6 +73,17 @@ def configuration(mocks):
 
     mocks.MOCK_ConfigurationCreate(fn)
     return yogi.Configuration()
+
+
+@pytest.fixture
+def logger(mocks):
+    """Provides a mocked Logger instance"""
+    def fn(logger, component):
+        logger.contents.value = 1234
+        return yogi.ErrorCode.OK
+
+    mocks.MOCK_LoggerCreate(fn)
+    return yogi.Logger('foo')
 
 
 class Mocks:

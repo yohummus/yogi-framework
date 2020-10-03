@@ -19,36 +19,42 @@
 
 import yogi
 
-from .common import TestCase
+
+def test_from_string():
+    """Verifies that a JsonView can be constructed from a string"""
+    view = yogi.JsonView("[1]")
+    assert view.data == '[1]\0'.encode()
+    assert view.size == 4
 
 
-class TestJsonView(TestCase):
-    def test_from_string(self):
-        view = yogi.JsonView("[1]")
-        self.assertEqual(view.data, '[1]\0'.encode())
-        self.assertEqual(view.size, 4)
+def test_from_object():
+    """Verifies that a JsonView can be constructed from an object"""
+    view = yogi.JsonView([5])
+    assert view.data == '[5]\0'.encode()
+    assert view.size == 4
 
-    def test_from_object(self):
-        view = yogi.JsonView([5])
-        self.assertEqual(view.data, '[5]\0'.encode())
-        self.assertEqual(view.size, 4)
 
-    def test_len_operator(self):
-        view = yogi.JsonView("[1]")
-        self.assertEqual(len(view), view.size)
+def test_len_operator():
+    """Verifies that len() returns a sensible value"""
+    view = yogi.JsonView("[1]")
+    assert len(view) == view.size
 
-    def test_comparison_operators(self):
-        a = yogi.JsonView("[1]")
-        b = yogi.JsonView("[1]")
-        c = yogi.JsonView("[2]")
 
-        self.assertTrue(a == b)
-        self.assertFalse(a == c)
+def test_comparison_operators():
+    """Checks the equal and non-equal comparison operators"""
+    a = yogi.JsonView("[1]")
+    b = yogi.JsonView("[1]")
+    c = yogi.JsonView("[2]")
 
-        self.assertFalse(a != b)
-        self.assertTrue(a != c)
+    assert a == b
+    assert not a == c
 
-    def test_hash(self):
-        a = yogi.JsonView("[1]")
-        b = yogi.JsonView("[2]")
-        self.assertNotEqual(hash(a), hash(b))
+    assert not a != b
+    assert a != c
+
+
+def test_hash():
+    """Verifies that a hash can be computed over the JsonView"""
+    a = yogi.JsonView("[1]")
+    b = yogi.JsonView("[2]")
+    assert hash(a) != hash(b)

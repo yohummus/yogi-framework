@@ -18,171 +18,215 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import yogi
+import pytest
 
-from .common import TestCase
+from .conftest import Mocks
 
 
-class TestContext(TestCase):
-    def setUp(self):
-        super().setUp()
-        self.context = self.create_context()
+def test_poll(mocks: Mocks, context: yogi.Context):
+    """Checks the poll() function in the error-free case"""
+    def fn(context, count):
+        assert context == 1234
+        assert count
+        count.contents.value = 5
+        return yogi.ErrorCode.OK
 
-    def test_poll(self):
-        def fn(context, count):
-            self.assertEqual(context, self.pointer.value)
-            self.assertTrue(count)
-            count.contents.value = 5
-            return yogi.ErrorCode.OK
+    mocks.MOCK_ContextPoll(fn)
+    assert context.poll() == 5
 
-        self.MOCK_ContextPoll(fn)
-        self.assertEqual(self.context.poll(), 5)
 
-    def test_poll_error(self):
-        self.MOCK_ContextPoll(self.error_mock)
-        self.assertRaises(yogi.FailureException, self.context.poll)
+def test_poll_error(mocks: Mocks, context: yogi.Context):
+    """Checks the poll() function in the error case"""
+    mocks.MOCK_ContextPoll(lambda *_: yogi.ErrorCode.WRONG_OBJECT_TYPE)
+    with pytest.raises(yogi.FailureException):
+        context.poll()
 
-    def test_poll_one(self):
-        def fn(context, count):
-            self.assertEqual(context, self.pointer.value)
-            self.assertTrue(count)
-            count.contents.value = 1
-            return yogi.ErrorCode.OK
 
-        self.MOCK_ContextPollOne(fn)
-        self.assertEqual(self.context.poll_one(), 1)
+def test_poll_one(mocks: Mocks, context: yogi.Context):
+    """Checks the poll_one() function in the error-free case"""
+    def fn(context, count):
+        assert context == 1234
+        assert count
+        count.contents.value = 1
+        return yogi.ErrorCode.OK
 
-    def test_poll_one_error(self):
-        self.MOCK_ContextPollOne(self.error_mock)
-        self.assertRaises(yogi.FailureException, self.context.poll_one)
+    mocks.MOCK_ContextPollOne(fn)
+    assert context.poll_one() == 1
 
-    def test_run(self):
-        def fn(context, count, duration):
-            self.assertEqual(context, self.pointer.value)
-            self.assertTrue(count)
-            self.assertEqual(1000000, duration)
-            count.contents.value = 5
-            return yogi.ErrorCode.OK
 
-        self.MOCK_ContextRun(fn)
-        self.assertEqual(self.context.run(yogi.Duration.from_milliseconds(1)), 5)
+def test_poll_one_error(mocks: Mocks, context: yogi.Context):
+    """Checks the poll_one() function in the error case"""
+    mocks.MOCK_ContextPollOne(lambda *_: yogi.ErrorCode.WRONG_OBJECT_TYPE)
+    with pytest.raises(yogi.FailureException):
+        context.poll_one()
 
-    def test_run_error(self):
-        def fn(context, count, duration):
-            self.assertEqual(-1, duration)
-            return yogi.ErrorCode.UNKNOWN
 
-        self.MOCK_ContextRun(fn)
-        self.assertRaises(yogi.FailureException, self.context.run)
+def test_run(mocks: Mocks, context: yogi.Context):
+    """Checks the run() function in the error-free case"""
+    def fn(context, count, duration):
+        assert context == 1234
+        assert count
+        assert 1000000 == duration
+        count.contents.value = 5
+        return yogi.ErrorCode.OK
 
-    def test_run_one(self):
-        def fn(context, count, duration):
-            self.assertEqual(context, self.pointer.value)
-            self.assertTrue(count)
-            self.assertEqual(1000000, duration)
-            count.contents.value = 1
-            return yogi.ErrorCode.OK
+    mocks.MOCK_ContextRun(fn)
+    assert context.run(yogi.Duration.from_milliseconds(1)) == 5
 
-        self.MOCK_ContextRunOne(fn)
-        self.assertEqual(self.context.run_one(yogi.Duration.from_milliseconds(1)), 1)
 
-    def test_run_one_error(self):
-        def fn(context, count, duration):
-            self.assertEqual(-1, duration)
-            return yogi.ErrorCode.UNKNOWN
+def test_run_error(mocks: Mocks, context: yogi.Context):
+    """Checks the run() function in the error case"""
+    def fn(context, count, duration):
+        assert -1 == duration
+        return yogi.ErrorCode.UNKNOWN
 
-        self.MOCK_ContextRunOne(fn)
-        self.assertRaises(yogi.FailureException, self.context.run_one)
+    mocks.MOCK_ContextRun(fn)
+    with pytest.raises(yogi.FailureException):
+        context.run()
 
-    def test_run_in_background(self):
-        def fn(context):
-            self.assertEqual(context, self.pointer.value)
-            return yogi.ErrorCode.OK
 
-        self.MOCK_ContextRunInBackground(fn)
-        self.context.run_in_background()
+def test_run_one(mocks: Mocks, context: yogi.Context):
+    """Checks the run_one() function in the error-free case"""
+    def fn(context, count, duration):
+        assert context == 1234
+        assert count
+        assert 1000000 == duration
+        count.contents.value = 1
+        return yogi.ErrorCode.OK
 
-    def test_run_in_background_error(self):
-        self.MOCK_ContextRunInBackground(self.error_mock)
-        self.assertRaises(yogi.FailureException, self.context.run_in_background)
+    mocks.MOCK_ContextRunOne(fn)
+    assert context.run_one(yogi.Duration.from_milliseconds(1)) == 1
 
-    def test_stop(self):
-        def fn(context):
-            self.assertEqual(context, self.pointer.value)
-            return yogi.ErrorCode.OK
 
-        self.MOCK_ContextStop(fn)
-        self.context.stop()
+def test_run_one_error(mocks: Mocks, context: yogi.Context):
+    """Checks the run_one() function in the error case"""
+    def fn(context, count, duration):
+        assert -1 == duration
+        return yogi.ErrorCode.UNKNOWN
 
-    def test_stop_error(self):
-        self.MOCK_ContextStop(self.error_mock)
-        self.assertRaises(yogi.FailureException, self.context.stop)
+    mocks.MOCK_ContextRunOne(fn)
+    with pytest.raises(yogi.FailureException):
+        context.run_one()
 
-    def test_wait_for_running(self):
-        def fn(context, duration):
-            self.assertEqual(context, self.pointer.value)
-            self.assertEqual(1000000, duration)
-            return yogi.ErrorCode.OK
 
-        self.MOCK_ContextWaitForRunning(fn)
-        self.assertTrue(self.context.wait_for_running(yogi.Duration.from_milliseconds(1)))
+def test_run_in_background(mocks: Mocks, context: yogi.Context):
+    """Checks the run_in_background() function in the error-free case"""
+    def fn(context):
+        assert context == 1234
+        return yogi.ErrorCode.OK
 
-    def test_wait_for_running_timeout(self):
-        def fn(context, duration):
-            return yogi.ErrorCode.TIMEOUT
+    mocks.MOCK_ContextRunInBackground(fn)
+    context.run_in_background()
 
-        self.MOCK_ContextWaitForRunning(fn)
-        self.assertFalse(self.context.wait_for_running(yogi.Duration.from_milliseconds(1)))
 
-    def test_wait_for_running_error(self):
-        def fn(context, duration):
-            self.assertEqual(-1, duration)
-            return yogi.ErrorCode.UNKNOWN
+def test_run_in_background_error(mocks: Mocks, context: yogi.Context):
+    """Checks the run_in_background() function in the error case"""
+    mocks.MOCK_ContextRunInBackground(lambda *_: yogi.ErrorCode.WRONG_OBJECT_TYPE)
+    with pytest.raises(yogi.FailureException):
+        context.run_in_background()
 
-        self.MOCK_ContextWaitForRunning(fn)
-        self.assertRaises(yogi.FailureException, self.context.wait_for_running)
 
-    def test_wait_for_stopped(self):
-        def fn(context, duration):
-            self.assertEqual(context, self.pointer.value)
-            self.assertEqual(1000000, duration)
-            return yogi.ErrorCode.OK
+def test_stop(mocks: Mocks, context: yogi.Context):
+    """Checks the stop() function in the error-free case"""
+    def fn(context):
+        assert context == 1234
+        return yogi.ErrorCode.OK
 
-        self.MOCK_ContextWaitForStopped(fn)
-        self.assertTrue(self.context.wait_for_stopped(yogi.Duration.from_milliseconds(1)))
+    mocks.MOCK_ContextStop(fn)
+    context.stop()
 
-    def test_wait_for_stopped_timeout(self):
-        def fn(context, duration):
-            return yogi.ErrorCode.TIMEOUT
 
-        self.MOCK_ContextWaitForStopped(fn)
-        self.assertFalse(self.context.wait_for_stopped(yogi.Duration.from_milliseconds(1)))
+def test_stop_error(mocks: Mocks, context: yogi.Context):
+    """Checks the stop() function in the error case"""
+    mocks.MOCK_ContextStop(lambda *_: yogi.ErrorCode.WRONG_OBJECT_TYPE)
+    with pytest.raises(yogi.FailureException):
+        context.stop()
 
-    def test_wait_for_stopped_error(self):
-        def fn(context, duration):
-            self.assertEqual(-1, duration)
-            return yogi.ErrorCode.UNKNOWN
 
-        self.MOCK_ContextWaitForStopped(fn)
-        self.assertRaises(yogi.FailureException, self.context.wait_for_stopped)
+def test_wait_for_running(mocks: Mocks, context: yogi.Context):
+    """Checks the wait_for_running() function in the error-free case"""
+    def fn(context, duration):
+        assert context == 1234
+        assert 1000000 == duration
+        return yogi.ErrorCode.OK
 
-    def test_post(self):
-        def fn(context, fn, userarg):
-            self.assertEqual(context, self.pointer.value)
-            self.assertTrue(fn)
-            fn(userarg)
-            return yogi.ErrorCode.OK
+    mocks.MOCK_ContextWaitForRunning(fn)
+    assert context.wait_for_running(yogi.Duration.from_milliseconds(1))
 
-        self.MOCK_ContextPost(fn)
 
-        called = False
+def test_wait_for_running_timeout(mocks: Mocks, context: yogi.Context):
+    """Checks the wait_for_running() function in the timeout case"""
+    def fn(context, duration):
+        return yogi.ErrorCode.TIMEOUT
 
-        def handlerFn():
-            nonlocal called
-            called = True
+    mocks.MOCK_ContextWaitForRunning(fn)
+    assert not context.wait_for_running(yogi.Duration.from_milliseconds(1))
 
-        self.context.post(handlerFn)
-        self.assertTrue(called)
 
-    def test_post_error(self):
-        self.MOCK_ContextPost(self.error_mock)
-        self.assertRaises(yogi.FailureException, lambda: self.context.post(lambda: None))
+def test_wait_for_running_error(mocks: Mocks, context: yogi.Context):
+    """Checks the wait_for_running() function in the error case"""
+    def fn(context, duration):
+        assert -1 == duration
+        return yogi.ErrorCode.UNKNOWN
+
+    mocks.MOCK_ContextWaitForRunning(fn)
+    with pytest.raises(yogi.FailureException):
+        context.wait_for_running()
+
+
+def test_wait_for_stopped(mocks: Mocks, context: yogi.Context):
+    """Checks the wait_for_stopped() function in the error-free case"""
+    def fn(context, duration):
+        assert context == 1234
+        assert 1000000 == duration
+        return yogi.ErrorCode.OK
+
+    mocks.MOCK_ContextWaitForStopped(fn)
+    assert context.wait_for_stopped(yogi.Duration.from_milliseconds(1))
+
+
+def test_wait_for_stopped_timeout(mocks: Mocks, context: yogi.Context):
+    """Checks the wait_for_stopped() function in the timeout case"""
+    def fn(context, duration):
+        return yogi.ErrorCode.TIMEOUT
+
+    mocks.MOCK_ContextWaitForStopped(fn)
+    assert not context.wait_for_stopped(yogi.Duration.from_milliseconds(1))
+
+
+def test_wait_for_stopped_error(mocks: Mocks, context: yogi.Context):
+    """Checks the wait_for_stopped() function in the error case"""
+    def fn(context, duration):
+        assert -1 == duration
+        return yogi.ErrorCode.UNKNOWN
+
+    mocks.MOCK_ContextWaitForStopped(fn)
+    with pytest.raises(yogi.FailureException):
+        context.wait_for_stopped()
+
+
+def test_post(mocks: Mocks, context: yogi.Context):
+    """Checks the post() function in the error-free case"""
+    def fn(context, fn, userarg):
+        assert context == 1234
+        assert fn
+        fn(userarg)
+        return yogi.ErrorCode.OK
+
+    mocks.MOCK_ContextPost(fn)
+
+    called = False
+
+    def handlerFn():
+        nonlocal called
+        called = True
+
+    context.post(handlerFn)
+    assert called
+
+
+def test_post_error(mocks: Mocks, context: yogi.Context):
+    """Checks the post_error() function in the error case"""
+    mocks.MOCK_ContextPost(lambda *_: yogi.ErrorCode.WRONG_OBJECT_TYPE)
+    with pytest.raises(yogi.FailureException):
+        context.post(lambda: None)

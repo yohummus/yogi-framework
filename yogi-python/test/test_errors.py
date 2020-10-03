@@ -19,36 +19,40 @@
 
 import yogi
 
-from .common import TestCase
+
+def test_result():
+    """Checks the Result class"""
+    assert not yogi.Result(-1)
+    assert not yogi.Result(yogi.ErrorCode.BAD_ALLOC)
+    assert yogi.Result(0)
+    assert yogi.Result(1)
+    assert yogi.Result(10).value == 10
+    assert yogi.Result(3) == yogi.Result(3)
+    assert yogi.Result(2) != yogi.Result(3)
+    assert str(yogi.Result(yogi.ErrorCode.BAD_ALLOC)) == 'Dummy error string'
+    assert hash(yogi.Result(1)) != hash(yogi.Result(2))
+    assert isinstance(yogi.Result(yogi.ErrorCode.BAD_ALLOC).error_code, yogi.ErrorCode)
+    assert yogi.Result(0).error_code == yogi.Result(1).error_code
 
 
-class TestErrors(TestCase):
-    def test_result(self):
-        self.assertFalse(yogi.Result(-1))
-        self.assertFalse(yogi.Result(yogi.ErrorCode.BAD_ALLOC))
-        self.assertTrue(yogi.Result(0))
-        self.assertTrue(yogi.Result(1))
-        self.assertEqual(yogi.Result(10).value, 10)
-        self.assertEqual(yogi.Result(3), yogi.Result(3))
-        self.assertNotEqual(yogi.Result(2), yogi.Result(3))
-        self.assertEqual(str(yogi.Result(yogi.ErrorCode.BAD_ALLOC)), 'Dummy error string')
-        self.assertNotEqual(hash(yogi.Result(1)), hash(yogi.Result(2)))
-        self.assertIsInstance(yogi.Result(yogi.ErrorCode.BAD_ALLOC).error_code, yogi.ErrorCode)
-        self.assertEqual(yogi.Result(0).error_code, yogi.Result(1).error_code)
+def test_failure():
+    """Checks the Failure class"""
+    assert not yogi.Failure(yogi.ErrorCode.BAD_ALLOC)
+    assert str(yogi.Failure(yogi.ErrorCode.BAD_ALLOC)) == str(yogi.Result(yogi.ErrorCode.BAD_ALLOC))
+    assert yogi.Failure(yogi.ErrorCode.BAD_ALLOC) == yogi.Result(yogi.ErrorCode.BAD_ALLOC)
+    assert isinstance(yogi.Failure(yogi.ErrorCode.BAD_ALLOC), yogi.Result)
 
-    def test_failure(self):
-        self.assertFalse(yogi.Failure(yogi.ErrorCode.BAD_ALLOC))
-        self.assertEqual(str(yogi.Failure(yogi.ErrorCode.BAD_ALLOC)), str(yogi.Result(yogi.ErrorCode.BAD_ALLOC)))
-        self.assertEqual(yogi.Failure(yogi.ErrorCode.BAD_ALLOC), yogi.Result(yogi.ErrorCode.BAD_ALLOC))
-        self.assertIsInstance(yogi.Failure(yogi.ErrorCode.BAD_ALLOC), yogi.Result)
 
-    def test_detailed_failure(self):
-        self.assertEqual(yogi.DetailedFailure(yogi.ErrorCode.BAD_ALLOC, "ab").details, "ab")
-        self.assertIsInstance(yogi.DetailedFailure(yogi.ErrorCode.BAD_ALLOC, "ab"), yogi.Failure)
+def test_detailed_failure():
+    """Checks the DetailedFailure class"""
+    assert yogi.DetailedFailure(yogi.ErrorCode.BAD_ALLOC, "ab").details == "ab"
+    assert isinstance(yogi.DetailedFailure(yogi.ErrorCode.BAD_ALLOC, "ab"), yogi.Failure)
 
-    def test_success(self):
-        self.assertTrue(yogi.Success(1))
-        self.assertTrue(yogi.Success(0))
-        self.assertEqual(str(yogi.Success(1)), str(yogi.Result(1)))
-        self.assertEqual(yogi.Success(1), yogi.Result(1))
-        self.assertIsInstance(yogi.Success(1), yogi.Result)
+
+def test_success():
+    """Checks the Success class"""
+    assert yogi.Success(1)
+    assert yogi.Success(0)
+    assert str(yogi.Success(1)) == str(yogi.Result(1))
+    assert yogi.Success(1) == yogi.Result(1)
+    assert isinstance(yogi.Success(1), yogi.Result)

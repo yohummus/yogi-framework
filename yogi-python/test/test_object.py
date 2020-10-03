@@ -18,57 +18,70 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import yogi
+import pytest
 
-from .common import TestCase
+from .conftest import Mocks
 
 
-class TestContext(TestCase):
-    def setUp(self):
-        self.obj = self.create_context()
+def test_format(mocks: Mocks, context: yogi.Context, hello_bytes: bytes):
+    """Verifies that an object can be formatted as a string"""
+    def fn(obj, str_, strsize, objfmt, nullstr):
+        assert obj == 1234
+        assert objfmt is None
+        assert nullstr is None
+        assert not strsize
+        str_.contents.value = hello_bytes
+        return yogi.ErrorCode.OK
 
-    def test_format(self):
-        def fn(obj, str_, strsize, objfmt, nullstr):
-            self.assertEqual(obj, self.pointer.value)
-            self.assertIsNone(objfmt)
-            self.assertIsNone(nullstr)
-            self.assertFalse(strsize)
-            str_.contents.value = self.hello_bytes
-            return yogi.ErrorCode.OK
+    mocks.MOCK_FormatObject(fn)
+    assert context.format() == 'hello'
 
-        self.MOCK_FormatObject(fn)
-        self.assertEqual(self.obj.format(), 'hello')
 
-    def test_format_error(self):
-        def fn(obj, str_, strsize, objfmt, nullstr):
-            self.assertEqual(objfmt, b'foo')
-            self.assertEqual(nullstr, b'bar')
-            self.assertFalse(strsize)
-            return yogi.ErrorCode.UNKNOWN
+def test_format_error(mocks: Mocks, context: yogi.Context):
+    """Verifies that errors while formatting an object as a string get reported"""
+    def fn(obj, str_, strsize, objfmt, nullstr):
+        assert objfmt == b'foo'
+        assert nullstr == b'bar'
+        assert not strsize
+        return yogi.ErrorCode.UNKNOWN
 
-        self.MOCK_FormatObject(fn)
-        self.assertRaises(yogi.FailureException, lambda: self.obj.format('foo', 'bar'))
+    mocks.MOCK_FormatObject(fn)
 
-    def test_str(self):
-        def fn(obj, str_, strsize, objfmt, nullstr):
-            self.assertEqual(obj, self.pointer.value)
-            self.assertIsNone(objfmt)
-            self.assertIsNone(nullstr)
-            self.assertFalse(strsize)
-            str_.contents.value = self.hello_bytes
-            return yogi.ErrorCode.OK
+    with pytest.raises(yogi.FailureException):
+        context.format('foo', 'bar')
 
-        self.MOCK_FormatObject(fn)
-        self.assertEqual(str(self.obj), 'hello')
 
-    def test_destroy(self):
-        called = False
+def test_str(mocks: Mocks, context: yogi.Context, hello_bytes: bytes):
+    """Checks the default string conversion"""
+    def fn(obj, str_, strsize, objfmt, nullstr):
+        assert obj == 1234
+        assert objfmt is None
+        assert nullstr is None
+        assert not strsize
+        str_.contents.value = hello_bytes
+        return yogi.ErrorCode.OK
 
-        def fn(obj):
-            self.assertEqual(obj, self.pointer.value)
-            nonlocal called
-            called = True
-            return yogi.ErrorCode.OK
+    mocks.MOCK_FormatObject(fn)
+    assert str(context) == 'hello'
 
-        self.MOCK_Destroy(fn)
-        del self.obj
-        self.assertTrue(called)
+
+def test_destroy(mocks: Mocks):
+    """Verifies that objects can be destroyed"""
+    def fn(context):
+        context.contents.value = 1234
+        return yogi.ErrorCode.OK
+
+    mocks.MOCK_ContextCreate(fn)
+    context = yogi.Context()
+
+    called = False
+
+    def fn2(obj):
+        assert obj == 1234
+        nonlocal called
+        called = True
+        return yogi.ErrorCode.OK
+
+    mocks.MOCK_Destroy(fn2)
+    del context
+    assert called

@@ -19,35 +19,37 @@
 
 import yogi
 
-from .common import TestCase
+
+def test_from_value():
+    """Verifies that an OperationId can be constructed from a numeric value"""
+    oid = yogi.OperationId(5)
+    assert oid.value == 5
+    assert oid.is_valid
+
+    oid = yogi.OperationId(0)
+    assert oid.value == 0
+    assert not oid.is_valid
+
+    oid = yogi.OperationId(-10)
+    assert oid.value == -10
+    assert not oid.is_valid
 
 
-class TestOperationId(TestCase):
-    def test_from_value(self):
-        oid = yogi.OperationId(5)
-        self.assertEqual(oid.value, 5)
-        self.assertTrue(oid.is_valid)
+def test_comparison_operators():
+    """Verifies that two OperationId instances can be compared for equality/non-equality"""
+    a = yogi.OperationId(4)
+    b = yogi.OperationId(4)
+    c = yogi.OperationId(1)
 
-        oid = yogi.OperationId(0)
-        self.assertEqual(oid.value, 0)
-        self.assertFalse(oid.is_valid)
+    assert a == b
+    assert not a == c
 
-        oid = yogi.OperationId(-10)
-        self.assertEqual(oid.value, -10)
-        self.assertFalse(oid.is_valid)
+    assert not a != b
+    assert a != c
 
-    def test_comparison_operators(self):
-        a = yogi.OperationId(4)
-        b = yogi.OperationId(4)
-        c = yogi.OperationId(1)
 
-        self.assertTrue(a == b)
-        self.assertFalse(a == c)
-
-        self.assertFalse(a != b)
-        self.assertTrue(a != c)
-
-    def test_hash(self):
-        a = yogi.OperationId(4)
-        b = yogi.OperationId(7)
-        self.assertNotEqual(hash(a), hash(b))
+def test_hash():
+    """Verifies that a hash can be computed for an OperationId"""
+    a = yogi.OperationId(4)
+    b = yogi.OperationId(7)
+    assert hash(a) != hash(b)
