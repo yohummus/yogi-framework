@@ -43,13 +43,13 @@ public static partial class Yogi
 
         static BindingsInfo()
         {
-            // :BEGIN_CODEGEN: gen_dotnet_version
-            Version = "0.0.3-alpha";
+            // :CODEGEN_BEGIN:
+            Version = "0.0.1-alpha";
             VersionMajor = 0;
             VersionMinor = 0;
-            VersionPatch = 3;
+            VersionPatch = 1;
             VersionSuffix = "-alpha";
-            // :END_CODEGEN:
+            // :CODEGEN_END:
         }
     }
 

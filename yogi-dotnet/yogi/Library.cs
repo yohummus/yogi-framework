@@ -165,9 +165,9 @@ public static partial class Yogi
             var fn = GetDelegateForFunction<CheckBindingsCompatibilityDelegate>(
                 "YOGI_CheckBindingsCompatibility");
 
-            // :BEGIN_CODEGEN: gen_dotnet_version
-            var bindingsVersion = "0.0.3-alpha";
-            // :END_CODEGEN:
+            // :CODEGEN_BEGIN:
+            var bindingsVersion = "0.0.1-alpha";
+            // :CODEGEN_END:
 
             var err = new StringBuilder(256);
             int res = fn(bindingsVersion, err, err.Capacity);

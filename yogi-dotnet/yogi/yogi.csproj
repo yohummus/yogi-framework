@@ -6,9 +6,9 @@
     <Company></Company>
     <Product>Yogi Framework</Product>
     <PackageId></PackageId>
-    <!-- :BEGIN_CODEGEN: gen_dotnet_version -->
-    <Version>0.0.3-alpha</Version>
-    <!-- :END_CODEGEN: -->
+    <!-- :CODEGEN_BEGIN: -->
+    <Version>0.0.1-alpha</Version>
+    <!-- :CODEGEN_END: -->
     <NeutralLanguage>en</NeutralLanguage>
     <Description>Yogi bindings for .NET</Description>
     <Copyright>GPLv3</Copyright>
