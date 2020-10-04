@@ -90,7 +90,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 cfg.UpdateFromCommandLine(new[] { "ax", "by", "cz" });
             });
@@ -117,7 +117,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 cfg.UpdateFromJson("foo");
             });
@@ -144,7 +144,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 cfg.UpdateFromFile("foo");
             });
@@ -186,7 +186,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 cfg.Dump();
             });
@@ -270,7 +270,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 cfg.WriteToFile("foo");
             });
@@ -304,7 +304,7 @@ namespace test
 
             var scm = CreateConfiguration();
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 cfg.Validate(scm);
             });

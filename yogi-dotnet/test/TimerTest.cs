@@ -60,7 +60,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 new Yogi.Timer(CreateContext());
             });
@@ -126,7 +126,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 timer.StartAsync(Yogi.Duration.FromNanoseconds(1234), fn);
             });
@@ -161,7 +161,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 timer.Cancel();
             });

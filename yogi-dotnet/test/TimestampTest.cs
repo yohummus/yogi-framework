@@ -61,7 +61,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() => Yogi.Timestamp.Now);
+            Assert.ThrowsAny<Yogi.FailureException>(() => Yogi.Timestamp.Now);
         }
 
         [Fact]
@@ -88,7 +88,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() => Yogi.Timestamp.Parse("foo", "bar"));
+            Assert.ThrowsAny<Yogi.FailureException>(() => Yogi.Timestamp.Parse("foo", "bar"));
         }
 
         [Fact]
@@ -154,7 +154,7 @@ namespace test
 
             var t = Yogi.Timestamp.FromDurationSinceEpoch(
                 Yogi.Duration.FromNanoseconds(123456789123456789L));
-            Assert.Throws<Yogi.FailureException>(() => t.Format("foo"));
+            Assert.ThrowsAny<Yogi.FailureException>(() => t.Format("foo"));
         }
 
         [Fact]

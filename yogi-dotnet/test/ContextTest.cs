@@ -48,7 +48,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 new Yogi.Context();
             });
@@ -75,7 +75,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 context.Poll();
             });
@@ -102,7 +102,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 context.PollOne();
             });
@@ -131,7 +131,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 context.Run();
             });
@@ -160,7 +160,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 context.RunOne();
             });
@@ -186,7 +186,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 context.RunInBackground();
             });
@@ -212,7 +212,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 context.Stop();
             });
@@ -251,7 +251,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 context.WaitForRunning();
             });
@@ -290,7 +290,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 context.WaitForStopped();
             });
@@ -320,7 +320,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 context.Post(() => { });
             });

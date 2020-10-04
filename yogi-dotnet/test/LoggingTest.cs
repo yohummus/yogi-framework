@@ -73,7 +73,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 Yogi.ConfigureConsoleLogging(Yogi.Verbosity.Info, Yogi.Stream.Stderr, false);
             });
@@ -99,7 +99,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 Yogi.DisableConsoleLogging();
             });
@@ -158,7 +158,7 @@ namespace test
                                            int line, string comp, string msg) =>
             { };
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 Yogi.ConfigureHookLogging(Yogi.Verbosity.Info, fn);
             });
@@ -184,7 +184,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 Yogi.DisableHookLogging();
             });
@@ -232,7 +232,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 Yogi.ConfigureFileLogging(Yogi.Verbosity.Info, "foo");
             });
@@ -260,7 +260,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 Yogi.DisableFileLogging();
             });
@@ -288,7 +288,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 Yogi.Logger.SetComponentsVerbosity("foo", Yogi.Verbosity.Warning);
             });
@@ -315,7 +315,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 new Yogi.Logger("foo");
             });
@@ -346,7 +346,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 Assert.Equal(Yogi.Verbosity.Warning, logger.Verbosity);
             });
@@ -377,7 +377,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 logger.Verbosity = Yogi.Verbosity.Warning;
             });
@@ -421,7 +421,7 @@ namespace test
                 return (int)Yogi.ErrorCode.Unknown;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 logger.Log(Yogi.Verbosity.Warning, "bar", "foo", 123);
             });

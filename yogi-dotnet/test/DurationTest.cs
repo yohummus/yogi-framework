@@ -365,7 +365,7 @@ namespace test
                 return (int)Yogi.ErrorCode.WrongObjectType;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 Yogi.Duration.FromNanoseconds(1L).Format("bla", "moo");
             });
@@ -411,7 +411,7 @@ namespace test
                 return (int)Yogi.ErrorCode.WrongObjectType;
             });
 
-            Assert.Throws<Yogi.FailureException>(() =>
+            Assert.ThrowsAny<Yogi.FailureException>(() =>
             {
                 Yogi.Duration.FromNanoseconds(1L).ToString();
             });

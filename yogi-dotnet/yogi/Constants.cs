@@ -56,13 +56,13 @@ public static partial class Yogi
         public static readonly int DefaultAdvPort;
 
         /// <summary>Default advertising interval in nanoseconds</summary>
-        public static readonly long DefaultAdvInterval;
+        public static readonly Duration DefaultAdvInterval;
 
         /// <summary>Default connection timeout in nanoseconds</summary>
-        public static readonly long DefaultConnectionTimeout;
+        public static readonly Duration DefaultConnectionTimeout;
 
         /// <summary>Default logging verbosity</summary>
-        public static readonly int DefaultLoggerVerbosity;
+        public static readonly Verbosity DefaultLoggerVerbosity;
 
         /// <summary>Default textual format for timestamps in log entries</summary>
         public static readonly string DefaultLogTimeFormat;
@@ -113,7 +113,7 @@ public static partial class Yogi
         public static readonly string DefaultWebInterfaces;
 
         /// <summary>Default timeout for web server connections in nanoseconds</summary>
-        public static readonly long DefaultWebTimeout;
+        public static readonly Duration DefaultWebTimeout;
 
         /// <summary>Default maximum HTTP header size of incoming requests in bytes</summary>
         public static readonly int DefaultHttpHeaderLimit;

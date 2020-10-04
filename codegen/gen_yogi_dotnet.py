@@ -13,6 +13,7 @@ def generate(core_api: munch.Munch) -> None:
     generate_version_cs()
     generate_yogi_csproj()
     generate_constants_cs(core_api)
+    generate_enums_cs(core_api)
     generate_api_cs(core_api)
     generate_common_cs(core_api)
     generate_copyright_headers(core_api, 'yogi-dotnet')
@@ -60,6 +61,61 @@ def generate_constants_cs(core_api: munch.Munch) -> None:
 
     replace_block_in_file('yogi-dotnet/yogi/Constants.cs', member_lines + [''], block_idx=0)
     replace_block_in_file('yogi-dotnet/yogi/Constants.cs', extract_lines, block_idx=1)
+
+
+def generate_enums_cs(core_api: munch.Munch) -> None:
+    """Replaces the code in the Enums.cs file"""
+    line_blocks = []
+
+    # Normal enums
+    for enum, elems in core_api.enums.items():
+        name_prefix = ''
+        if enum == 'error_code':
+            values = range(0, -len(elems), -1)
+        elif enum == 'verbosity':
+            values = range(-1, len(elems) - 1)
+        elif enum == 'http_status':
+            name_prefix = 'Http'
+            values = elems.keys()
+        else:
+            values = range(len(elems))
+
+        lines = []
+        for val, (name, comment) in zip(values, elems.items()):
+            lines += [f'',
+                      f'        /// <summary>{comment}</summary>',
+                      f'        {name_prefix}{stringcase.pascalcase(str(name).lower())} = {val},']
+
+        line_blocks += [lines]
+
+    # Flags
+    for enum, flags in core_api.flags.items():
+        lines = []
+        for name, props in flags.items():
+            lines += ['']
+
+            # Help text
+            if '\n' in props.help:
+                lines += [f'        /// <summary>']
+                for comment_line in props.help.rstrip().split('\n'):
+                    lines += [f'        /// {comment_line}']
+                lines += [f'        /// </summary>']
+            else:
+                lines += [f'        /// <summary>{props.help}</summary>']
+
+            # Code line
+            line = f'        {stringcase.pascalcase(name.lower())} = '
+            if 'bit' in props:
+                line += '0' if props.bit is None else f'1 << {props.bit}'
+            else:
+                line += ' | '.join([stringcase.pascalcase(x.lower()) for x in props.combine])
+
+            lines += [f'{line},']
+
+        line_blocks += [lines]
+
+    for block_idx, lines in enumerate(line_blocks):
+        replace_block_in_file('yogi-dotnet/yogi/Enums.cs', lines + [''], block_idx=block_idx)
 
 
 def generate_api_cs(core_api: munch.Munch) -> None:

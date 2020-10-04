@@ -62,17 +62,17 @@ constants:
 
   DEFAULT_ADV_INTERVAL:
     help: Default advertising interval in nanoseconds
-    type: { c: long long, cpp: Duration, cs: long, py: Duration }
+    type: { c: long long, cpp: Duration, cs: Duration, py: Duration }
     value: 1.e+9
 
   DEFAULT_CONNECTION_TIMEOUT:
     help: Default connection timeout in nanoseconds
-    type: { c: long long, cpp: Duration, cs: long, py: Duration }
+    type: { c: long long, cpp: Duration, cs: Duration, py: Duration }
     value: 3.e+9
 
   DEFAULT_LOGGER_VERBOSITY:
     help: Default logging verbosity
-    type: { c: int, cpp: Verbosity, cs: int, py: Verbosity }
+    type: { c: int, cpp: Verbosity, cs: Verbosity, py: Verbosity }
     value: YOGI_VB_INFO
 
   DEFAULT_LOG_TIME_FORMAT:
@@ -157,7 +157,7 @@ constants:
 
   DEFAULT_WEB_TIMEOUT:
     help: Default timeout for web server connections in nanoseconds
-    type: { c: long long, cpp: Duration, cs: long, py: Duration }
+    type: { c: long long, cpp: Duration, cs: Duration, py: Duration }
     value: 30.e+9
 
   DEFAULT_HTTP_HEADER_LIMIT:

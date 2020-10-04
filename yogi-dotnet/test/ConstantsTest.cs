@@ -29,7 +29,7 @@ namespace test
         public void Some()
         {
             Assert.True(Yogi.Constants.Version.Length > 4);
-            Assert.True(Yogi.Constants.DefaultAdvPort > 1024);
+            Assert.True(Yogi.Constants.DefaultAdvPort == 1);
             Assert.NotEqual(Yogi.Verbosity.Fatal, Yogi.Constants.DefaultLoggerVerbosity);
             Assert.True(Yogi.Constants.DefaultAdvInterval.TotalMilliseconds > 1);
         }
