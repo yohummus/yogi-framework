@@ -50,6 +50,16 @@ jobs:
         if: matrix.os == 'windows-2019'
         run: echo "::add-matcher::.github/msvc_problem_matcher.json"
 
+      - name: Run codegen and check if there are any changes
+        run: |
+          python3 codegen
+          OUTPUT=$(git status --porcelain=v1 2>/dev/null | wc -l)
+          if [ $x -eq 0 ]; then
+            git status
+            echo "ERROR: It looks like you did not run codegen"
+            exit 1
+          fi
+
       - name: Build and package yogi-core
         run: |
           mkdir build
