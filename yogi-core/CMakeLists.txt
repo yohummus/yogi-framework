@@ -116,6 +116,7 @@ set(test_files
     test/util/time_test.cc
     test/util/algorithm_test.cc
     test/util/hex_test.cc
+    test/util/bind_test.cc
     test/objects/logger_test.cc
     test/objects/configuration_test.cc
     test/objects/context_test.cc
