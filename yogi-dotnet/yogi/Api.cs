@@ -27,7 +27,7 @@ public static partial class Yogi
 {
     internal class YogiCore
     {
-        // :BEGIN_CODEGEN: gen_dotnet_api_fns
+        // :CODEGEN_BEGIN:
 
         // YOGI_GetVersion
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -489,6 +489,6 @@ public static partial class Yogi
         public static WebProcessUpdateDelegate YOGI_WebProcessUpdate
             = Library.GetDelegateForFunction<WebProcessUpdateDelegate>("YOGI_WebProcessUpdate");
 
-        // :END_CODEGEN:
+        // :CODEGEN_END:
     }
 }
