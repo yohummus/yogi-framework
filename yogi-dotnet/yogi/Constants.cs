@@ -29,162 +29,162 @@ public static partial class Yogi
     /// </summary>
     public static class Constants
     {
-        // :BEGIN_CODEGEN: gen_dotnet_constants
+        // :CODEGEN_BEGIN:
 
-        /// <summary>Whole version string of the core library.</summary>
+        /// <summary>Whole version string of the core library</summary>
         public static readonly string Version;
 
-        /// <summary>Major version number of the core library.</summary>
+        /// <summary>Major version number of the core library</summary>
         public static readonly int VersionMajor;
 
-        /// <summary>Major version number of the core library.</summary>
+        /// <summary>Minor version number of the core library</summary>
         public static readonly int VersionMinor;
 
-        /// <summary>Major version number of the core library.</summary>
+        /// <summary>Patch version number of the core library</summary>
         public static readonly int VersionPatch;
 
-        /// <summary>Suffix of the core library version.</summary>
+        /// <summary>Suffix of the core library version</summary>
         public static readonly string VersionSuffix;
 
-        /// <summary>Default network interfaces to use for advertising.</summary>
+        /// <summary>Default network interfaces to use for advertising</summary>
         public static readonly string DefaultAdvInterfaces;
 
-        /// <summary>Default multicast addresses to use for advertising.</summary>
+        /// <summary>Default multicast addresses to use for advertising</summary>
         public static readonly string DefaultAdvAddress;
 
-        /// <summary>Default port to use for advertising via UDP IPv6 multicasts.</summary>
+        /// <summary>Default port to use for advertising via UDP IPv6 multicasts</summary>
         public static readonly int DefaultAdvPort;
 
-        /// <summary>Default advertising interval in nanoseconds.</summary>
-        public static readonly Duration DefaultAdvInterval;
+        /// <summary>Default advertising interval in nanoseconds</summary>
+        public static readonly long DefaultAdvInterval;
 
-        /// <summary>Default connection timeout in nanoseconds.</summary>
-        public static readonly Duration DefaultConnectionTimeout;
+        /// <summary>Default connection timeout in nanoseconds</summary>
+        public static readonly long DefaultConnectionTimeout;
 
-        /// <summary>Default logging verbosity.</summary>
-        public static readonly Verbosity DefaultLoggerVerbosity;
+        /// <summary>Default logging verbosity</summary>
+        public static readonly int DefaultLoggerVerbosity;
 
-        /// <summary>Default textual format for timestamps in log entries.</summary>
+        /// <summary>Default textual format for timestamps in log entries</summary>
         public static readonly string DefaultLogTimeFormat;
 
-        /// <summary>Default textual format for log entries.</summary>
+        /// <summary>Default textual format for log entries</summary>
         public static readonly string DefaultLogFormat;
 
-        /// <summary>Maximum size of the payload in a message.</summary>
+        /// <summary>Maximum size of the payload in a message</summary>
         public static readonly int MaxMessagePayloadSize;
 
-        /// <summary>Default textual format for timestamps.</summary>
+        /// <summary>Default textual format for timestamps</summary>
         public static readonly string DefaultTimeFormat;
 
-        /// <summary>Default string to denote an infinite duration.</summary>
+        /// <summary>Default string to denote an infinite duration</summary>
         public static readonly string DefaultInfDurationString;
 
-        /// <summary>Default textual format for duration strings.</summary>
+        /// <summary>Default textual format for duration strings</summary>
         public static readonly string DefaultDurationFormat;
 
-        /// <summary>Default string to denote an invalid object handle.</summary>
+        /// <summary>Default string to denote an invalid object handle</summary>
         public static readonly string DefaultInvalidHandleString;
 
-        /// <summary>Default textual format for strings describing an object.</summary>
+        /// <summary>Default textual format for strings describing an object</summary>
         public static readonly string DefaultObjectFormat;
 
-        /// <summary>Minimum size of a send queue for a remote branch.</summary>
+        /// <summary>Minimum size of a send queue for a remote branch</summary>
         public static readonly int MinTxQueueSize;
 
-        /// <summary>Maximum size of a send queue for a remote branch.</summary>
+        /// <summary>Maximum size of a send queue for a remote branch</summary>
         public static readonly int MaxTxQueueSize;
 
-        /// <summary>Default size of a send queue for a remote branch.</summary>
+        /// <summary>Default size of a send queue for a remote branch</summary>
         public static readonly int DefaultTxQueueSize;
 
-        /// <summary>Minimum size of a receive queue for a remote branch.</summary>
+        /// <summary>Minimum size of a receive queue for a remote branch</summary>
         public static readonly int MinRxQueueSize;
 
-        /// <summary>Maximum size of a receive queue for a remote branch.</summary>
+        /// <summary>Maximum size of a receive queue for a remote branch</summary>
         public static readonly int MaxRxQueueSize;
 
-        /// <summary>Default size of a receive queue for a remote branch.</summary>
+        /// <summary>Default size of a receive queue for a remote branch</summary>
         public static readonly int DefaultRxQueueSize;
 
-        /// <summary>Default port for the web server to listen on for client connections.</summary>
+        /// <summary>Default port for the web server to listen on for client connections</summary>
         public static readonly int DefaultWebPort;
 
-        /// <summary>Default network interfaces to use for the web server.</summary>
+        /// <summary>Default network interfaces to use for the web server</summary>
         public static readonly string DefaultWebInterfaces;
 
-        /// <summary>Default timeout for web server connections in nanoseconds.</summary>
-        public static readonly Duration DefaultWebTimeout;
+        /// <summary>Default timeout for web server connections in nanoseconds</summary>
+        public static readonly long DefaultWebTimeout;
 
-        /// <summary>Default maximum HTTP header size of incoming requests in bytes.</summary>
+        /// <summary>Default maximum HTTP header size of incoming requests in bytes</summary>
         public static readonly int DefaultHttpHeaderLimit;
 
-        /// <summary>Default maximum HTTP body size of incoming requests in bytes.</summary>
+        /// <summary>Default maximum HTTP body size of incoming requests in bytes</summary>
         public static readonly int DefaultHttpBodyLimit;
 
-        /// <summary>Default size of the web server cache in bytes.</summary>
+        /// <summary>Default size of the web server cache in bytes</summary>
         public static readonly int DefaultWebCacheSize;
 
-        /// <summary>Maximum size of the web server cache in bytes.</summary>
+        /// <summary>Maximum size of the web server cache in bytes</summary>
         public static readonly int MaxWebCacheSize;
 
-        /// <summary>Default user name for the administrator account.</summary>
+        /// <summary>Default user name for the administrator account</summary>
         public static readonly string DefaultAdminUser;
 
-        /// <summary>Default password for the administrator account.</summary>
+        /// <summary>Default password for the administrator account</summary>
         public static readonly string DefaultAdminPassword;
 
-        /// <summary>Default private key to use for SSL connections.</summary>
+        /// <summary>Default private key to use for SSL connections</summary>
         public static readonly string DefaultSslPrivateKey;
 
-        /// <summary>Default certificate chain to use for SSL connections.</summary>
+        /// <summary>Default certificate chain to use for SSL connections</summary>
         public static readonly string DefaultSslCertificateChain;
 
-        /// <summary>Default DH parameters to use for SSL connections.</summary>
+        /// <summary>Default DH parameters to use for SSL connections</summary>
         public static readonly string DefaultSslDhParams;
 
-        // :END_CODEGEN:
+        // :CODEGEN_END:
 
         static Constants()
         {
-            // :BEGIN_CODEGEN: gen_dotnet_constants
-            ExtractConstant(ref Version, 1);
-            ExtractConstant(ref VersionMajor, 2);
-            ExtractConstant(ref VersionMinor, 3);
-            ExtractConstant(ref VersionPatch, 4);
-            ExtractConstant(ref VersionSuffix, 5);
-            ExtractConstant(ref DefaultAdvInterfaces, 6);
-            ExtractConstant(ref DefaultAdvAddress, 7);
-            ExtractConstant(ref DefaultAdvPort, 8);
-            ExtractConstant(ref DefaultAdvInterval, 9);
-            ExtractConstant(ref DefaultConnectionTimeout, 10);
-            ExtractConstant(ref DefaultLoggerVerbosity, 11);
-            ExtractConstant(ref DefaultLogTimeFormat, 12);
-            ExtractConstant(ref DefaultLogFormat, 13);
-            ExtractConstant(ref MaxMessagePayloadSize, 14);
-            ExtractConstant(ref DefaultTimeFormat, 15);
-            ExtractConstant(ref DefaultInfDurationString, 16);
-            ExtractConstant(ref DefaultDurationFormat, 17);
-            ExtractConstant(ref DefaultInvalidHandleString, 18);
-            ExtractConstant(ref DefaultObjectFormat, 19);
-            ExtractConstant(ref MinTxQueueSize, 20);
-            ExtractConstant(ref MaxTxQueueSize, 21);
-            ExtractConstant(ref DefaultTxQueueSize, 22);
-            ExtractConstant(ref MinRxQueueSize, 23);
-            ExtractConstant(ref MaxRxQueueSize, 24);
-            ExtractConstant(ref DefaultRxQueueSize, 25);
-            ExtractConstant(ref DefaultWebPort, 26);
-            ExtractConstant(ref DefaultWebInterfaces, 27);
-            ExtractConstant(ref DefaultWebTimeout, 28);
-            ExtractConstant(ref DefaultHttpHeaderLimit, 29);
-            ExtractConstant(ref DefaultHttpBodyLimit, 30);
-            ExtractConstant(ref DefaultWebCacheSize, 31);
-            ExtractConstant(ref MaxWebCacheSize, 32);
-            ExtractConstant(ref DefaultAdminUser, 33);
-            ExtractConstant(ref DefaultAdminPassword, 34);
-            ExtractConstant(ref DefaultSslPrivateKey, 35);
-            ExtractConstant(ref DefaultSslCertificateChain, 36);
-            ExtractConstant(ref DefaultSslDhParams, 37);
-            // :END_CODEGEN:
+            // :CODEGEN_BEGIN:
+           ExtractConstant(ref Version, 1);
+           ExtractConstant(ref VersionMajor, 2);
+           ExtractConstant(ref VersionMinor, 3);
+           ExtractConstant(ref VersionPatch, 4);
+           ExtractConstant(ref VersionSuffix, 5);
+           ExtractConstant(ref DefaultAdvInterfaces, 6);
+           ExtractConstant(ref DefaultAdvAddress, 7);
+           ExtractConstant(ref DefaultAdvPort, 8);
+           ExtractConstant(ref DefaultAdvInterval, 9);
+           ExtractConstant(ref DefaultConnectionTimeout, 10);
+           ExtractConstant(ref DefaultLoggerVerbosity, 11);
+           ExtractConstant(ref DefaultLogTimeFormat, 12);
+           ExtractConstant(ref DefaultLogFormat, 13);
+           ExtractConstant(ref MaxMessagePayloadSize, 14);
+           ExtractConstant(ref DefaultTimeFormat, 15);
+           ExtractConstant(ref DefaultInfDurationString, 16);
+           ExtractConstant(ref DefaultDurationFormat, 17);
+           ExtractConstant(ref DefaultInvalidHandleString, 18);
+           ExtractConstant(ref DefaultObjectFormat, 19);
+           ExtractConstant(ref MinTxQueueSize, 20);
+           ExtractConstant(ref MaxTxQueueSize, 21);
+           ExtractConstant(ref DefaultTxQueueSize, 22);
+           ExtractConstant(ref MinRxQueueSize, 23);
+           ExtractConstant(ref MaxRxQueueSize, 24);
+           ExtractConstant(ref DefaultRxQueueSize, 25);
+           ExtractConstant(ref DefaultWebPort, 26);
+           ExtractConstant(ref DefaultWebInterfaces, 27);
+           ExtractConstant(ref DefaultWebTimeout, 28);
+           ExtractConstant(ref DefaultHttpHeaderLimit, 29);
+           ExtractConstant(ref DefaultHttpBodyLimit, 30);
+           ExtractConstant(ref DefaultWebCacheSize, 31);
+           ExtractConstant(ref MaxWebCacheSize, 32);
+           ExtractConstant(ref DefaultAdminUser, 33);
+           ExtractConstant(ref DefaultAdminPassword, 34);
+           ExtractConstant(ref DefaultSslPrivateKey, 35);
+           ExtractConstant(ref DefaultSslCertificateChain, 36);
+           ExtractConstant(ref DefaultSslDhParams, 37);
+            // :CODEGEN_END:
         }
 
         static IntPtr GetConstantPtr(int apiId)

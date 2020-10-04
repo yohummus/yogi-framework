@@ -12,6 +12,7 @@ def generate(core_api: munch.Munch) -> None:
     generate_library_cs()
     generate_version_cs()
     generate_yogi_csproj()
+    generate_constants_cs(core_api)
     generate_api_cs(core_api)
     generate_common_cs(core_api)
     generate_copyright_headers(core_api, 'yogi-dotnet')
@@ -41,6 +42,24 @@ def generate_yogi_csproj() -> None:
     lines = [f'    <Version>{VERSION}</Version>']
 
     replace_block_in_file('yogi-dotnet/yogi/yogi.csproj', lines)
+
+
+def generate_constants_cs(core_api: munch.Munch) -> None:
+    """Replaces the code in the Constants.cs file"""
+    member_lines = []
+    extract_lines = []
+
+    for val, (name, props) in enumerate(core_api.constants.items(), start=1):
+        cs_name = stringcase.pascalcase(name.lower())
+
+        member_lines += [f'',
+                         f'        /// <summary>{props.help}</summary>',
+                         f'        public static readonly {props.type.cs} {cs_name};']
+
+        extract_lines += [f'           ExtractConstant(ref {cs_name}, {val});']
+
+    replace_block_in_file('yogi-dotnet/yogi/Constants.cs', member_lines + [''], block_idx=0)
+    replace_block_in_file('yogi-dotnet/yogi/Constants.cs', extract_lines, block_idx=1)
 
 
 def generate_api_cs(core_api: munch.Munch) -> None:
