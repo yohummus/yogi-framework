@@ -1,5 +1,6 @@
 import os
 import sys
+import re
 from conans import ConanFile, CMake, tools
 
 
@@ -19,15 +20,21 @@ class YogiDotnetConan(ConanFile):
     generators = "virtualenv"
     build_requires = f"yogi-core-mock/{version}"
     requires = f"yogi-core/{version}"
-    exports_sources = "yogi/*", "test/*", "*.targets", ".sln"
+    exports_sources = "yogi/*", "test/*", "*.targets", "*.sln"
+
+    @property
+    def target_framework(self):
+        with open(f"{self.source_folder}/yogi/yogi.csproj", "r") as f:
+            content = f.read()
+
+        return re.search(r'<TargetFramework>(.*)</TargetFramework>', content).group(1)
 
     def build(self):
-        build_type = self.settings.get_safe("build_type", default="Release")
-
-        self.run(f"dotnet build --configuration {build_type}", cwd=self.source_folder)
+        self.run(f"dotnet build --configuration {self.settings.build_type}", cwd=self.source_folder)
 
         if self.options.build_tests:
-            self.run(f"dotnet test --no-restore --configuration {build_type}", cwd=self.source_folder)
+            self.run(f"dotnet test --no-restore --configuration {self.settings.build_type}", cwd=self.source_folder)
 
     def package(self):
-        pass
+        print(f"yogi/bin/{self.settings.build_type}/{self.target_framework}")
+        self.copy("*", src=f"yogi/bin/{self.settings.build_type}/{self.target_framework}", dst="lib")
