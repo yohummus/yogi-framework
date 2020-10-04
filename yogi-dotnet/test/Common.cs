@@ -78,13 +78,74 @@ namespace test
             GC.Collect();
         }
 
+        // MOCK_ResetMocks
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void ResetMocksDelegate();
 
         public static ResetMocksDelegate MOCK_ResetMocks
             = Yogi.Library.GetDelegateForFunction<ResetMocksDelegate>("MOCK_ResetMocks");
 
-        // :BEGIN_CODEGEN: gen_dotnet_api_fns
+        // :CODEGEN_BEGIN:
+
+        // MOCK_GetVersion
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate IntPtr GetVersionDelegate();
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate void GetVersionMockDelegate(GetVersionDelegate fn);
+
+        internal static GetVersionMockDelegate MOCK_GetVersion
+            = Yogi.Library.GetDelegateForFunction<GetVersionMockDelegate>("MOCK_GetVersion");
+
+        // MOCK_CheckBindingsCompatibility
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int CheckBindingsCompatibilityDelegate(string bindver);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate void CheckBindingsCompatibilityMockDelegate(CheckBindingsCompatibilityDelegate fn);
+
+        internal static CheckBindingsCompatibilityMockDelegate MOCK_CheckBindingsCompatibility
+            = Yogi.Library.GetDelegateForFunction<CheckBindingsCompatibilityMockDelegate>("MOCK_CheckBindingsCompatibility");
+
+        // MOCK_GetErrorString
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate IntPtr GetErrorStringDelegate(int err);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate void GetErrorStringMockDelegate(GetErrorStringDelegate fn);
+
+        internal static GetErrorStringMockDelegate MOCK_GetErrorString
+            = Yogi.Library.GetDelegateForFunction<GetErrorStringMockDelegate>("MOCK_GetErrorString");
+
+        // MOCK_GetLastErrorDetails
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate IntPtr GetLastErrorDetailsDelegate();
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate void GetLastErrorDetailsMockDelegate(GetLastErrorDetailsDelegate fn);
+
+        internal static GetLastErrorDetailsMockDelegate MOCK_GetLastErrorDetails
+            = Yogi.Library.GetDelegateForFunction<GetLastErrorDetailsMockDelegate>("MOCK_GetLastErrorDetails");
+
+        // MOCK_GetConstant
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int GetConstantDelegate(ref IntPtr dest, int constant);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate void GetConstantMockDelegate(GetConstantDelegate fn);
+
+        internal static GetConstantMockDelegate MOCK_GetConstant
+            = Yogi.Library.GetDelegateForFunction<GetConstantMockDelegate>("MOCK_GetConstant");
+
+        // MOCK_GetSchema
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate IntPtr GetSchemaDelegate(int schema);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate void GetSchemaMockDelegate(GetSchemaDelegate fn);
+
+        internal static GetSchemaMockDelegate MOCK_GetSchema
+            = Yogi.Library.GetDelegateForFunction<GetSchemaMockDelegate>("MOCK_GetSchema");
 
         // MOCK_GetCurrentTime
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -625,7 +686,7 @@ namespace test
 
         // MOCK_WebRouteCreate
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void WebRouteCreateFnDelegate(int res, int rid, string user, string owner, int method, string uri, string[] qparams, IntPtr userarg);
+        public delegate void WebRouteCreateFnDelegate(int res, int rid, string user, string owner, int method, string uri, IntPtr qparams, IntPtr userarg);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int WebRouteCreateDelegate(ref IntPtr route, IntPtr server, string baseuri, WebRouteCreateFnDelegate fn, IntPtr userarg);
@@ -669,6 +730,6 @@ namespace test
         internal static WebProcessUpdateMockDelegate MOCK_WebProcessUpdate
             = Yogi.Library.GetDelegateForFunction<WebProcessUpdateMockDelegate>("MOCK_WebProcessUpdate");
 
-        // :END_CODEGEN:
+        // :CODEGEN_END:
     }
 }
