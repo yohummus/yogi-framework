@@ -54,7 +54,7 @@ jobs:
         run: |
           python3 codegen
           OUTPUT=$(git status --porcelain=v1 2>/dev/null | wc -l)
-          if [ $x -eq 0 ]; then
+          if [[ $OUTPUT -eq 0 ]]; then
             git status
             echo "ERROR: It looks like you did not run codegen"
             exit 1
