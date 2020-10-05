@@ -63,13 +63,13 @@ TEST_F(BindTest, StrongFunctionWithNoArguments) {
   EXPECT_TRUE(obj_->called);
 }
 
-TEST_F(BindTest, Weakfunction_with_one_argument) {
+TEST_F(BindTest, WeakFunctionWithOneArgument) {
   auto fn = bind_weak(&Derived::function_with_one_arg, obj_.get());
   fn("hello");
   EXPECT_TRUE(obj_->called);
 }
 
-TEST_F(BindTest, Strongfunction_with_one_argument) {
+TEST_F(BindTest, StrongFunctionWithOneArgument) {
   auto fn = bind_strong(&Derived::function_with_one_arg, obj_.get());
   fn("hello");
   EXPECT_TRUE(obj_->called);
