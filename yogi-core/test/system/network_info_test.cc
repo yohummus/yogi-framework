@@ -55,6 +55,41 @@ TEST(SystemTest, GetNetworkInterfaces) {
   EXPECT_TRUE(localhost_found);
 }
 
+TEST(SystemTest, GetFilteredNetworkInterfaces) {
+  std::vector<IpVersion> ip_versions = {IpVersion::kAny, IpVersion::k4, IpVersion::k6};
+  for (auto ip_version : ip_versions) {
+    auto ifs = get_filtered_network_interfaces({"localhost"}, ip_version);
+    ASSERT_EQ(ifs.size(), 1);
+    EXPECT_TRUE(ifs[0].is_loopback);
+
+    ifs = get_filtered_network_interfaces({"all"}, ip_version);
+    ASSERT_GT(ifs.size(), 1) << "Make sure you have an active LAN or Wi-Fi connection, otherwise "
+                                "the test fails because it cannot find any network interfaces other "
+                                "than the loopback interface.";
+
+    if (ip_version != IpVersion::kAny) {
+      for (auto& info : ifs) {
+        for (auto& addr : info.addresses) {
+          EXPECT_TRUE(addr.is_v4() == (ip_version == IpVersion::k4));
+        }
+      }
+    }
+
+    auto if_it = find_if(ifs, [](auto& info) { return !info.is_loopback && !info.mac.empty(); });
+    ASSERT_NE(if_it, ifs.end()) << "No network interface found that has a MAC "
+                                   "and that is not a loopback interface.";
+    auto ifc = *if_it;
+
+    ifs = get_filtered_network_interfaces({ifc.name}, ip_version);
+    ASSERT_EQ(ifs.size(), 1);
+    EXPECT_EQ(ifs[0].name, ifc.name);
+
+    ifs = get_filtered_network_interfaces({ifc.mac}, ip_version);
+    ASSERT_EQ(ifs.size(), 1);
+    EXPECT_EQ(ifs[0].mac, ifc.mac);
+  }
+}
+
 TEST(SystemTest, MakeIpAddressString) {
   auto addr = boost::asio::ip::address::from_string("192.168.1.2");
   EXPECT_EQ(make_ip_address_string(addr), "192.168.1.2");
