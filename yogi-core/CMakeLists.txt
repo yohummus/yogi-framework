@@ -74,6 +74,7 @@ set(src_files
     src/api/version.cc
     src/data/crypto.cc
     src/data/ringbuffer.cc
+    src/data/base64.cc
     # :CODEGEN_END:
 )
 
@@ -133,6 +134,7 @@ set(test_files
     test/api/version_test.cc
     test/api/errors_test.cc
     test/data/crypto_test.cc
+    test/data/base64_test.cc
     test/data/ringbuffer_test.cc
     # :CODEGEN_END:
 )
