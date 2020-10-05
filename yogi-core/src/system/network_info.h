@@ -24,6 +24,8 @@
 #include <src/config.h>
 
 #include <boost/asio/ip/address.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/ip/udp.hpp>
 
 #include <string>
 #include <vector>
@@ -41,5 +43,7 @@ struct NetworkInterfaceInfo {
 typedef std::vector<NetworkInterfaceInfo> NetworkInterfaceInfosVector;
 
 NetworkInterfaceInfosVector get_network_interfaces();
-
 std::string get_hostname();
+std::string make_ip_address_string(const boost::asio::ip::address& addr);
+std::string make_ip_address_string(const boost::asio::ip::tcp::endpoint& ep);
+std::string make_ip_address_string(const boost::asio::ip::udp::endpoint& ep);

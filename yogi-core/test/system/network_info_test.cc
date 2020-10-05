@@ -54,3 +54,17 @@ TEST(SystemTest, GetNetworkInterfaces) {
 
   EXPECT_TRUE(localhost_found);
 }
+
+TEST(SystemTest, MakeIpAddressString) {
+  auto addr = boost::asio::ip::address::from_string("192.168.1.2");
+  EXPECT_EQ(make_ip_address_string(addr), "192.168.1.2");
+
+  auto tcp_ep = boost::asio::ip::tcp::endpoint(addr, 12345);
+  EXPECT_EQ(make_ip_address_string(tcp_ep), "192.168.1.2");
+
+  auto udp_ep = boost::asio::ip::udp::endpoint(addr, 12345);
+  EXPECT_EQ(make_ip_address_string(udp_ep), "192.168.1.2");
+
+  addr = boost::asio::ip::address::from_string("0:0:0:0:0:0:0:1");
+  EXPECT_EQ(make_ip_address_string(addr), "::1");
+}

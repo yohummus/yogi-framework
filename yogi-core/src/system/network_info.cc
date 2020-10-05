@@ -225,3 +225,22 @@ std::string get_hostname() {
 
   return hostname;
 }
+
+std::string make_ip_address_string(const boost::asio::ip::address& addr) {
+  auto s = addr.to_string();
+
+  auto pos = s.find('%');
+  if (pos != std::string::npos) {
+    s.erase(pos);
+  }
+
+  return s;
+}
+
+std::string make_ip_address_string(const boost::asio::ip::tcp::endpoint& ep) {
+  return make_ip_address_string(ep.address());
+}
+
+std::string make_ip_address_string(const boost::asio::ip::udp::endpoint& ep) {
+  return make_ip_address_string(ep.address());
+}
