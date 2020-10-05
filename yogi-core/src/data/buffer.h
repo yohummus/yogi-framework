@@ -37,7 +37,7 @@ typedef std::vector<Byte> Buffer;
 typedef std::shared_ptr<Buffer> SharedBuffer;
 
 template <typename... Args>
-SharedBuffer make_shared_small_buffer(Args&&... args) {
+SharedBuffer make_shared_buffer(Args&&... args) {
   return std::make_shared<Buffer>(std::forward<Args>(args)...);
 }
 

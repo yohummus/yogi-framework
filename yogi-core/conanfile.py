@@ -17,7 +17,7 @@ class YogiCoreConan(ConanFile):
     default_options = {"build_tests": True}
     generators = "cmake", "cmake_find_package", "virtualenv"
     build_requires = "cmake/3.18.2", "gtest/1.10.0"
-    requires = "boost/1.74.0", "nlohmann_json/3.9.1", "json-schema-validator/2.1.0", "openssl/1.1.1g"
+    requires = "boost/1.74.0", "nlohmann_json/3.9.1", "json-schema-validator/2.1.0", "msgpack/3.3.0", "openssl/1.1.1g"
     exports_sources = "src/*", "test/*", "include/*", "CMakeLists.txt"
 
     @property

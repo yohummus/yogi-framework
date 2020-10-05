@@ -30,7 +30,7 @@
 #include <sstream>
 #include <string>
 
-// To be used only within class that inherit LoggerUser and in files that have
+// To be used only within class that inherit LogUser and in files that have
 // defined a global internal logger using YOGI_DEFINE_INTERNAL_LOGGER().
 #define LOG_FAT(...) YOGI_INTERNAL_LOG(YOGI_VB_FATAL, __VA_ARGS__)
 #define LOG_ERR(...) YOGI_INTERNAL_LOG(YOGI_VB_ERROR, __VA_ARGS__)

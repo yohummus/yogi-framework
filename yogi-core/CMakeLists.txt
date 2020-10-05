@@ -30,6 +30,7 @@ endif ()
 # Include dependencies
 find_package(nlohmann_json REQUIRED)
 find_package(nlohmann_json_schema_validator REQUIRED)
+find_package(msgpack REQUIRED)
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(Boost 1.74 COMPONENTS system filesystem thread date_time program_options REQUIRED)
@@ -46,6 +47,11 @@ include_directories(include .)
 set(src_files
     # :CODEGEN_BEGIN:
     src/util/time.cc
+    src/network/msg_transport.cc
+    src/network/messages.cc
+    src/network/tcp_listener.cc
+    src/network/transport.cc
+    src/network/tcp_transport.cc
     src/objects/context.cc
     src/objects/signal_set.cc
     src/objects/timer.cc
