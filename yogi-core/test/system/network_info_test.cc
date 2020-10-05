@@ -63,9 +63,12 @@ TEST(SystemTest, GetFilteredNetworkInterfaces) {
     EXPECT_TRUE(ifs[0].is_loopback);
 
     ifs = get_filtered_network_interfaces({"all"}, ip_version);
-    ASSERT_GT(ifs.size(), 1) << "Make sure you have an active LAN or Wi-Fi connection, otherwise "
-                                "the test fails because it cannot find any network interfaces other "
-                                "than the loopback interface.";
+    if (ifs.size() == 1) {
+      std::cout << "Test skipped because we could not find any network interfaces other than the loopback interface. "
+                   "Make sure you have an active LAN or Wi-Fi connection."
+                << std::endl;
+      return;
+    }
 
     if (ip_version != IpVersion::kAny) {
       for (auto& info : ifs) {
