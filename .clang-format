@@ -15,5 +15,6 @@ AllowAllParametersOfDeclarationOnNextLine: true
 IndentPPDirectives: AfterHash
 IncludeBlocks: Preserve
 IndentWidth: 2
+AllowShortCaseLabelsOnASingleLine: true
 ---
 

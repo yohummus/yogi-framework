@@ -63,12 +63,6 @@ TEST(SystemTest, GetFilteredNetworkInterfaces) {
     EXPECT_TRUE(ifs[0].is_loopback);
 
     ifs = get_filtered_network_interfaces({"all"}, ip_version);
-    if (ifs.size() == 1) {
-      std::cout << "Test skipped because we could not find any network interfaces other than the loopback interface. "
-                   "Make sure you have an active LAN or Wi-Fi connection."
-                << std::endl;
-      return;
-    }
 
     if (ip_version != IpVersion::kAny) {
       for (auto& info : ifs) {
@@ -79,8 +73,22 @@ TEST(SystemTest, GetFilteredNetworkInterfaces) {
     }
 
     auto if_it = find_if(ifs, [](auto& info) { return !info.is_loopback && !info.mac.empty(); });
-    ASSERT_NE(if_it, ifs.end()) << "No network interface found that has a MAC "
-                                   "and that is not a loopback interface.";
+    if (if_it == ifs.end()) {
+      std::cout << "Test skipped for IpVersion::";
+
+      switch (ip_version) {
+        case IpVersion::kAny: std::cout << "kAny"; break;
+        case IpVersion::k4: std::cout << "k4"; break;
+        case IpVersion::k6: std::cout << "k6"; break;
+      }
+
+      std::cout << " because we could not find any network interfaces other than the loopback interface. Make sure you "
+                   "have an active LAN or Wi-Fi connection."
+                << std::endl;
+
+      continue;
+    }
+
     auto ifc = *if_it;
 
     ifs = get_filtered_network_interfaces({ifc.name}, ip_version);
