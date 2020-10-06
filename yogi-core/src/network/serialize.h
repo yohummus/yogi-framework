@@ -53,15 +53,10 @@ inline bool deserialize_integer(T* val, const Buffer& buffer, Buffer::const_iter
 }
 
 template <typename T>
-inline void serialize(Buffer* buffer, const T& val) {
-  // static_assert(false, "Missing specialization");
-}
+inline void serialize(Buffer* buffer, const T& val);
 
 template <typename T>
-bool deserialize(T* val, const Buffer& buffer, Buffer::const_iterator* it) {
-  // static_assert(false, "Missing specialization");
-  return false;
-}
+bool deserialize(T* val, const Buffer& buffer, Buffer::const_iterator* it);
 
 // bool
 template <>
@@ -128,14 +123,14 @@ inline bool deserialize<std::size_t>(std::size_t* val, const Buffer& buffer, Buf
 // std::chrono::nanoseconds
 template <>
 inline void serialize<std::chrono::nanoseconds>(Buffer* buffer, const std::chrono::nanoseconds& dur) {
-  serialize(buffer, dur.count());
+  serialize_integer<boost::endian::big_int64_t>(buffer, dur.count());
 }
 
 template <>
 inline bool deserialize<std::chrono::nanoseconds>(std::chrono::nanoseconds* dur, const Buffer& buffer,
                                                   Buffer::const_iterator* it) {
   std::chrono::nanoseconds::rep n;
-  if (!deserialize(&n, buffer, it)) {
+  if (!deserialize_integer<boost::endian::big_int64_t>(&n, buffer, it)) {
     return false;
   }
 

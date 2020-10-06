@@ -55,6 +55,10 @@ TEST_F(SerializeTest, int) {
   check<int>(-1234567890);
 }
 
+TEST_F(SerializeTest, long_long) {
+  check<long long>(-123456789012345ll);
+}
+
 TEST_F(SerializeTest, size_t) {
   check<size_t>(1234567890);
 }
