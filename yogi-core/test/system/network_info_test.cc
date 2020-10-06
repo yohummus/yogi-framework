@@ -55,6 +55,52 @@ TEST(SystemTest, GetNetworkInterfaces) {
   EXPECT_TRUE(localhost_found);
 }
 
+TEST(SystemTest, GetFilteredNetworkInterfaces) {
+  std::vector<IpVersion> ip_versions = {IpVersion::kAny, IpVersion::k4, IpVersion::k6};
+  for (auto ip_version : ip_versions) {
+    auto ifs = get_filtered_network_interfaces({"localhost"}, ip_version);
+    ASSERT_EQ(ifs.size(), 1);
+    EXPECT_TRUE(ifs[0].is_loopback);
+
+    ifs = get_filtered_network_interfaces({"all"}, ip_version);
+
+    if (ip_version != IpVersion::kAny) {
+      for (auto& info : ifs) {
+        for (auto& addr : info.addresses) {
+          EXPECT_TRUE(addr.is_v4() == (ip_version == IpVersion::k4));
+        }
+      }
+    }
+
+    auto if_it = find_if(ifs, [](auto& info) { return !info.is_loopback && !info.mac.empty(); });
+    if (if_it == ifs.end()) {
+      std::cout << "Test skipped for IpVersion::";
+
+      switch (ip_version) {
+        case IpVersion::kAny: std::cout << "kAny"; break;
+        case IpVersion::k4: std::cout << "k4"; break;
+        case IpVersion::k6: std::cout << "k6"; break;
+      }
+
+      std::cout << " because we could not find any network interfaces other than the loopback interface. Make sure you "
+                   "have an active LAN or Wi-Fi connection."
+                << std::endl;
+
+      continue;
+    }
+
+    auto ifc = *if_it;
+
+    ifs = get_filtered_network_interfaces({ifc.name}, ip_version);
+    ASSERT_EQ(ifs.size(), 1);
+    EXPECT_EQ(ifs[0].name, ifc.name);
+
+    ifs = get_filtered_network_interfaces({ifc.mac}, ip_version);
+    ASSERT_EQ(ifs.size(), 1);
+    EXPECT_EQ(ifs[0].mac, ifc.mac);
+  }
+}
+
 TEST(SystemTest, MakeIpAddressString) {
   auto addr = boost::asio::ip::address::from_string("192.168.1.2");
   EXPECT_EQ(make_ip_address_string(addr), "192.168.1.2");

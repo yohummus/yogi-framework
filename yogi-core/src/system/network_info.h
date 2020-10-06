@@ -43,7 +43,13 @@ struct NetworkInterfaceInfo {
 typedef std::vector<NetworkInterfaceInfo> NetworkInterfaceInfosVector;
 
 NetworkInterfaceInfosVector get_network_interfaces();
+NetworkInterfaceInfosVector get_filtered_network_interfaces(const std::vector<std::string>& if_strings,
+                                                            IpVersion ip_version = IpVersion::kAny);
+NetworkInterfaceInfosVector get_filtered_network_interfaces(const std::vector<std::string>& if_strings,
+                                                            const boost::asio::ip::udp& protocol);
+
 std::string get_hostname();
+
 std::string make_ip_address_string(const boost::asio::ip::address& addr);
 std::string make_ip_address_string(const boost::asio::ip::tcp::endpoint& ep);
 std::string make_ip_address_string(const boost::asio::ip::udp::endpoint& ep);

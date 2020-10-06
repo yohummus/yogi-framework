@@ -50,6 +50,9 @@ jobs:
         if: matrix.os == 'windows-2019'
         run: echo "::add-matcher::.github/msvc_problem_matcher.json"
 
+      - name: Activate Google Test problem matcher
+        run: echo "::add-matcher::.github/gtest_problem_matcher.json"
+
       - name: Build and package yogi-core
         run: |
           mkdir build

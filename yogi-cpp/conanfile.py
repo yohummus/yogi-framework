@@ -28,7 +28,8 @@ class YogiCppConan(ConanFile):
         cmake = CMake(self)
         cmake.configure(source_dir=self.source_folder)
         cmake.build()
-        cmake.test()
+
+        self.run(f"{self.build_folder}/bin/yogi-cpp-test")
 
     def package(self):
         self.copy("include/*.h")

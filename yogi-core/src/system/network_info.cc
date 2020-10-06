@@ -216,6 +216,47 @@ NetworkInterfaceInfosVector get_network_interfaces() {
   return ifs;
 }
 
+NetworkInterfaceInfosVector get_filtered_network_interfaces(const std::vector<std::string>& if_strings,
+                                                            IpVersion ip_version) {
+  NetworkInterfaceInfosVector ifs;
+  for (auto& string : if_strings) {
+    for (auto& info : get_network_interfaces()) {
+      bool all                = boost::iequals(string, "all");
+      bool same_name          = string == info.name;
+      bool same_mac           = boost::iequals(string, info.mac);
+      bool both_are_localhost = boost::iequals(string, "localhost") && info.is_loopback;
+
+      if (!all && !same_name && !same_mac && !both_are_localhost) continue;
+
+      auto ifc = info;
+      if (ip_version != IpVersion::kAny) {
+        remove_erase_if(ifc.addresses, [&](auto& addr) {
+          if (ip_version == IpVersion::k4) return !addr.is_v4();
+          if (ip_version == IpVersion::k6) return !addr.is_v6();
+          return false;
+        });
+      }
+
+      if (!ifc.addresses.empty()) {
+        ifs.push_back(ifc);
+      }
+    }
+  }
+
+  return ifs;
+}
+
+NetworkInterfaceInfosVector get_filtered_network_interfaces(const std::vector<std::string>& if_strings,
+                                                            const boost::asio::ip::udp& protocol) {
+  if (protocol == boost::asio::ip::udp::v4()) {
+    return get_filtered_network_interfaces(if_strings, IpVersion::k4);
+  } else if (protocol == boost::asio::ip::udp::v6()) {
+    return get_filtered_network_interfaces(if_strings, IpVersion::k6);
+  } else {
+    return get_filtered_network_interfaces(if_strings, IpVersion::kAny);
+  }
+}
+
 std::string get_hostname() {
   boost::system::error_code ec;
   auto hostname = boost::asio::ip::host_name(ec);
