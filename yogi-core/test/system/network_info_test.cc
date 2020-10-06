@@ -63,7 +63,7 @@ TEST(SystemTest, GetFilteredNetworkInterfaces) {
     EXPECT_TRUE(ifs[0].is_loopback);
 
     ifs = get_filtered_network_interfaces({"all"}, ip_version);
-    if (ifs.size() <= 1) {
+    if (ifs.size() == 1) {
       std::cout << "Test skipped because we could not find any network interfaces other than the loopback interface. "
                    "Make sure you have an active LAN or Wi-Fi connection."
                 << std::endl;

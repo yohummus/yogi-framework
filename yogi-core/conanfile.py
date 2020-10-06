@@ -40,7 +40,7 @@ class YogiCoreConan(ConanFile):
         cmake.build()
 
         if self.options.build_tests:
-            self.run("../bin/yogi-core-test", cwd=f"{self.build_folder}/lib")
+            self.run(f"{self.build_folder}/bin/yogi-core-test", cwd=f"{self.build_folder}/lib")
 
     def package(self):
         self.copy("include/*.h")
