@@ -29,8 +29,6 @@
 
 #include <boost/asio.hpp>
 
-namespace network {
-
 class TcpTransport;
 typedef std::shared_ptr<TcpTransport> TcpTransportPtr;
 typedef std::weak_ptr<TcpTransport> TcpTransportWeakPtr;
@@ -49,7 +47,7 @@ class TcpTransport : public Transport {
     }
 
    private:
-    void Disable() {
+    void disable() {
       obj_ = nullptr;
     }
 
@@ -65,33 +63,31 @@ class TcpTransport : public Transport {
   typedef std::function<void(const Result&, TcpTransportPtr, AcceptGuardPtr)> AcceptHandler;
   typedef std::function<void(const Result&, TcpTransportPtr, ConnectGuardPtr)> ConnectHandler;
 
-  static AcceptGuardPtr AcceptAsync(ContextPtr context, boost::asio::ip::tcp::acceptor* acceptor,
-                                    std::chrono::nanoseconds timeout, std::size_t transceive_byte_limit,
-                                    AcceptHandler handler);
+  static AcceptGuardPtr accept_async(ContextPtr context, boost::asio::ip::tcp::acceptor* acceptor,
+                                     std::chrono::nanoseconds timeout, std::size_t transceive_byte_limit,
+                                     AcceptHandler handler);
 
-  static ConnectGuardPtr ConnectAsync(ContextPtr context, const boost::asio::ip::tcp::endpoint& ep,
-                                      std::chrono::nanoseconds timeout, std::size_t transceive_byte_limit,
-                                      ConnectHandler handler);
+  static ConnectGuardPtr connect_async(ContextPtr context, const boost::asio::ip::tcp::endpoint& ep,
+                                       std::chrono::nanoseconds timeout, std::size_t transceive_byte_limit,
+                                       ConnectHandler handler);
 
   TcpTransport(ContextPtr context, boost::asio::ip::tcp::socket&& socket, std::chrono::nanoseconds timeout,
                std::size_t transceive_byte_limit, bool created_via_accept);
 
-  boost::asio::ip::tcp::endpoint GetPeerEndpoint() const {
+  boost::asio::ip::tcp::endpoint get_peer_endpoint() const {
     return socket_.remote_endpoint();
   }
 
  protected:
-  virtual void WriteSomeAsync(boost::asio::const_buffer data, TransferSomeHandler handler) override;
-  virtual void ReadSomeAsync(boost::asio::mutable_buffer data, TransferSomeHandler handler) override;
-  virtual void Shutdown() override;
+  virtual void write_some_async(boost::asio::const_buffer data, TransferSomeHandler handler) override;
+  virtual void read_some_async(boost::asio::mutable_buffer data, TransferSomeHandler handler) override;
+  virtual void shutdown() override;
 
  private:
-  static std::string MakePeerDescription(const boost::asio::ip::tcp::socket& socket);
-  static void CloseSocket(boost::asio::ip::tcp::socket* s);
+  static std::string make_peer_description(const boost::asio::ip::tcp::socket& socket);
+  static void close_socket(boost::asio::ip::tcp::socket* s);
 
-  void SetNoDelayOption();
+  void set_no_delay_option();
 
   boost::asio::ip::tcp::socket socket_;
 };
-
-}  // namespace network

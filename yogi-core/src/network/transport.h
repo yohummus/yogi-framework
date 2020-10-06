@@ -35,8 +35,6 @@
 #include <sstream>
 #include <string>
 
-namespace network {
-
 class Transport;
 typedef std::shared_ptr<Transport> TransportPtr;
 typedef std::weak_ptr<Transport> TransportWeakPtr;
@@ -50,41 +48,42 @@ class Transport : public std::enable_shared_from_this<Transport>, public LogUser
             std::string peer_description, std::size_t transceive_byte_limit);
   virtual ~Transport();
 
-  ContextPtr GetContext() const {
+  ContextPtr get_context() const {
     return context_;
   }
-  const std::string& GetPeerDescription() const {
+
+  const std::string& get_peer_description() const {
     return peer_description_;
   }
 
-  bool CreatedFromIncomingConnectionRequest() const {
+  bool created_from_incoming_connection_request() const {
     return created_from_incoming_conn_req_;
   };
 
-  void SendSomeAsync(boost::asio::const_buffer data, TransferSomeHandler handler);
-  void SendAllAsync(boost::asio::const_buffer data, TransferAllHandler handler);
-  void SendAllAsync(SharedBuffer data, TransferAllHandler handler);
-  void SendAllAsync(SharedSmallBuffer data, TransferAllHandler handler);
-  void ReceiveSomeAsync(boost::asio::mutable_buffer data, TransferSomeHandler handler);
-  void ReceiveAllAsync(boost::asio::mutable_buffer data, TransferAllHandler handler);
-  void ReceiveAllAsync(SharedBuffer data, TransferAllHandler handler);
-  void Close();
+  void send_some_async(boost::asio::const_buffer data, TransferSomeHandler handler);
+  void send_all_async(boost::asio::const_buffer data, TransferAllHandler handler);
+  void send_all_async(SharedBuffer data, TransferAllHandler handler);
+  void send_all_async(SharedSmallBuffer data, TransferAllHandler handler);
+  void receive_some_async(boost::asio::mutable_buffer data, TransferSomeHandler handler);
+  void receive_all_async(boost::asio::mutable_buffer data, TransferAllHandler handler);
+  void receive_all_async(SharedBuffer data, TransferAllHandler handler);
+  void close();
 
  protected:
-  virtual void WriteSomeAsync(boost::asio::const_buffer data, TransferSomeHandler handler)  = 0;
-  virtual void ReadSomeAsync(boost::asio::mutable_buffer data, TransferSomeHandler handler) = 0;
-  virtual void Shutdown()                                                                   = 0;
+  virtual void write_some_async(boost::asio::const_buffer data, TransferSomeHandler handler)  = 0;
+  virtual void read_some_async(boost::asio::mutable_buffer data, TransferSomeHandler handler) = 0;
+  virtual void shutdown()                                                                     = 0;
 
  private:
-  TransportWeakPtr MakeWeakPtr() {
+  TransportWeakPtr make_weak_ptr() {
     return shared_from_this();
   }
-  void SendAllAsyncImpl(boost::asio::const_buffer data, const Result& res, std::size_t bytes_written,
-                        TransferAllHandler handler);
-  void ReceiveAllAsyncImpl(boost::asio::mutable_buffer data, const Result& res, std::size_t bytes_read,
+  void send_all_async_impl(boost::asio::const_buffer data, const Result& res, std::size_t bytes_written,
                            TransferAllHandler handler);
-  void StartTimeout(boost::asio::steady_timer* timer);
-  void OnTimeout(boost::system::error_code ec);
+  void receive_all_async_impl(boost::asio::mutable_buffer data, const Result& res, std::size_t bytes_read,
+                              TransferAllHandler handler);
+  void start_timeout(boost::asio::steady_timer* timer);
+  void on_timeout(boost::system::error_code ec);
 
   const ContextPtr context_;
   const std::chrono::nanoseconds timeout_;
@@ -97,6 +96,4 @@ class Transport : public std::enable_shared_from_this<Transport>, public LogUser
   YOGI_DEBUG_ONLY(bool close_called_ = false;)
 };
 
-}  // namespace network
-
-std::ostream& operator<<(std::ostream& os, const network::Transport& transport);
+std::ostream& operator<<(std::ostream& os, const Transport& transport);

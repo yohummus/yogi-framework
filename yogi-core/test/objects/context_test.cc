@@ -28,8 +28,6 @@
 #include <thread>
 using namespace std::chrono_literals;
 
-const std::chrono::nanoseconds kTimingMargin = 50ms;
-
 class ContextTest : public TestFixture {
  protected:
   virtual void SetUp() override {

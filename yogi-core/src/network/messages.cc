@@ -24,9 +24,6 @@
 
 #include <nlohmann/json.hpp>
 
-namespace network {
-namespace internal {
-
 struct MsgPackCheckVisitor : public msgpack::null_visitor {
   void parse_error(std::size_t parsed_offset, std::size_t error_offset) {
     throw DescriptiveError(YOGI_ERR_INVALID_USER_MSGPACK)
@@ -39,9 +36,7 @@ struct MsgPackCheckVisitor : public msgpack::null_visitor {
   }
 };
 
-namespace {
-
-void CheckPayloadIsValidMsgPack(const char* data, std::size_t size) {
+void check_payload_is_valid_msgpack(const char* data, std::size_t size) {
   MsgPackCheckVisitor visitor;
   bool ok = msgpack::parse(data, size, visitor);
   if (!ok) {
@@ -49,7 +44,7 @@ void CheckPayloadIsValidMsgPack(const char* data, std::size_t size) {
   }
 }
 
-Buffer CheckAndConvertPayloadFromJsonToMsgPack(const char* data, std::size_t size) {
+Buffer check_and_convert_payload_from_json_to_msgpack(const char* data, std::size_t size) {
   YOGI_ASSERT(size > 0);
   if (data[size - 1] != '\0') {
     throw DescriptiveError(YOGI_ERR_PARSING_JSON_FAILED) << "Unterminated string";
@@ -63,55 +58,46 @@ Buffer CheckAndConvertPayloadFromJsonToMsgPack(const char* data, std::size_t siz
   }
 }
 
-}  // anonymous namespace
-}  // namespace internal
-
-void IncomingMessage::Deserialize(const Buffer& serialized_msg, const MessageHandler& fn) {
+void IncomingMessage::deserialize(const Buffer& serialized_msg, const MessageHandler& fn) {
   if (serialized_msg.empty()) {
     fn(messages::HeartbeatIncoming());
     return;
   }
 
   switch (serialized_msg[0]) {
-    case MessageType::kAcknowledge:
-      fn(messages::AcknowledgeIncoming());
-      break;
+    case MessageType::kAcknowledge: fn(messages::AcknowledgeIncoming()); break;
 
-    case MessageType::kBroadcast:
-      fn(messages::BroadcastIncoming(serialized_msg));
-      break;
+    case MessageType::kBroadcast: fn(messages::BroadcastIncoming(serialized_msg)); break;
 
-    default:
-      throw DescriptiveError(YOGI_ERR_DESERIALIZE_MSG_FAILED) << "Unknown message type " << serialized_msg[0];
+    default: throw DescriptiveError(YOGI_ERR_DESERIALIZE_MSG_FAILED) << "Unknown message type " << serialized_msg[0];
   }
 }
 
-void Payload::SerializeTo(SmallBuffer* buffer) const {
+void Payload::serialize_to(SmallBuffer* buffer) const {
   if (data_.size() == 0) return;
 
   auto raw = static_cast<const char*>(data_.data());
 
   switch (encoding_) {
     case YOGI_ENC_JSON: {
-      auto data = internal::CheckAndConvertPayloadFromJsonToMsgPack(raw, data_.size());
+      auto data = check_and_convert_payload_from_json_to_msgpack(raw, data_.size());
       buffer->insert(buffer->end(), data.begin(), data.end());
       break;
     }
 
     case YOGI_ENC_MSGPACK: {
-      internal::CheckPayloadIsValidMsgPack(raw, data_.size());
+      check_payload_is_valid_msgpack(raw, data_.size());
       buffer->insert(buffer->end(), raw, raw + data_.size());
 
       break;
     }
 
-    default:
-      YOGI_NEVER_REACHED;
+    default: YOGI_NEVER_REACHED;
   }
 }
 
-Result Payload::SerializeToUserBuffer(boost::asio::mutable_buffer buffer, int encoding,
-                                      std::size_t* bytes_written) const {
+Result Payload::serialize_to_user_buffer(boost::asio::mutable_buffer buffer, int encoding,
+                                         std::size_t* bytes_written) const {
   Buffer tmp_buf;
   std::string tmp_str;
   boost::asio::const_buffer src;
@@ -122,7 +108,7 @@ Result Payload::SerializeToUserBuffer(boost::asio::mutable_buffer buffer, int en
     switch (encoding) {
       case YOGI_ENC_JSON: {
         auto raw  = static_cast<const unsigned char*>(data_.data());
-        auto json = nlohmann::json::from_msgpack(raw, data_.size());
+        auto json = nlohmann::json::from_msgpack(raw, raw + data_.size());
         tmp_str   = json.dump();
         src       = boost::asio::buffer(tmp_str.data(), tmp_str.size() + 1);
         break;
@@ -136,8 +122,7 @@ Result Payload::SerializeToUserBuffer(boost::asio::mutable_buffer buffer, int en
         break;
       }
 
-      default:
-        YOGI_NEVER_REACHED;
+      default: YOGI_NEVER_REACHED;
     }
   }
 
@@ -156,11 +141,11 @@ Result Payload::SerializeToUserBuffer(boost::asio::mutable_buffer buffer, int en
   return Success();
 }
 
-std::size_t OutgoingMessage::GetSize() const {
-  return Serialize().size();
+std::size_t OutgoingMessage::get_size() const {
+  return serialize().size();
 }
 
-const SmallBuffer& OutgoingMessage::Serialize() const {
+const SmallBuffer& OutgoingMessage::serialize() const {
   if (shared_serialized_msg_) {
     return *shared_serialized_msg_;
   } else {
@@ -168,7 +153,7 @@ const SmallBuffer& OutgoingMessage::Serialize() const {
   }
 }
 
-SharedSmallBuffer OutgoingMessage::SerializeShared() {
+SharedSmallBuffer OutgoingMessage::serialize_shared() {
   if (!shared_serialized_msg_) {
     shared_serialized_msg_ = make_shared_small_buffer(std::move(serialized_msg_));
   }
@@ -185,25 +170,24 @@ BroadcastIncoming::BroadcastIncoming(const Buffer& serialized_msg)
     : payload_(boost::asio::buffer(serialized_msg) + 1, YOGI_ENC_MSGPACK) {
 }
 
-std::string BroadcastIncoming::ToString() const {
+std::string BroadcastIncoming::to_string() const {
   std::stringstream ss;
-  ss << "Broadcast, " << BroadcastOutgoing(payload_).Serialize().size() - 1 << " bytes user data";
+  ss << "Broadcast, " << BroadcastOutgoing(payload_).serialize().size() - 1 << " bytes user data";
   return ss.str();
 }
 
-BroadcastOutgoing::BroadcastOutgoing(const Payload& payload) : OutgoingMessage(MakeMsgBytes(payload)) {
+BroadcastOutgoing::BroadcastOutgoing(const Payload& payload) : OutgoingMessage(make_msg_bytes(payload)) {
 }
 
-std::string BroadcastOutgoing::ToString() const {
+std::string BroadcastOutgoing::to_string() const {
   std::stringstream ss;
-  ss << "Broadcast, " << GetSize() - 1 << " bytes user data";
+  ss << "Broadcast, " << get_size() - 1 << " bytes user data";
   return ss.str();
 }
 
 }  // namespace messages
-}  // namespace network
 
-std::ostream& operator<<(std::ostream& os, const network::Message& msg) {
-  os << msg.ToString();
+std::ostream& operator<<(std::ostream& os, const Message& msg) {
+  os << msg.to_string();
   return os;
 }

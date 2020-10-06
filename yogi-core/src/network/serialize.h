@@ -32,18 +32,15 @@
 #include <string>
 #include <vector>
 
-namespace network {
-namespace detail {
-
 template <typename BigEndianType, typename T>
-inline void SerializeInteger(Buffer* buffer, const T& val) {
+inline void serialize_integer(Buffer* buffer, const T& val) {
   BigEndianType big = val;
   buffer->resize(buffer->size() + sizeof(big));
   std::memcpy(buffer->data() + buffer->size() - sizeof(big), &big, sizeof(big));
 }
 
 template <typename BigEndianType, typename T>
-inline bool DeserializeInteger(T* val, const Buffer& buffer, Buffer::const_iterator* it) {
+inline bool deserialize_integer(T* val, const Buffer& buffer, Buffer::const_iterator* it) {
   BigEndianType big;
   if (static_cast<std::size_t>(std::distance(*it, buffer.end())) < sizeof(big)) {
     return false;
@@ -55,27 +52,25 @@ inline bool DeserializeInteger(T* val, const Buffer& buffer, Buffer::const_itera
   return true;
 }
 
-}  // namespace detail
-
 template <typename T>
-inline void Serialize(Buffer* buffer, const T& val) {
+inline void serialize(Buffer* buffer, const T& val) {
   // static_assert(false, "Missing specialization");
 }
 
 template <typename T>
-bool Deserialize(T* val, const Buffer& buffer, Buffer::const_iterator* it) {
+bool deserialize(T* val, const Buffer& buffer, Buffer::const_iterator* it) {
   // static_assert(false, "Missing specialization");
   return false;
 }
 
 // bool
 template <>
-inline void Serialize<bool>(Buffer* buffer, const bool& val) {
+inline void serialize<bool>(Buffer* buffer, const bool& val) {
   buffer->push_back(val ? 1 : 0);
 }
 
 template <>
-inline bool Deserialize<bool>(bool* val, const Buffer& buffer, Buffer::const_iterator* it) {
+inline bool deserialize<bool>(bool* val, const Buffer& buffer, Buffer::const_iterator* it) {
   if (std::distance(*it, buffer.cend()) < 1) {
     return false;
   }
@@ -88,48 +83,59 @@ inline bool Deserialize<bool>(bool* val, const Buffer& buffer, Buffer::const_ite
 
 // unsigned short
 template <>
-inline void Serialize<unsigned short>(Buffer* buffer, const unsigned short& val) {
-  detail::SerializeInteger<boost::endian::big_uint16_t>(buffer, val);
+inline void serialize<unsigned short>(Buffer* buffer, const unsigned short& val) {
+  serialize_integer<boost::endian::big_uint16_t>(buffer, val);
 }
 
 template <>
-inline bool Deserialize<unsigned short>(unsigned short* val, const Buffer& buffer, Buffer::const_iterator* it) {
-  return detail::DeserializeInteger<boost::endian::big_uint16_t>(val, buffer, it);
+inline bool deserialize<unsigned short>(unsigned short* val, const Buffer& buffer, Buffer::const_iterator* it) {
+  return deserialize_integer<boost::endian::big_uint16_t>(val, buffer, it);
 }
 
 // int
 template <>
-inline void Serialize<int>(Buffer* buffer, const int& val) {
-  detail::SerializeInteger<boost::endian::big_int32_t>(buffer, val);
+inline void serialize<int>(Buffer* buffer, const int& val) {
+  serialize_integer<boost::endian::big_int32_t>(buffer, val);
 }
 
 template <>
-inline bool Deserialize<int>(int* val, const Buffer& buffer, Buffer::const_iterator* it) {
-  return detail::DeserializeInteger<boost::endian::big_int32_t>(val, buffer, it);
+inline bool deserialize<int>(int* val, const Buffer& buffer, Buffer::const_iterator* it) {
+  return deserialize_integer<boost::endian::big_int32_t>(val, buffer, it);
+}
+
+// long long
+template <>
+inline void serialize<long long>(Buffer* buffer, const long long& val) {
+  serialize_integer<boost::endian::big_int64_t>(buffer, val);
+}
+
+template <>
+inline bool deserialize<long long>(long long* val, const Buffer& buffer, Buffer::const_iterator* it) {
+  return deserialize_integer<boost::endian::big_int64_t>(val, buffer, it);
 }
 
 // size_t
 template <>
-inline void Serialize<std::size_t>(Buffer* buffer, const std::size_t& val) {
-  detail::SerializeInteger<boost::endian::big_uint32_t>(buffer, static_cast<std::uint32_t>(val));
+inline void serialize<std::size_t>(Buffer* buffer, const std::size_t& val) {
+  serialize_integer<boost::endian::big_uint32_t>(buffer, static_cast<std::uint32_t>(val));
 }
 
 template <>
-inline bool Deserialize<std::size_t>(std::size_t* val, const Buffer& buffer, Buffer::const_iterator* it) {
-  return detail::DeserializeInteger<boost::endian::big_uint32_t>(val, buffer, it);
+inline bool deserialize<std::size_t>(std::size_t* val, const Buffer& buffer, Buffer::const_iterator* it) {
+  return deserialize_integer<boost::endian::big_uint32_t>(val, buffer, it);
 }
 
 // std::chrono::nanoseconds
 template <>
-inline void Serialize<std::chrono::nanoseconds>(Buffer* buffer, const std::chrono::nanoseconds& dur) {
-  detail::SerializeInteger<boost::endian::big_int64_t, std::chrono::nanoseconds::rep>(buffer, dur.count());
+inline void serialize<std::chrono::nanoseconds>(Buffer* buffer, const std::chrono::nanoseconds& dur) {
+  serialize(buffer, dur.count());
 }
 
 template <>
-inline bool Deserialize<std::chrono::nanoseconds>(std::chrono::nanoseconds* dur, const Buffer& buffer,
+inline bool deserialize<std::chrono::nanoseconds>(std::chrono::nanoseconds* dur, const Buffer& buffer,
                                                   Buffer::const_iterator* it) {
   std::chrono::nanoseconds::rep n;
-  if (!detail::DeserializeInteger<boost::endian::big_int64_t>(&n, buffer, it)) {
+  if (!deserialize(&n, buffer, it)) {
     return false;
   }
 
@@ -139,14 +145,14 @@ inline bool Deserialize<std::chrono::nanoseconds>(std::chrono::nanoseconds* dur,
 
 // Timestamp
 template <>
-inline void Serialize<Timestamp>(Buffer* buffer, const Timestamp& time) {
-  Serialize(buffer, time.NanosecondsSinceEpoch());
+inline void serialize<Timestamp>(Buffer* buffer, const Timestamp& time) {
+  serialize(buffer, time.ns_since_epoch());
 }
 
 template <>
-inline bool Deserialize<Timestamp>(Timestamp* time, const Buffer& buffer, Buffer::const_iterator* it) {
-  std::chrono::nanoseconds n;
-  if (!Deserialize<std::chrono::nanoseconds>(&n, buffer, it)) {
+inline bool deserialize<Timestamp>(Timestamp* time, const Buffer& buffer, Buffer::const_iterator* it) {
+  long long n;
+  if (!deserialize(&n, buffer, it)) {
     return false;
   }
 
@@ -156,12 +162,12 @@ inline bool Deserialize<Timestamp>(Timestamp* time, const Buffer& buffer, Buffer
 
 // std::string
 template <>
-inline void Serialize<std::string>(Buffer* buffer, const std::string& str) {
+inline void serialize<std::string>(Buffer* buffer, const std::string& str) {
   buffer->insert(buffer->end(), str.c_str(), str.c_str() + str.size() + 1);
 }
 
 template <>
-inline bool Deserialize<std::string>(std::string* str, const Buffer& buffer, Buffer::const_iterator* it) {
+inline bool deserialize<std::string>(std::string* str, const Buffer& buffer, Buffer::const_iterator* it) {
   auto end = std::find(*it, buffer.cend(), '\0');
   if (end == buffer.end()) {
     return false;
@@ -174,12 +180,12 @@ inline bool Deserialize<std::string>(std::string* str, const Buffer& buffer, Buf
 
 // boost::uuids::uuid
 template <>
-inline void Serialize<boost::uuids::uuid>(Buffer* buffer, const boost::uuids::uuid& uuid) {
+inline void serialize<boost::uuids::uuid>(Buffer* buffer, const boost::uuids::uuid& uuid) {
   buffer->insert(buffer->end(), uuid.begin(), uuid.end());
 }
 
 template <>
-inline bool Deserialize<boost::uuids::uuid>(boost::uuids::uuid* uuid, const Buffer& buffer,
+inline bool deserialize<boost::uuids::uuid>(boost::uuids::uuid* uuid, const Buffer& buffer,
                                             Buffer::const_iterator* it) {
   if (static_cast<std::size_t>(std::distance(*it, buffer.cend())) < sizeof(*uuid)) {
     return false;
@@ -189,5 +195,3 @@ inline bool Deserialize<boost::uuids::uuid>(boost::uuids::uuid* uuid, const Buff
   *it += sizeof(*uuid);
   return true;
 }
-
-}  // namespace network

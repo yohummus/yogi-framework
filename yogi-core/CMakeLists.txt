@@ -124,6 +124,12 @@ set(test_files
     test/util/algorithm_test.cc
     test/util/hex_test.cc
     test/util/bind_test.cc
+    test/network/tcp_transport_test.cc
+    test/network/transport_test.cc
+    test/network/msg_transport_test.cc
+    test/network/tcp_listener_test.cc
+    test/network/messages_test.cc
+    test/network/serialize_test.cc
     test/objects/logger_test.cc
     test/objects/configuration_test.cc
     test/objects/context_test.cc
@@ -149,7 +155,8 @@ add_executable(yogi-core-test ${test_files})
 target_link_libraries(yogi-core-test
     yogi-core
     GTest::GTest
-    gtest_main
+    gmock
+    gmock_main
 )
 
 gtest_discover_tests(yogi-core-test WORKING_DIRECTORY $<TARGET_FILE_DIR:yogi-core>)

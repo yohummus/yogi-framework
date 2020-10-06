@@ -34,8 +34,6 @@
 #include <string>
 #include <vector>
 
-namespace network {
-
 class TcpListener;
 typedef std::shared_ptr<TcpListener> TcpListenerPtr;
 typedef std::weak_ptr<TcpListener> TcpListenerWeakPtr;
@@ -54,31 +52,32 @@ class TcpListener : public std::enable_shared_from_this<TcpListener>, public Log
 
   virtual ~TcpListener();
 
-  int GetPort() const {
+  int get_port() const {
     return port_;
   }
-  const NetworkInterfaceInfosVector& GetInterfaces() {
+
+  const NetworkInterfaceInfosVector& get_interfaces() {
     return ifs_;
   }
 
-  void Start(AcceptFn accept_fn);
+  void start(AcceptFn accept_fn);
 
  private:
-  TcpListenerWeakPtr MakeWeakPtr() {
+  TcpListenerWeakPtr make_weak_ptr() {
     return {shared_from_this()};
   }
-  void UpdateLoggingPrefix();
-  void SetupAcceptors();
-  void CreateAcceptorForAll();
-  void CreateAcceptorsForSpecific();
-  void AddAcceptor(boost::asio::ip::tcp::endpoint ep);
-  void ThrowIfError(const boost::system::error_code& ec, int error_code, const boost::asio::ip::address& addr);
-  void SetOptionReuseAddr(bool on);
-  void SetOptionV6Only(bool on);
-  void ListenOnAllAcceptors();
-  void StartAccept(boost::asio::ip::tcp::acceptor* acc);
-  void OnAcceptFinished(boost::system::error_code ec, boost::asio::ip::tcp::socket socket,
-                        boost::asio::ip::tcp::acceptor* acc);
+  void update_logging_prefix();
+  void setup_acceptors();
+  void create_acceptor_for_all();
+  void create_acceptors_for_specific();
+  void add_acceptor(boost::asio::ip::tcp::endpoint ep);
+  void throw_if_error(const boost::system::error_code& ec, int error_code, const boost::asio::ip::address& addr);
+  void set_option_reuse_addr(bool on);
+  void set_option_v6_only(bool on);
+  void listen_on_all_acceptors();
+  void start_accept(boost::asio::ip::tcp::acceptor* acc);
+  void on_accept_finished(boost::system::error_code ec, boost::asio::ip::tcp::socket socket,
+                          boost::asio::ip::tcp::acceptor* acc);
 
   const ContextPtr context_;
   const IpVersion ip_version_;
@@ -89,5 +88,3 @@ class TcpListener : public std::enable_shared_from_this<TcpListener>, public Log
   int port_;
   std::vector<boost::asio::ip::tcp::acceptor> acceptors_;
 };
-
-}  // namespace network

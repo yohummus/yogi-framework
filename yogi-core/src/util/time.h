@@ -32,6 +32,9 @@ class Timestamp {
   static Timestamp now();
   static Timestamp parse(std::string_view str, const char* fmt);
 
+  Timestamp() : ns_since_epoch_() {
+  }
+
   explicit Timestamp(long long ns_since_epoch) : ns_since_epoch_{ns_since_epoch} {
   }
 
@@ -41,6 +44,10 @@ class Timestamp {
 
   std::string format(const char* fmt) const;
   std::string to_javascript_string() const;
+
+  bool operator==(const Timestamp& rhs) const {
+    return ns_since_epoch_ == rhs.ns_since_epoch_;
+  }
 
  private:
   long long ns_since_epoch_;
@@ -53,6 +60,11 @@ class Duration {
   }
 
   explicit Duration(long long ns, bool is_negative = false) : ns_{ns}, is_negative_{is_negative} {
+  }
+
+  template <typename Rep, typename Period>
+  Duration(const std::chrono::duration<Rep, Period>& dur)
+      : Duration(std::chrono::duration_cast<std::chrono::nanoseconds>(dur).count()) {
   }
 
   long long ns() const {

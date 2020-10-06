@@ -33,8 +33,6 @@ using namespace std::string_literals;
 
 YOGI_DEFINE_INTERNAL_LOGGER("TcpListener")
 
-namespace network {
-
 TcpListener::TcpListener(ContextPtr context, const std::vector<std::string>& interfaces, IpVersion ip_version, int port,
                          const std::string& owner_type)
     : context_(context), ip_version_(ip_version), owner_type_(owner_type), port_(port) {
@@ -45,8 +43,8 @@ TcpListener::TcpListener(ContextPtr context, const std::vector<std::string>& int
     throw DescriptiveError(YOGI_ERR_CONFIG_NOT_VALID) << "No matching network interfaces found";
   }
 
-  UpdateLoggingPrefix();
-  SetupAcceptors();
+  update_logging_prefix();
+  setup_acceptors();
 }
 
 TcpListener::~TcpListener() {
@@ -56,62 +54,62 @@ TcpListener::~TcpListener() {
   }
 }
 
-void TcpListener::Start(AcceptFn accept_fn) {
+void TcpListener::start(AcceptFn accept_fn) {
   accept_fn_ = accept_fn;
   for (auto& acc : acceptors_) {
-    StartAccept(&acc);
+    start_accept(&acc);
   }
 }
 
-void TcpListener::UpdateLoggingPrefix() {
+void TcpListener::update_logging_prefix() {
   std::stringstream ss;
   ss << "For " << owner_type_;
   if (port_) ss << " on port " << port_;
   set_logging_prefix(ss.str());
 }
 
-void TcpListener::SetupAcceptors() {
+void TcpListener::setup_acceptors() {
   if (use_all_ifs_) {
-    CreateAcceptorForAll();
+    create_acceptor_for_all();
   } else {
-    CreateAcceptorsForSpecific();
+    create_acceptors_for_specific();
   }
 
-  UpdateLoggingPrefix();
-  SetOptionReuseAddr(true);
-  SetOptionV6Only(ip_version_ != IpVersion::k4);
-  ListenOnAllAcceptors();
+  update_logging_prefix();
+  set_option_reuse_addr(true);
+  set_option_v6_only(ip_version_ != IpVersion::k4);
+  listen_on_all_acceptors();
 
   YOGI_ASSERT(!acceptors_.empty());
 }
 
-void TcpListener::CreateAcceptorForAll() {
-  AddAcceptor(tcp::endpoint(ip_version_ == IpVersion::k4 ? tcp::v4() : tcp::v6(), static_cast<unsigned short>(port_)));
+void TcpListener::create_acceptor_for_all() {
+  add_acceptor(tcp::endpoint(ip_version_ == IpVersion::k4 ? tcp::v4() : tcp::v6(), static_cast<unsigned short>(port_)));
 }
 
-void TcpListener::CreateAcceptorsForSpecific() {
+void TcpListener::create_acceptors_for_specific() {
   for (auto& info : ifs_) {
     for (auto& addr : info.addresses) {
-      AddAcceptor(tcp::endpoint(addr, static_cast<unsigned short>(port_)));
+      add_acceptor(tcp::endpoint(addr, static_cast<unsigned short>(port_)));
     }
   }
 }
 
-void TcpListener::AddAcceptor(tcp::endpoint ep) {
+void TcpListener::add_acceptor(tcp::endpoint ep) {
   boost::system::error_code ec;
   tcp::acceptor acc(asio::make_strand(context_->io_context()));
 
   acc.open(ep.protocol(), ec);
-  ThrowIfError(ec, YOGI_ERR_OPEN_SOCKET_FAILED, ep.address());
+  throw_if_error(ec, YOGI_ERR_OPEN_SOCKET_FAILED, ep.address());
 
   acc.bind(ep, ec);
-  ThrowIfError(ec, YOGI_ERR_BIND_SOCKET_FAILED, ep.address());
+  throw_if_error(ec, YOGI_ERR_BIND_SOCKET_FAILED, ep.address());
 
   port_ = static_cast<int>(acc.local_endpoint().port());
   acceptors_.push_back(std::move(acc));
 }
 
-void TcpListener::ThrowIfError(const boost::system::error_code& ec, int error_code, const ip::address& addr) {
+void TcpListener::throw_if_error(const boost::system::error_code& ec, int error_code, const ip::address& addr) {
   if (!ec) return;
 
   DescriptiveError e(error_code);
@@ -124,7 +122,7 @@ void TcpListener::ThrowIfError(const boost::system::error_code& ec, int error_co
   throw e;
 }
 
-void TcpListener::SetOptionReuseAddr(bool on) {
+void TcpListener::set_option_reuse_addr(bool on) {
   for (auto& acc : acceptors_) {
     boost::system::error_code ec;
     acc.set_option(tcp::acceptor::reuse_address(on), ec);
@@ -134,7 +132,7 @@ void TcpListener::SetOptionReuseAddr(bool on) {
   }
 }
 
-void TcpListener::SetOptionV6Only(bool on) {
+void TcpListener::set_option_v6_only(bool on) {
   for (auto& acc : acceptors_) {
     boost::system::error_code ec;
     acc.set_option(tcp::acceptor::reuse_address(on), ec);
@@ -144,26 +142,26 @@ void TcpListener::SetOptionV6Only(bool on) {
   }
 }
 
-void TcpListener::ListenOnAllAcceptors() {
+void TcpListener::listen_on_all_acceptors() {
   for (auto& acc : acceptors_) {
     boost::system::error_code ec;
     acc.listen(acc.max_listen_connections, ec);
-    ThrowIfError(ec, YOGI_ERR_LISTEN_SOCKET_FAILED, acc.local_endpoint().address());
+    throw_if_error(ec, YOGI_ERR_LISTEN_SOCKET_FAILED, acc.local_endpoint().address());
     LOG_IFO("Listening for connections on " << acc.local_endpoint().address());
   }
 }
 
-void TcpListener::StartAccept(tcp::acceptor* acc) {
-  auto weak_self = MakeWeakPtr();
+void TcpListener::start_accept(tcp::acceptor* acc) {
+  auto weak_self = make_weak_ptr();
   acc->async_accept(asio::make_strand(context_->io_context()), [=](auto ec, auto socket) {
     auto self = weak_self.lock();
     if (!self) return;
 
-    self->OnAcceptFinished(ec, std::move(socket), acc);
+    self->on_accept_finished(ec, std::move(socket), acc);
   });
 }
 
-void TcpListener::OnAcceptFinished(boost::system::error_code ec, tcp::socket socket, tcp::acceptor* acc) {
+void TcpListener::on_accept_finished(boost::system::error_code ec, tcp::socket socket, tcp::acceptor* acc) {
   if (!ec) {
     LOG_DBG("Accepted connection from " << socket.remote_endpoint());
     accept_fn_(std::move(socket));
@@ -171,7 +169,5 @@ void TcpListener::OnAcceptFinished(boost::system::error_code ec, tcp::socket soc
     LOG_ERR("Accepting connection on " << acc->local_endpoint().address() << " failed: " << ec.message());
   }
 
-  StartAccept(acc);
+  start_accept(acc);
 }
-
-}  // namespace network

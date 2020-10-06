@@ -34,13 +34,8 @@
 #include <memory>
 #include <vector>
 
-namespace network {
-namespace internal {
-
-std::size_t SerializeMsgSizeField(std::size_t msg_size, std::array<Byte, 5>* buffer);
-bool DeserializeMsgSizeField(const std::array<Byte, 5>& buffer, std::size_t size, std::size_t* msg_size);
-
-}  // namespace internal
+std::size_t serialize_msg_size_field(std::size_t msg_size, std::array<Byte, 5>* buffer);
+bool deserialize_msg_size_field(const std::array<Byte, 5>& buffer, std::size_t size, std::size_t* msg_size);
 
 class MessageTransport;
 typedef std::shared_ptr<MessageTransport> MessageTransportPtr;
@@ -55,21 +50,21 @@ class MessageTransport : public std::enable_shared_from_this<MessageTransport>, 
 
   MessageTransport(TransportPtr transport, std::size_t tx_queue_size, std::size_t rx_queue_size);
 
-  ContextPtr GetContext() const {
+  ContextPtr get_context() const {
     return context_;
   }
 
-  void Start();
+  void start();
 
-  bool TrySend(const OutgoingMessage& msg);
-  void SendAsync(OutgoingMessage* msg, OperationTag tag, SendHandler handler);
-  void SendAsync(OutgoingMessage* msg, SendHandler handler);
-  bool CancelSend(OperationTag tag);
-  void ReceiveAsync(boost::asio::mutable_buffer msg, ReceiveHandler handler);
+  bool try_send(const OutgoingMessage& msg);
+  void send_async(OutgoingMessage* msg, OperationTag tag, SendHandler handler);
+  void send_async(OutgoingMessage* msg, SendHandler handler);
+  bool cancel_send(OperationTag tag);
+  void receive_async(boost::asio::mutable_buffer msg, ReceiveHandler handler);
+  void cancel_receive();
 
-  void CancelReceive();
-  void Close() {
-    transport_->Close();
+  void close() {
+    transport_->close();
   }
 
  private:
@@ -81,21 +76,22 @@ class MessageTransport : public std::enable_shared_from_this<MessageTransport>, 
     SendHandler handler;
   };
 
-  MessageTransportWeakPtr MakeWeakPtr() {
+  MessageTransportWeakPtr make_weak_ptr() {
     return shared_from_this();
   }
-  bool TrySendImpl(const SmallBuffer& msg_bytes);
-  bool CanSend(std::size_t msg_size) const;
-  void SendAsyncImpl(OutgoingMessage* msg, OperationTag tag, SendHandler handler);
-  void SendSomeBytesToTransport();
-  void RetrySendingPendingSends();
-  bool TryGetReceivedSizeField(std::size_t* msg_size);
-  void ResetReceivedSizeField();
-  void ReceiveSomeBytesFromTransport();
-  void TryDeliveringPendingReceive();
-  void HandleSendError(const Error& err);
-  void HandleReceiveError(const Error& err);
-  void CheckOperationTagIsNotUsed(OperationTag tag);
+
+  bool try_send_impl(const SmallBuffer& msg_bytes);
+  bool can_send(std::size_t msg_size) const;
+  void send_async_impl(OutgoingMessage* msg, OperationTag tag, SendHandler handler);
+  void send_some_bytes_to_transport();
+  void retry_sending_pending_sends();
+  bool try_get_received_size_field(std::size_t* msg_size);
+  void reset_received_size_field();
+  void receive_some_bytes_from_transport();
+  void try_deliver_pending_receive();
+  void handle_send_error(const Error& err);
+  void handle_receive_error(const Error& err);
+  void check_operation_tag_not_used(OperationTag tag);
 
   const ContextPtr context_;
   const TransportPtr transport_;
@@ -114,5 +110,3 @@ class MessageTransport : public std::enable_shared_from_this<MessageTransport>, 
   bool receive_from_transport_running_;
   Result last_rx_error_;
 };
-
-}  // namespace network

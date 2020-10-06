@@ -24,6 +24,15 @@
     "*.tcc": "cpp",
     "regex": "cpp",
     "*.ipp": "cpp",
-    "sstream": "cpp"
+    "sstream": "cpp",
+    "system_error": "cpp",
+    "numeric": "cpp",
+    "streambuf": "cpp",
+    "fstream": "cpp",
+    "core": "cpp",
+    "future": "cpp",
+    "condition_variable": "cpp",
+    "tuple": "cpp",
+    "chrono": "cpp"
   }
 }

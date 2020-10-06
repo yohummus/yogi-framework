@@ -27,13 +27,21 @@
 #include <src/api/errors.h>
 
 #include <gtest/gtest.h>
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/ip/udp.hpp>
 #include <boost/filesystem/path.hpp>
 #include <nlohmann/json.hpp>
 
+#include <chrono>
 #include <initializer_list>
 #include <string>
 #include <string_view>
 
+using namespace std::chrono_literals;
+using namespace std::string_literals;
+
+// ========== Helper macros ==========
 #define EXPECT_OK(res) EXPECT_ERR(res, YOGI_OK) << YOGI_GetLastErrorDetails()
 #define ASSERT_OK(res) ASSERT_ERR(res, YOGI_OK) << YOGI_GetLastErrorDetails()
 #define EXPECT_ERR(res, err) EXPECT_EQ(res, err) << YOGI_GetLastErrorDetails()
@@ -60,12 +68,39 @@
         EXPECT_FALSE(err.details().empty());               \
       })
 
+// ========== Networking-related constants for testing ==========
+static const nlohmann::json kBranchProps = nlohmann::json::parse(R"raw(
+  {
+    "advertising_interfaces": ["localhost"],
+    "advertising_port": 44442,
+    "advertising_address": "ff02::8000:2439",
+    "advertising_interval": 0.1,
+    "timeout": 3.0
+  }
+)raw");
+
+static const std::chrono::nanoseconds kTimingMargin = 50ms;
+static const std::string kAdvAddress                = kBranchProps["advertising_address"];
+static const unsigned short kAdvPort                = kBranchProps["advertising_port"];
+
+static const auto kUdpProtocol =
+    boost::asio::ip::make_address(kAdvAddress).is_v4() ? boost::asio::ip::udp::v4() : boost::asio::ip::udp::v6();
+
+static const auto kTcpProtocol =
+    boost::asio::ip::make_address(kAdvAddress).is_v4() ? boost::asio::ip::tcp::v4() : boost::asio::ip::tcp::v6();
+
+static const auto kLoopbackAddress = kTcpProtocol == boost::asio::ip::tcp::v4()
+                                         ? boost::asio::ip::make_address("127.0.0.1")
+                                         : boost::asio::ip::make_address("::1");
+
+// ========== Test fixture base class ==========
 class TestFixture : public testing::Test {
  public:
   TestFixture();
   virtual ~TestFixture();
 };
 
+// ========== Helper for temporary directories ==========
 class TemporaryWorkdirGuard final {
  public:
   TemporaryWorkdirGuard();
@@ -80,6 +115,7 @@ class TemporaryWorkdirGuard final {
   boost::filesystem::path temp_path_;
 };
 
+// ========== Helper for command-line parameter emulation ==========
 struct CommandLine final {
   CommandLine(std::initializer_list<std::string> args);
   ~CommandLine();
@@ -91,6 +127,8 @@ struct CommandLine final {
   char** argv;
 };
 
+// ========== Various helper functions ==========
 std::string make_version_string(int major, int minor, int patch, const std::string& suffix = {});
 void* create_context();
 std::string read_file(const std::string& filename);
+int find_unused_port();

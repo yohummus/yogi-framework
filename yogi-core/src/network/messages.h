@@ -33,9 +33,6 @@
 #include <fstream>
 #include <functional>
 
-namespace network {
-namespace internal {
-
 class MsgPackBufferStream {
  public:
   MsgPackBufferStream(SmallBuffer* buffer) : buffer_(*buffer) {
@@ -49,8 +46,6 @@ class MsgPackBufferStream {
   SmallBuffer& buffer_;
 };
 
-}  // namespace internal
-
 enum MessageType : Byte {
   kHeartbeat,
   kAcknowledge,
@@ -62,15 +57,15 @@ class Message {
   virtual ~Message() {
   }
 
-  virtual MessageType GetType() const  = 0;
-  virtual std::string ToString() const = 0;
+  virtual MessageType get_type() const  = 0;
+  virtual std::string to_string() const = 0;
 };
 
 class IncomingMessage : virtual public Message {
  public:
   typedef std::function<void(const IncomingMessage&)> MessageHandler;
 
-  static void Deserialize(const Buffer& serialized_msg, const MessageHandler& fn);
+  static void deserialize(const Buffer& serialized_msg, const MessageHandler& fn);
 
  protected:
   IncomingMessage() = default;
@@ -81,8 +76,8 @@ class Payload {
   Payload(boost::asio::const_buffer data, int encoding) : data_(data), encoding_(encoding) {
   }
 
-  void SerializeTo(SmallBuffer* buffer) const;
-  Result SerializeToUserBuffer(boost::asio::mutable_buffer buffer, int encoding, std::size_t* bytes_written) const;
+  void serialize_to(SmallBuffer* buffer) const;
+  Result serialize_to_user_buffer(boost::asio::mutable_buffer buffer, int encoding, std::size_t* bytes_written) const;
 
  private:
   boost::asio::const_buffer data_;
@@ -94,44 +89,44 @@ class MessageT : virtual public Message {
  public:
   static constexpr MessageType kMessageType = MsgType;
 
-  virtual MessageType GetType() const override final {
+  virtual MessageType get_type() const override final {
     return kMessageType;
   }
 
  protected:
-  static SmallBuffer MakeMsgBytes() {
+  static SmallBuffer make_msg_bytes() {
     return SmallBuffer{kMessageType};
   }
 
-  static SmallBuffer MakeMsgBytes(const Payload& payload) {
+  static SmallBuffer make_msg_bytes(const Payload& payload) {
     SmallBuffer bytes{kMessageType};
-    payload.SerializeTo(&bytes);
+    payload.serialize_to(&bytes);
     return bytes;
   }
 
   template <typename... Fields>
-  static SmallBuffer MakeMsgBytes(const std::tuple<Fields...>& fields) {
+  static SmallBuffer make_msg_bytes(const std::tuple<Fields...>& fields) {
     SmallBuffer bytes{kMessageType};
-    internal::MsgPackBufferStream stream(&bytes);
+    MsgPackBufferStream stream(&bytes);
     msgpack::pack(stream, fields);
     return bytes;
   }
 
   template <typename... Fields>
-  static SmallBuffer MakeMsgBytes(const std::tuple<Fields...>& fields, const Payload& payload) {
+  static SmallBuffer make_msg_bytes(const std::tuple<Fields...>& fields, const Payload& payload) {
     SmallBuffer bytes{kMessageType};
-    internal::MsgPackBufferStream stream(&bytes);
+    MsgPackBufferStream stream(&bytes);
     msgpack::pack(stream, fields);
-    payload.SerializeTo(&bytes);
+    payload.serialize_to(&bytes);
     return bytes;
   }
 };
 
 class OutgoingMessage : virtual public Message {
  public:
-  std::size_t GetSize() const;
-  const SmallBuffer& Serialize() const;
-  SharedSmallBuffer SerializeShared();
+  std::size_t get_size() const;
+  const SmallBuffer& serialize() const;
+  SharedSmallBuffer serialize_shared();
 
  protected:
   OutgoingMessage(SmallBuffer serialized_msg);
@@ -145,7 +140,7 @@ namespace messages {
 
 // This is a message whose length is zero (msg type is omitted)
 class Heartbeat : public MessageT<MessageType::kHeartbeat> {
-  virtual std::string ToString() const override final {
+  virtual std::string to_string() const override final {
     return "Heartbeat";
   }
 };
@@ -159,7 +154,7 @@ class HeartbeatOutgoing : public OutgoingMessage, public Heartbeat {
 };
 
 class Acknowledge : public MessageT<MessageType::kAcknowledge> {
-  virtual std::string ToString() const override final {
+  virtual std::string to_string() const override final {
     return "Acknowledge";
   }
 };
@@ -168,7 +163,7 @@ class AcknowledgeIncoming : public IncomingMessage, public Acknowledge {};
 
 class AcknowledgeOutgoing : public OutgoingMessage, public Acknowledge {
  public:
-  AcknowledgeOutgoing() : OutgoingMessage(MakeMsgBytes()) {
+  AcknowledgeOutgoing() : OutgoingMessage(make_msg_bytes()) {
   }
 };
 
@@ -178,9 +173,9 @@ class BroadcastIncoming : public IncomingMessage, public Broadcast {
  public:
   BroadcastIncoming(const Buffer& serialized_msg);
 
-  virtual std::string ToString() const override final;
+  virtual std::string to_string() const override final;
 
-  const Payload& GetPayload() const {
+  const Payload& get_payload() const {
     return payload_;
   }
 
@@ -192,10 +187,9 @@ class BroadcastOutgoing : public OutgoingMessage, public Broadcast {
  public:
   BroadcastOutgoing(const Payload& payload);
 
-  virtual std::string ToString() const override final;
+  virtual std::string to_string() const override final;
 };
 
 }  // namespace messages
-}  // namespace network
 
-std::ostream& operator<<(std::ostream& os, const network::Message& msg);
+std::ostream& operator<<(std::ostream& os, const Message& msg);

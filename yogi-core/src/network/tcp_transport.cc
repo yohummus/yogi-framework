@@ -26,15 +26,13 @@
 
 YOGI_DEFINE_INTERNAL_LOGGER("Transport.Tcp")
 
-namespace network {
-
 TcpTransport::TcpTransport(ContextPtr context, boost::asio::ip::tcp::socket&& socket, std::chrono::nanoseconds timeout,
                            std::size_t transceive_byte_limit, bool created_via_accept)
-    : Transport(context, timeout, created_via_accept, MakePeerDescription(socket), transceive_byte_limit),
+    : Transport(context, timeout, created_via_accept, make_peer_description(socket), transceive_byte_limit),
       socket_(std::move(socket)) {
 }
 
-void TcpTransport::SetNoDelayOption() {
+void TcpTransport::set_no_delay_option() {
   boost::system::error_code ec;
   socket_.set_option(boost::asio::ip::tcp::no_delay(true), ec);
   if (ec) {
@@ -42,16 +40,16 @@ void TcpTransport::SetNoDelayOption() {
   }
 }
 
-TcpTransport::AcceptGuardPtr TcpTransport::AcceptAsync(ContextPtr context, boost::asio::ip::tcp::acceptor* acceptor,
-                                                       std::chrono::nanoseconds timeout,
-                                                       std::size_t transceive_byte_limit, AcceptHandler handler) {
+TcpTransport::AcceptGuardPtr TcpTransport::accept_async(ContextPtr context, boost::asio::ip::tcp::acceptor* acceptor,
+                                                        std::chrono::nanoseconds timeout,
+                                                        std::size_t transceive_byte_limit, AcceptHandler handler) {
   auto guard        = std::make_shared<AcceptGuard>(acceptor);
   auto weak_guard   = AcceptGuardWeakPtr(guard);
-  auto weak_context = context->MakeWeakPtr();
+  auto weak_context = context->make_weak_ptr();
 
   acceptor->async_accept(boost::asio::make_strand(context->io_context()), [=](auto& ec, auto socket) {
     auto guard = weak_guard.lock();
-    if (guard) guard->Disable();
+    if (guard) guard->disable();
 
     auto context = weak_context.lock();
     if (!context) return;
@@ -59,8 +57,8 @@ TcpTransport::AcceptGuardPtr TcpTransport::AcceptAsync(ContextPtr context, boost
     if (!ec) {
       auto transport =
           TcpTransportPtr(new TcpTransport(context, std::move(socket), timeout, transceive_byte_limit, true));
-      transport->SetNoDelayOption();
-      handler(YOGI_OK, transport, guard);
+      transport->set_no_delay_option();
+      handler(Success(), transport, guard);
     } else if (ec == boost::asio::error::operation_aborted) {
       handler(Error(YOGI_ERR_CANCELED), {}, guard);
     } else {
@@ -71,9 +69,9 @@ TcpTransport::AcceptGuardPtr TcpTransport::AcceptAsync(ContextPtr context, boost
   return guard;
 }
 
-TcpTransport::ConnectGuardPtr TcpTransport::ConnectAsync(ContextPtr context, const boost::asio::ip::tcp::endpoint& ep,
-                                                         std::chrono::nanoseconds timeout,
-                                                         std::size_t transceive_byte_limit, ConnectHandler handler) {
+TcpTransport::ConnectGuardPtr TcpTransport::connect_async(ContextPtr context, const boost::asio::ip::tcp::endpoint& ep,
+                                                          std::chrono::nanoseconds timeout,
+                                                          std::size_t transceive_byte_limit, ConnectHandler handler) {
   struct ConnectData {
     ConnectData(boost::asio::io_context& ioc) : socket(boost::asio::make_strand(ioc)), timer(ioc) {
     }
@@ -88,11 +86,11 @@ TcpTransport::ConnectGuardPtr TcpTransport::ConnectAsync(ContextPtr context, con
 
   auto guard        = std::make_shared<ConnectGuard>(&condat->socket);
   auto weak_guard   = ConnectGuardWeakPtr(guard);
-  auto weak_context = context->MakeWeakPtr();
+  auto weak_context = context->make_weak_ptr();
 
   condat->socket.async_connect(ep, [=](auto& ec) {
     auto guard = weak_guard.lock();
-    if (guard) guard->Disable();
+    if (guard) guard->disable();
 
     auto context = weak_context.lock();
     if (!context) return;
@@ -105,7 +103,7 @@ TcpTransport::ConnectGuardPtr TcpTransport::ConnectAsync(ContextPtr context, con
     } else if (!ec) {
       auto transport =
           TcpTransportPtr(new TcpTransport(context, std::move(condat->socket), timeout, transceive_byte_limit, false));
-      handler(YOGI_OK, transport, guard);
+      handler(Success(), transport, guard);
     } else if (ec == boost::asio::error::operation_aborted) {
       handler(Error(YOGI_ERR_CANCELED), {}, guard);
     } else {
@@ -119,17 +117,17 @@ TcpTransport::ConnectGuardPtr TcpTransport::ConnectAsync(ContextPtr context, con
 
     if (condat->running) {
       condat->timed_out = true;
-      CloseSocket(&condat->socket);
+      close_socket(&condat->socket);
     }
   });
 
   return guard;
 }
 
-void TcpTransport::WriteSomeAsync(boost::asio::const_buffer data, TransferSomeHandler handler) {
+void TcpTransport::write_some_async(boost::asio::const_buffer data, TransferSomeHandler handler) {
   socket_.async_write_some(data, [=](auto& ec, auto bytes_written) {
     if (!ec) {
-      handler(YOGI_OK, bytes_written);
+      handler(Success(), bytes_written);
     } else if (ec == boost::asio::error::operation_aborted) {
       handler(Error(YOGI_ERR_CANCELED), bytes_written);
     } else {
@@ -138,10 +136,10 @@ void TcpTransport::WriteSomeAsync(boost::asio::const_buffer data, TransferSomeHa
   });
 }
 
-void TcpTransport::ReadSomeAsync(boost::asio::mutable_buffer data, TransferSomeHandler handler) {
+void TcpTransport::read_some_async(boost::asio::mutable_buffer data, TransferSomeHandler handler) {
   socket_.async_read_some(data, [=](auto& ec, auto bytes_read) {
     if (!ec) {
-      handler(YOGI_OK, bytes_read);
+      handler(Success(), bytes_read);
     } else if (ec == boost::asio::error::operation_aborted) {
       handler(Error(YOGI_ERR_CANCELED), bytes_read);
     } else {
@@ -150,20 +148,18 @@ void TcpTransport::ReadSomeAsync(boost::asio::mutable_buffer data, TransferSomeH
   });
 }
 
-void TcpTransport::Shutdown() {
-  CloseSocket(&socket_);
+void TcpTransport::shutdown() {
+  close_socket(&socket_);
 }
 
-std::string TcpTransport::MakePeerDescription(const boost::asio::ip::tcp::socket& socket) {
+std::string TcpTransport::make_peer_description(const boost::asio::ip::tcp::socket& socket) {
   auto ep = socket.remote_endpoint();
-  return MakeIpAddressString(ep) + ':' + std::to_string(ep.port());
+  return make_ip_address_string(ep) + ':' + std::to_string(ep.port());
 }
 
-void TcpTransport::CloseSocket(boost::asio::ip::tcp::socket* s) {
+void TcpTransport::close_socket(boost::asio::ip::tcp::socket* s) {
   boost::system::error_code ec;
   s->cancel(ec);
   s->shutdown(s->shutdown_both, ec);
   s->close(ec);
 }
-
-}  // namespace network
