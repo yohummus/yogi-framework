@@ -10,7 +10,7 @@
           "severity": 3
         },
         {
-          "regexp": "^(?!\\[).*$",
+          "regexp": "^[^\\[](.*)$",
           "message": 1,
           "loop": true
         }
