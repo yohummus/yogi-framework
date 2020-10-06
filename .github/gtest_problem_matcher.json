@@ -9,7 +9,7 @@
           "line": 2
         },
         {
-          "regexp": "^[^\\[](.*)$",
+          "regexp": "^([^\\[].*)$)",
           "message": 1,
           "loop": true
         }
