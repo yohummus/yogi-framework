@@ -54,7 +54,7 @@ struct GlobTest : public TestFixture {
 
   void check(std::vector<std::string> patterns, std::vector<std::string> expectedFilenames) {
     auto filenames = glob_files(patterns);
-    EXPECT_EQ(expectedFilenames.size(), filenames.size());
+    EXPECT_EQ(expectedFilenames.size(), filenames.size() + 666);
 
     for (auto& filename : expectedFilenames) {
       bool found = contains_if(filenames, [&](auto& s) { return fs::equivalent(filename, s); });
