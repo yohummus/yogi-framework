@@ -13,8 +13,8 @@ class YogiCoreConan(ConanFile):
     url = "https://github.com/yohummus/yogi-framework"
     description = "Core library of the Yogi Framework"
     settings = "os", "compiler", "build_type", "arch"
-    options = {"build_tests": [True, False]}
-    default_options = {"build_tests": True}
+    options = {"build_tests": [True, False], "gtest_options": "ANY"}
+    default_options = {"build_tests": True, "gtest_options": ""}
     generators = "cmake", "cmake_find_package", "virtualenv"
     build_requires = "cmake/3.18.2", "gtest/1.10.0"
     requires = "boost/1.74.0", "nlohmann_json/3.9.1", "json-schema-validator/2.1.0", "msgpack/3.3.0", "openssl/1.1.1g"
@@ -40,7 +40,8 @@ class YogiCoreConan(ConanFile):
         cmake.build()
 
         if self.options.build_tests:
-            self.run(f"{self.build_folder}/bin/yogi-core-test", cwd=f"{self.build_folder}/lib")
+            self.run(f"{self.build_folder}/bin/yogi-core-test {self.options.gtest_options}",
+                     cwd=f"{self.build_folder}/lib")
 
     def package(self):
         self.copy("include/*.h")
