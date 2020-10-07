@@ -155,7 +155,6 @@ add_executable(yogi-core-test ${test_files})
 target_link_libraries(yogi-core-test
     yogi-core
     GTest::GTest
-    gmock
     gmock_main
 )
 

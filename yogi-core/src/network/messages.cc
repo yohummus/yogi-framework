@@ -66,9 +66,7 @@ void IncomingMessage::deserialize(const Buffer& serialized_msg, const MessageHan
 
   switch (serialized_msg[0]) {
     case MessageType::kAcknowledge: fn(messages::AcknowledgeIncoming()); break;
-
     case MessageType::kBroadcast: fn(messages::BroadcastIncoming(serialized_msg)); break;
-
     default: throw DescriptiveError(YOGI_ERR_DESERIALIZE_MSG_FAILED) << "Unknown message type " << serialized_msg[0];
   }
 }
