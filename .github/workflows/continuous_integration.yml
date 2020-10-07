@@ -59,6 +59,7 @@ jobs:
 
       - name: Build and package yogi-core
         run: |
+          echo "BLABLABLA ${CORE_GTEST_OPTIONS}"
           mkdir build
           conan install yogi-core --install-folder build/yogi-core -o "gtest_options=$CORE_GTEST_OPTIONS"
           conan build yogi-core --build-folder build/yogi-core --source-folder yogi-core

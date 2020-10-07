@@ -35,6 +35,7 @@ class YogiCoreConan(ConanFile):
         self.cpp_info.libs = [self.name]
 
     def build(self):
+        print('OPTIONSSSSS', self.options.gtest_options)
         cmake = CMake(self)
         cmake.configure(source_dir=self.source_folder)
         cmake.build()
