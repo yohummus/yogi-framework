@@ -55,12 +55,12 @@ jobs:
 
       - name: Set yogi-core networking tests to ignore due to test runner configuration
         if: matrix.os == 'macos-10.15'
-        run: echo ''::set-env GTEST_OPTIONS="--gtest_filter=-SystemTest.GetFilteredNetworkInterfaces:-TcpListenerTest.*"'
+        run: echo '::set-env CORE_GTEST_OPTIONS="--gtest_filter=-SystemTest.GetFilteredNetworkInterfaces:-TcpListenerTest.*"'
 
       - name: Build and package yogi-core
         run: |
           mkdir build
-          conan install yogi-core --install-folder build/yogi-core -o "gtest_options=$GTEST_OPTIONS"
+          conan install yogi-core --install-folder build/yogi-core -o "gtest_options=$CORE_GTEST_OPTIONS"
           conan build yogi-core --build-folder build/yogi-core --source-folder yogi-core
           conan export-pkg yogi-core --build-folder build/yogi-core
 
