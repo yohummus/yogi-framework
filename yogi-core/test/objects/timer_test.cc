@@ -21,10 +21,6 @@
 
 #include <test/common.h>
 
-#include <chrono>
-using namespace std::chrono_literals;
-const std::chrono::nanoseconds kTimingMargin = 50ms;
-
 class TimerTest : public TestFixture {
  protected:
   virtual void SetUp() override {

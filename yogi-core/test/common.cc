@@ -29,7 +29,11 @@
 #include <fstream>
 #include <sstream>
 
-namespace fs = boost::filesystem;
+namespace fs   = boost::filesystem;
+namespace asio = boost::asio;
+namespace ip   = asio::ip;
+using tcp      = ip::tcp;
+using udp      = ip::udp;
 
 namespace {
 
@@ -133,4 +137,20 @@ std::string read_file(const std::string& filename) {
   EXPECT_TRUE(f.is_open()) << filename;
   std::string content((std::istreambuf_iterator<char>(f)), (std::istreambuf_iterator<char>()));
   return content;
+}
+
+int find_unused_port() {
+  asio::io_context ioc;
+  tcp::socket socket(ioc);
+  socket.open(tcp::v6());
+
+  unsigned short port = 20000;
+  boost::system::error_code ec;
+  do {
+    ++port;
+    socket.bind(tcp::endpoint(tcp::v6(), port), ec);
+  } while (ec == boost::asio::error::address_in_use);
+
+  socket.close();
+  return static_cast<int>(port);
 }

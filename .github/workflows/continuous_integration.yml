@@ -12,6 +12,9 @@ defaults:
   run:
     shell: bash
 
+env:
+  GTEST_COLOR: "yes"
+
 jobs:
   Build:
     runs-on: ${{ matrix.os }}
@@ -31,7 +34,9 @@ jobs:
           python-version: 3.7
 
       - name: Install Python packages
-        run: pip3 install -r requirements.txt
+        run: |
+          pip3 install wheel
+          pip3 install -r requirements.txt
 
       - name: Create default Conan profile
         run: |
@@ -53,33 +58,37 @@ jobs:
       - name: Activate Google Test problem matcher
         run: echo "::add-matcher::.github/gtest_problem_matcher.json"
 
+      - name: Set yogi-core networking tests to ignore due to test runner configuration
+        if: matrix.os == 'macos-10.15'
+        run: echo CORE_GTEST_OPTIONS="--gtest_filter=-SystemTest.GetFilteredNetworkInterfaces:TcpListenerTest.*" >> $GITHUB_ENV
+
       - name: Build and package yogi-core
         run: |
           mkdir build
-          conan install yogi-core --install-folder build/yogi-core
+          conan install yogi-core --install-folder build/yogi-core -o "gtest_options=$CORE_GTEST_OPTIONS"
           conan build yogi-core --build-folder build/yogi-core --source-folder yogi-core
           conan export-pkg yogi-core --build-folder build/yogi-core
 
       - name: Build and package yogi-core-mock
         run: |
-          conan install yogi-core-mock --install-folder build/yogi-core-mock
+          conan install yogi-core-mock --install-folder build/yogi-core-mock -o "yogi-core:gtest_options=$CORE_GTEST_OPTIONS"
           conan build yogi-core-mock --build-folder build/yogi-core-mock --source-folder yogi-core-mock
           conan export-pkg yogi-core-mock --build-folder build/yogi-core-mock
 
       - name: Build and package yogi-cpp
         run: |
-          conan install yogi-cpp --install-folder build/yogi-cpp
+          conan install yogi-cpp --install-folder build/yogi-cpp -o "yogi-core:gtest_options=$CORE_GTEST_OPTIONS"
           conan build yogi-cpp --build-folder build/yogi-cpp --source-folder yogi-cpp
           conan export-pkg yogi-cpp --build-folder build/yogi-cpp
 
       - name: Build and package yogi-python
         run: |
-          conan install yogi-python --install-folder build/yogi-python
+          conan install yogi-python --install-folder build/yogi-python -o "yogi-core:gtest_options=$CORE_GTEST_OPTIONS"
           conan build yogi-python --build-folder build/yogi-python --source-folder yogi-python
           conan export-pkg yogi-python --build-folder build/yogi-python
 
       - name: Build and package yogi-dotnet
         run: |
-          conan install yogi-dotnet --install-folder build/yogi-dotnet
+          conan install yogi-dotnet --install-folder build/yogi-dotnet -o "yogi-core:gtest_options=$CORE_GTEST_OPTIONS"
           conan build yogi-dotnet --build-folder build/yogi-dotnet --source-folder yogi-dotnet
           conan export-pkg yogi-dotnet --build-folder build/yogi-dotnet
