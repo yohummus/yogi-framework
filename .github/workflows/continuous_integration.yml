@@ -31,7 +31,9 @@ jobs:
           python-version: 3.7
 
       - name: Install Python packages
-        run: pip3 install -r requirements.txt
+        run: |
+          pip3 install wheel
+          pip3 install -r requirements.txt
 
       - name: Create default Conan profile
         run: |
@@ -55,7 +57,7 @@ jobs:
 
       - name: Set yogi-core networking tests to ignore due to test runner configuration
         if: matrix.os == 'macos-10.15'
-        run: echo '::set-env CORE_GTEST_OPTIONS="--gtest_filter=-SystemTest.GetFilteredNetworkInterfaces:-TcpListenerTest.*"'
+        run: echo 'CORE_GTEST_OPTIONS="--gtest_filter=-SystemTest.GetFilteredNetworkInterfaces:-TcpListenerTest.*"' >> $GITHUB_ENV
 
       - name: Build and package yogi-core
         run: |
