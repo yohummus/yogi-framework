@@ -12,6 +12,9 @@ defaults:
   run:
     shell: bash
 
+env:
+  GTEST_COLOR: "yes"
+
 jobs:
   Build:
     runs-on: ${{ matrix.os }}
@@ -57,9 +60,7 @@ jobs:
 
       - name: Set yogi-core networking tests to ignore due to test runner configuration
         if: matrix.os == 'macos-10.15'
-        run: |
-          echo GTEST_COLOR="yes" >> $GITHUB_ENV
-          echo CORE_GTEST_OPTIONS="--gtest_filter=-SystemTest.GetFilteredNetworkInterfaces:TcpListenerTest.*" >> $GITHUB_ENV
+        run: echo CORE_GTEST_OPTIONS="--gtest_filter=-SystemTest.GetFilteredNetworkInterfaces:TcpListenerTest.*" >> $GITHUB_ENV
 
       - name: Build and package yogi-core
         run: |
