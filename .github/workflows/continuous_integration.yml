@@ -71,7 +71,7 @@ jobs:
 
       - name: Build and package yogi-core-mock
         run: |
-          conan install yogi-core-mock --install-folder build/yogi-core-mock
+          conan install yogi-core-mock --install-folder build/yogi-core-mock -o:yogi-core "gtest_options=$CORE_GTEST_OPTIONS"
           conan build yogi-core-mock --build-folder build/yogi-core-mock --source-folder yogi-core-mock
           conan export-pkg yogi-core-mock --build-folder build/yogi-core-mock
 
