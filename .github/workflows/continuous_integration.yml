@@ -77,18 +77,18 @@ jobs:
 
       - name: Build and package yogi-cpp
         run: |
-          conan install yogi-cpp --install-folder build/yogi-cpp
+          conan install yogi-cpp --install-folder build/yogi-cpp -o "yogi-core:gtest_options=$CORE_GTEST_OPTIONS"
           conan build yogi-cpp --build-folder build/yogi-cpp --source-folder yogi-cpp
           conan export-pkg yogi-cpp --build-folder build/yogi-cpp
 
       - name: Build and package yogi-python
         run: |
-          conan install yogi-python --install-folder build/yogi-python
+          conan install yogi-python --install-folder build/yogi-python -o "yogi-core:gtest_options=$CORE_GTEST_OPTIONS"
           conan build yogi-python --build-folder build/yogi-python --source-folder yogi-python
           conan export-pkg yogi-python --build-folder build/yogi-python
 
       - name: Build and package yogi-dotnet
         run: |
-          conan install yogi-dotnet --install-folder build/yogi-dotnet
+          conan install yogi-dotnet --install-folder build/yogi-dotnet -o "yogi-core:gtest_options=$CORE_GTEST_OPTIONS"
           conan build yogi-dotnet --build-folder build/yogi-dotnet --source-folder yogi-dotnet
           conan export-pkg yogi-dotnet --build-folder build/yogi-dotnet
