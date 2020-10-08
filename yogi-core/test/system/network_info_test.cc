@@ -91,7 +91,7 @@ TEST(SystemTest, GetFilteredNetworkInterfaces) {
   }
 }
 
-TEST(SystemTest, MakeIpAddressString) {
+TEST(SystemTest, make_ip_address_string) {
   auto addr = boost::asio::ip::address::from_string("192.168.1.2");
   EXPECT_EQ(make_ip_address_string(addr), "192.168.1.2");
 

@@ -188,7 +188,7 @@ TEST_F(MessageTransportTest, MsgSizeFieldSerialization) {
   }
 }
 
-TEST_F(MessageTransportTest, TrySend) {
+TEST_F(MessageTransportTest, try_send) {
   uut_->start();
 
   auto msg = make_message(5);
@@ -255,7 +255,7 @@ TEST_F(MessageTransportTest, AsyncSendTransportFailure) {
   EXPECT_TRUE(called);
 }
 
-TEST_F(MessageTransportTest, CancelSend) {
+TEST_F(MessageTransportTest, cancel_send) {
   uut_->start();
 
   auto msg = make_message(6);
@@ -274,7 +274,7 @@ TEST_F(MessageTransportTest, CancelSend) {
   EXPECT_TRUE(called);
 }
 
-TEST_F(MessageTransportTest, ReceiveAsync) {
+TEST_F(MessageTransportTest, receive_async) {
   transport_->rx_data = Buffer{5, 1, 2, 3, 4, 5, 4, 1, 2, 3, 4};
   uut_->start();
   context_->poll();

@@ -26,7 +26,7 @@
 #include <string>
 using namespace std::string_literals;
 
-TEST(CryptoTest, MakeSha256) {
+TEST(CryptoTest, make_sha256) {
   auto bytes = make_sha256(Buffer{'h', 'e', 'l', 'l', 'o'});
   auto hash  = Buffer{
       0x2c, 0xf2, 0x4d, 0xba, 0x5f, 0xb0, 0xa3, 0x0e, 0x26, 0xe8, 0x3b, 0x2a, 0xc5, 0xb9, 0xe2, 0x9e,
@@ -37,7 +37,7 @@ TEST(CryptoTest, MakeSha256) {
   EXPECT_EQ(make_sha256("hello"s), bytes);
 }
 
-TEST(CryptoTest, GenerateRandomBytes) {
+TEST(CryptoTest, generate_random_bytes) {
   auto bytes = generate_random_bytes(5);
   EXPECT_EQ(bytes.size(), 5);
 

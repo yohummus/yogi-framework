@@ -5,7 +5,8 @@
     "uuid": {
       "title": "Unique universal ID of the branch.",
       "description": "The UUID is randomly generated and uniquely identifies a branch in the network.",
-      "examples": ["6ba7b810-9dad-11d1-80b4-00c04fd430c8"]
+      "examples": ["6ba7b810-9dad-11d1-80b4-00c04fd430c8"],
+      "type": "string"
     },
     "name": {
       "title": "Branch name",
@@ -90,6 +91,12 @@
       "type": ["number", "null"],
       "anyOf": [{ "const": "null" }, { "minimum": 0.001 }],
       "default": 1.0
+    },
+    "tcp_server_address": {
+      "title": "TCP address for branch connections",
+      "description": "TCP address that the branch listens on for connections from other branches",
+      "type": "string",
+      "examples": ["192.168.1.44", "fe80::f086:b106:2c1b:c45"]
     },
     "tcp_server_port": {
       "title": "TCP port for branch connections",

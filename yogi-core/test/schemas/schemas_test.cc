@@ -50,3 +50,18 @@ TEST(SchemasTest, BranchConfigDefaults) {
   EXPECT_EQ(schema["properties"]["tx_queue_size"]["default"], constants::kDefaultTxQueueSize);
   EXPECT_EQ(schema["properties"]["rx_queue_size"]["default"], constants::kDefaultRxQueueSize);
 }
+
+TEST(SchemasTest, ValidateJson) {
+  auto json_good = nlohmann::json::parse(R"( {"uuid": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"} )");
+  auto json_bad  = nlohmann::json::parse(R"( {"uuid": 123} )");
+
+  ASSERT_NO_THROW(validate_json(json_good, YOGI_SCM_BRANCH_EVENT));
+  ASSERT_THROW(validate_json(json_bad, YOGI_SCM_BRANCH_EVENT), DescriptiveError);
+
+  try {
+    validate_json(json_bad, YOGI_SCM_BRANCH_EVENT, "foobar");
+    FAIL() << "Should have thrown an exception";
+  } catch (const DescriptiveError& err) {
+    ASSERT_NE(err.details().find("foobar"), std::string::npos);
+  }
+}

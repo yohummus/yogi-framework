@@ -134,8 +134,10 @@ def generate_schemas_h_cc() -> None:
         with open(schema_file, 'r') as f:
             schema_content = f.read()
 
-        source_lines_1 += ['', f'// {macro_name}']
-        source_lines_1 += [f'const char {var_name}[] = R"raw({schema_content})raw";']
+        source_lines_1 += [f'''
+            // {macro_name}
+            const char {var_name}[] = R"raw({schema_content})raw";
+        ''']
 
     replace_block_in_file('yogi-core/src/schemas/schemas.h', header_lines)
     replace_block_in_file('yogi-core/src/schemas/schemas.cc', source_lines_0, block_idx=0)

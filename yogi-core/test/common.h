@@ -25,16 +25,20 @@
 
 #include <include/yogi_core.h>
 #include <src/api/errors.h>
+#include <src/data/buffer.h>
+#include <src/objects/branch/branch_info.h>
 
 #include <gtest/gtest.h>
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ip/udp.hpp>
 #include <boost/filesystem/path.hpp>
+#include <boost/uuid/uuid.hpp>
 #include <nlohmann/json.hpp>
 
 #include <chrono>
 #include <initializer_list>
+#include <map>
 #include <string>
 #include <string_view>
 
@@ -100,7 +104,7 @@ class TestFixture : public testing::Test {
   virtual ~TestFixture();
 };
 
-// ========== Helper for temporary directories ==========
+// ========== Helpers for temporary directories ==========
 class TemporaryWorkdirGuard final {
  public:
   TemporaryWorkdirGuard();
@@ -115,7 +119,71 @@ class TemporaryWorkdirGuard final {
   boost::filesystem::path temp_path_;
 };
 
-// ========== Helper for command-line parameter emulation ==========
+// ========== Helpers for testing networking ==========
+class MulticastSocket final {
+ public:
+  MulticastSocket(const boost::asio::ip::udp::endpoint& multicast_ep);
+
+  void send(const Buffer& msg);
+  std::pair<boost::asio::ip::address, Buffer> receive(
+      const std::chrono::milliseconds& timeout = std::chrono::seconds(1));
+
+ private:
+  boost::asio::io_context ioc_;
+  boost::asio::ip::udp::endpoint mc_ep_;
+  boost::asio::ip::udp::socket socket_;
+};
+
+// ========== Helpers for testing branches ==========
+class BranchEventRecorder final {
+ public:
+  BranchEventRecorder(void* context, void* branch);
+
+  nlohmann::json run_context_until(int event, const boost::uuids::uuid& uuid, int ev_res);
+  nlohmann::json run_context_until(int event, void* branch, int ev_res);
+
+ private:
+  void start_await_event();
+  static void callback(int res, int event, int ev_res, void* userarg);
+
+  struct CallbackData {
+    boost::uuids::uuid uuid;
+    nlohmann::json json;
+    int event;
+    int ev_res;
+  };
+
+  void* context_;
+  void* branch_;
+  boost::uuids::uuid uuid_;
+  std::vector<char> json_str_;
+  std::vector<CallbackData> events_;
+};
+
+class FakeBranch final {
+ public:
+  FakeBranch();
+
+  void connect(void* branch, std::function<void(Buffer*)> info_changer = {});
+  void accept(std::function<void(Buffer*)> info_changer = {});
+  void disconnect();
+  void advertise(std::function<void(Buffer*)> msg_changer = {});
+
+  bool is_connected_to(void* branch) const;
+
+ private:
+  void authenticate(std::function<void(Buffer*)> info_changer);
+  void exchange_ack();
+
+  LocalBranchInfoPtr info_;
+  boost::asio::io_context ioc_;
+  boost::asio::ip::tcp::acceptor acceptor_;
+  boost::asio::ip::tcp::socket tcp_socket_;
+  boost::asio::ip::udp::endpoint adv_ep_;
+  MulticastSocket mc_socket_;
+};
+
+// ========== Helpers for command-line parameter emulation ==========
 struct CommandLine final {
   CommandLine(std::initializer_list<std::string> args);
   ~CommandLine();
@@ -127,8 +195,24 @@ struct CommandLine final {
   char** argv;
 };
 
+// ========== Helper functions for creating objects ==========
+void* create_context();
+void* create_configuration(const nlohmann::json& json);
+void* create_branch(void* context, const char* name = nullptr, const char* net_name = nullptr,
+                    const char* password = nullptr, const char* path = nullptr, const char* adv_addr = nullptr,
+                    std::size_t transceive_byte_limit = std::numeric_limits<std::size_t>::max());
+
+// ========== Helper function for interacting with objects ==========
+void poll_context(void* context);
+void poll_context_one(void* context);
+void run_context_in_background(void* context);
+void run_context_until_branches_are_connected(void* context, std::initializer_list<void*> branches);
+boost::uuids::uuid get_branch_uuid(void* branch);
+nlohmann::json get_branch_info(void* branch);
+std::map<boost::uuids::uuid, nlohmann::json> get_connected_branches(void* branch);
+
 // ========== Various helper functions ==========
 std::string make_version_string(int major, int minor, int patch, const std::string& suffix = {});
-void* create_context();
 std::string read_file(const std::string& filename);
 int find_unused_port();
+void check_json_elements_are_equal(const nlohmann::json& a, const nlohmann::json& b, const std::string& key);
