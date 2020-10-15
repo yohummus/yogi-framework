@@ -19,7 +19,6 @@ class YogiDotnetConan(ConanFile):
     default_options = {"build_tests": True}
     generators = "virtualenv"
     build_requires = f"yogi-core-mock/{version}"
-    requires = f"yogi-core/{version}"
     exports_sources = "yogi/*", "test/*", "*.targets", "*.sln"
 
     @property

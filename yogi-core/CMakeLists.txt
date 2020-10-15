@@ -27,18 +27,6 @@ if(MSVC)
     )
 endif ()
 
-# Include dependencies
-find_package(nlohmann_json REQUIRED)
-find_package(nlohmann_json_schema_validator REQUIRED)
-find_package(msgpack REQUIRED)
-find_package(Threads REQUIRED)
-find_package(OpenSSL REQUIRED)
-find_package(Boost 1.74 COMPONENTS system filesystem thread date_time program_options REQUIRED)
-
-enable_testing()
-include(GoogleTest)
-find_package(GTest REQUIRED)
-
 # Include directories
 include_directories(include .)
 
@@ -85,35 +73,22 @@ set(src_files
 )
 
 add_library(yogi-core-static STATIC ${src_files})
-target_link_libraries(yogi-core-static
-    ${Boost_LIBRARIES}
-    OpenSSL::Crypto
-    OpenSSL::SSL
-    nlohmann_json::nlohmann_json
-    nlohmann_json_schema_validator::nlohmann_json_schema_validator
-)
+target_link_libraries(yogi-core-static ${CONAN_LIBS})
 
-if (WIN32)
-    target_link_libraries(yogi-core-static
-        bcrypt.lib
-        IPHLPAPI.lib
-    )
-endif ()
+if(WIN32)
+    target_link_libraries(yogi-core-static bcrypt.lib IPHLPAPI.lib)
+endif()
 
 
 # ========== SHARED LIBRARY ==========
 add_library(yogi-core SHARED ${src_files})
-target_link_libraries(yogi-core
-    yogi-core-static
-)
+target_link_libraries(yogi-core yogi-core-static)
 
 set_target_properties(yogi-core PROPERTIES VERSION ${version})
 
-if (WIN32)
-    set_target_properties (yogi-core PROPERTIES
-        OUTPUT_NAME "libyogi-core.${version}"
-    )
-endif ()
+if(WIN32)
+    set_target_properties(yogi-core PROPERTIES OUTPUT_NAME "libyogi-core.${version}")
+endif()
 
 
 # ========== TESTS ==========
@@ -151,11 +126,10 @@ set(test_files
     # :CODEGEN_END:
 )
 
+enable_testing()
+include(GoogleTest)
+
 add_executable(yogi-core-test ${test_files})
-target_link_libraries(yogi-core-test
-    yogi-core
-    GTest::GTest
-    gmock_main
-)
+target_link_libraries(yogi-core-test yogi-core)
 
 gtest_discover_tests(yogi-core-test WORKING_DIRECTORY $<TARGET_FILE_DIR:yogi-core>)

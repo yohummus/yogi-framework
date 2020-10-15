@@ -8,14 +8,6 @@ conan_basic_setup()
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Include dependencies
-find_package(nlohmann_json REQUIRED)
-find_package(msgpack REQUIRED)
-
-enable_testing()
-include(GoogleTest)
-find_package(GTest REQUIRED)
-
 # Include directories
 include_directories(include .)
 
@@ -69,11 +61,10 @@ set(test_files
     # :CODEGEN_END:
 )
 
+enable_testing()
+include(GoogleTest)
+
 add_executable(yogi-cpp-test ${test_files})
-target_link_libraries(yogi-cpp-test
-    ${CMAKE_DL_LIBS}
-    GTest::GTest
-    gtest_main
-)
+target_link_libraries(yogi-cpp-test ${CMAKE_DL_LIBS} ${CONAN_LIBS})
 
 gtest_discover_tests(yogi-cpp-test)

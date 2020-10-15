@@ -13,9 +13,8 @@ class YogiCoreMockConan(ConanFile):
     url = "https://github.com/yohummus/yogi-framework"
     description = "Core library mock of the Yogi Framework for testing purposes"
     settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake", "cmake_find_package", "virtualenv"
-    build_requires = "cmake/3.18.2"
-    requires = f"yogi-core/{version}"
+    generators = "cmake", "virtualenv"
+    build_requires = f"yogi-core/{version}", "cmake/3.18.2"
 
     @property
     def lib_path(self):
@@ -34,8 +33,8 @@ class YogiCoreMockConan(ConanFile):
 
     def package_info(self):
         self.env_info.YOGI_CORE_LIBRARY = os.path.join(self.package_folder, self.lib_path)
-        self.cpp_info.includedirs = ['include']
-        self.cpp_info.libs = [self.name]
+        self.cpp_info.includedirs = ["include"]
+        self.cpp_info.libs = [os.path.basename(self.lib_path)]
 
     def build(self):
         cmake = CMake(self)

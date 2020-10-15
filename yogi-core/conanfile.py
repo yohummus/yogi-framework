@@ -15,7 +15,7 @@ class YogiCoreConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     options = {"build_tests": [True, False], "gtest_options": "ANY"}
     default_options = {"build_tests": True, "gtest_options": ""}
-    generators = "cmake", "cmake_find_package", "virtualenv"
+    generators = "cmake", "virtualenv"
     build_requires = "cmake/3.18.2", "gtest/1.10.0"
     requires = "boost/1.74.0", "nlohmann_json/3.9.1", "json-schema-validator/2.1.0", "msgpack/3.3.0", "openssl/1.1.1g"
     exports_sources = "src/*", "test/*", "include/*", "CMakeLists.txt"
@@ -31,8 +31,8 @@ class YogiCoreConan(ConanFile):
 
     def package_info(self):
         self.env_info.YOGI_CORE_LIBRARY = os.path.join(self.package_folder, self.lib_path)
-        self.cpp_info.includedirs = ['include']
-        self.cpp_info.libs = [self.name]
+        self.cpp_info.includedirs = ["include"]
+        self.cpp_info.libs = [os.path.basename(self.lib_path)]
 
     def build(self):
         cmake = CMake(self)

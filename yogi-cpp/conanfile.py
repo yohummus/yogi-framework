@@ -15,10 +15,13 @@ class YogiCppConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     options = {"build_tests": [True, False]}
     default_options = {"build_tests": True}
-    generators = "cmake", "cmake_find_package", "virtualenv"
     build_requires = f"yogi-core-mock/{version}", "cmake/3.18.2", "gtest/1.10.0", "nlohmann_json/3.9.1", "msgpack/3.3.0"
-    requires = f"yogi-core/{version}"
     exports_sources = "test/*", "include/*", "CMakeLists.txt"
+
+    def imports(self):
+        self.copy("*.so", "", "lib")
+        self.copy("*.dylib", "", "lib")
+        self.copy("*.dll", "", "bin")
 
     def build(self):
         if not self.options.build_tests:
