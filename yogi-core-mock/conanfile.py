@@ -20,18 +20,18 @@ class YogiCoreMockConan(ConanFile):
     @property
     def lib_name(self):
         lut = {
-            "Macos": f"{self.name}.{self.version}.dylib",
+            "Macos": f"lib{self.name}.{self.version}.dylib",
             "Windows": f"lib{self.name}.{self.version}.dll",
-            "Linux": f"{self.name}.so.{self.version}",
+            "Linux": f"lib{self.name}.so.{self.version}",
         }
         return lut.get(tools.detected_os(), lut["Linux"])
 
     @property
     def lib_path(self):
         lut = {
-            "Macos": f"lib/lib{self.lib_name}",
+            "Macos": f"lib/{self.lib_name}",
             "Windows": f"bin/{self.lib_name}",
-            "Linux": f"lib/lib{self.lib_name}",
+            "Linux": f"lib/{self.lib_name}",
         }
         return lut.get(tools.detected_os(), lut["Linux"])
 
