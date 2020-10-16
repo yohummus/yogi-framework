@@ -23,6 +23,7 @@ class YogiCppConan(ConanFile):
         self.copy("*.so", "", "lib")
         self.copy("*.dylib", "", "lib")
         self.copy("*.dll", "", "bin")
+        self.copy("*.lib", "", "lib")
 
     def build(self):
         if not self.options.build_tests:

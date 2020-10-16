@@ -45,3 +45,4 @@ class YogiCoreMockConan(ConanFile):
         self.copy("include/*.h")
         self.copy("../yogi-core/include/yogi_core.h",  dst="include")
         self.copy(self.lib_path)
+        self.copy("*.lib")
