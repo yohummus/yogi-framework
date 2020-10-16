@@ -14,14 +14,24 @@ class YogiCoreMockConan(ConanFile):
     description = "Core library mock of the Yogi Framework for testing purposes"
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake", "virtualenv"
-    build_requires = f"yogi-core/{version}", "cmake/3.18.2"
+    build_requires = "cmake/3.18.2"
+    requires = f"yogi-core/{version}"
+
+    @property
+    def lib_name(self):
+        lut = {
+            "Macos": f"{self.name}.{self.version}.dylib",
+            "Windows": f"lib{self.name}.{self.version}.dll",
+            "Linux": f"{self.name}.so.{self.version}",
+        }
+        return lut.get(tools.detected_os(), lut["Linux"])
 
     @property
     def lib_path(self):
         lut = {
-            "Macos": f"lib/lib{self.name}.{self.version}.dylib",
-            "Windows": f"bin/lib{self.name}.{self.version}.dll",
-            "Linux": f"lib/lib{self.name}.so.{self.version}",
+            "Macos": f"lib/lib{self.lib_name}",
+            "Windows": f"bin/{self.lib_name}",
+            "Linux": f"lib/lib{self.name}",
         }
         return lut.get(tools.detected_os(), lut["Linux"])
 
@@ -33,8 +43,8 @@ class YogiCoreMockConan(ConanFile):
 
     def package_info(self):
         self.env_info.YOGI_CORE_LIBRARY = os.path.join(self.package_folder, self.lib_path)
-        self.cpp_info.includedirs = ["include"]
-        self.cpp_info.libs = [os.path.basename(self.lib_path)]
+        self.cpp_info.includedirs = ['include']
+        self.cpp_info.libs = [self.lib_name]
 
     def build(self):
         cmake = CMake(self)
