@@ -31,7 +31,7 @@ class YogiCoreMockConan(ConanFile):
         lut = {
             "Macos": f"lib/lib{self.lib_name}",
             "Windows": f"bin/{self.lib_name}",
-            "Linux": f"lib/lib{self.name}",
+            "Linux": f"lib/lib{self.lib_name}",
         }
         return lut.get(tools.detected_os(), lut["Linux"])
 

@@ -20,7 +20,7 @@ class YogiCppConan(ConanFile):
     exports_sources = "test/*", "include/*", "CMakeLists.txt"
 
     def imports(self):
-        self.copy("*.so", "", "lib")
+        self.copy("*.so.*", "", "lib")
         self.copy("*.dylib", "", "lib")
         self.copy("*.dll", "", "bin")
         self.copy("*.lib", "", "lib")
