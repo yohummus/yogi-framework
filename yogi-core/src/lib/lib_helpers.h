@@ -37,6 +37,11 @@
     ([&]() -> void {               \
       /* begin function body */
 
+#define BEGIN_CHECKED_API_FUNCTION_RETURN_INT \
+  try {                                       \
+    return  ([&]() -> int {                   \
+      /* begin function body */
+
 #define END_CHECKED_API_FUNCTION                                 \
       /* end function body */                                    \
     })();                                                        \

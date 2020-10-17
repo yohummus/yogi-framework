@@ -24,8 +24,6 @@
 
 #include <nlohmann/json-schema.hpp>
 
-#include <iostream>
-#include <map>
 #include <vector>
 
 namespace {
@@ -35,17 +33,19 @@ const auto validators = [] {
   using namespace nlohmann;
 
   // Map the $id of each schema to its corresponding parsed .schema.json file
-  std::map<std::string, json> schemas;
+  std::map<std::string, json> schema_map;
+  std::vector<json*> schemas;
   for (int i = 0; get_schema(i)[0] != '\0'; ++i) {
-    auto schema                               = json::parse(get_schema(i));
-    schemas[schema["$id"].get<std::string>()] = schema;
+    auto schema = json::parse(get_schema(i));
+    auto id     = schema["$id"].get<std::string>();
+    schemas.push_back(&schema_map.insert(std::make_pair(id, schema)).first->second);
   }
 
   // Create the validators
   std::vector<json_schema::json_validator> validators;
-  for (auto& schema : schemas) {
-    json_schema::json_validator validator([&schemas](auto& loc, auto& sch) { sch = schemas.at(loc.location()); });
-    validator.set_root_schema(schema.second);
+  for (auto schema : schemas) {
+    json_schema::json_validator validator([&](auto& loc, auto& sch) { sch = schema_map.at(loc.location()); });
+    validator.set_root_schema(*schema);
     validators.emplace_back(std::move(validator));
   }
 
@@ -106,7 +106,15 @@ const char kBranchConfig[] = R"raw({
     "timeout":                { "$ref": "branch_properties.schema.json#/properties/timeout" },
     "ghost_mode":             { "$ref": "branch_properties.schema.json#/properties/ghost_mode" },
     "tx_queue_size":          { "$ref": "branch_properties.schema.json#/properties/tx_queue_size" },
-    "rx_queue_size":          { "$ref": "branch_properties.schema.json#/properties/rx_queue_size" }
+    "rx_queue_size":          { "$ref": "branch_properties.schema.json#/properties/rx_queue_size" },
+
+    "_transceive_byte_limit": {
+      "title": "DO NOT USE! Transceive byte limit",
+      "description": "Maximum number of bytes to send/receive at once; used for testing and debugging",
+      "type": "integer",
+      "minimum": 1,
+      "default": -1
+    }
   }
 }
 )raw";

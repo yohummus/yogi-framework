@@ -17,6 +17,14 @@
     "timeout":                { "$ref": "branch_properties.schema.json#/properties/timeout" },
     "ghost_mode":             { "$ref": "branch_properties.schema.json#/properties/ghost_mode" },
     "tx_queue_size":          { "$ref": "branch_properties.schema.json#/properties/tx_queue_size" },
-    "rx_queue_size":          { "$ref": "branch_properties.schema.json#/properties/rx_queue_size" }
+    "rx_queue_size":          { "$ref": "branch_properties.schema.json#/properties/rx_queue_size" },
+
+    "_transceive_byte_limit": {
+      "title": "DO NOT USE! Transceive byte limit",
+      "description": "Maximum number of bytes to send/receive at once; used for testing and debugging",
+      "type": "integer",
+      "minimum": 1,
+      "default": -1
+    }
   }
 }

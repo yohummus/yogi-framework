@@ -77,12 +77,12 @@ LocalBranchInfo::LocalBranchInfo(const nlohmann::json& cfg, const NetworkInterfa
                                  unsigned short tcp_server_port) {
   // clang-format off
   uuid_            = boost::uuids::random_generator()();
-  name_            = cfg.value("name", std::to_string(get_process_id()) + '@' + get_hostname());
+  name_            = cfg.value("name", std::to_string(get_process_id()) + '@' + ::get_hostname());
   description_     = cfg.value("description", std::string{});
-  net_name_        = cfg.value("network_name", get_hostname());
+  net_name_        = cfg.value("network_name", ::get_hostname());
   path_            = cfg.value("path", "/"s + name_);
-  hostname_        = get_hostname();
-  pid_             = get_process_id();
+  hostname_        = ::get_hostname();
+  pid_             = ::get_process_id();
   adv_ifs_         = adv_ifs;
   tcp_server_port_ = tcp_server_port;
   start_time_      = Timestamp::now();

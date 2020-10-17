@@ -133,7 +133,7 @@ YOGI_API int YOGI_BranchAwaitEventAsync(void* branch, int events, void* uuid, ch
   auto brn = ObjectRegister::get<Branch>(branch);
 
   brn->await_event_async(events, [=](auto& res, auto event, auto& evres, auto& tmp_uuid, auto& tmp_json) {
-    if (res.is_success()) {
+    if (res.is_error()) {
       fn(res.value(), event, evres.value(), userarg);
       return;
     }
@@ -161,8 +161,7 @@ YOGI_API int YOGI_BranchCancelAwaitEvent(void* branch) {
 }
 
 YOGI_API int YOGI_BranchSendBroadcast(void* branch, int enc, const void* data, int datasize, int block) {
-  int res;
-  BEGIN_CHECKED_API_FUNCTION
+  BEGIN_CHECKED_API_FUNCTION_RETURN_INT
 
   CHECK_PARAM(branch != nullptr);
   CHECK_PARAM(enc == YOGI_ENC_JSON || enc == YOGI_ENC_MSGPACK);
@@ -173,16 +172,14 @@ YOGI_API int YOGI_BranchSendBroadcast(void* branch, int enc, const void* data, i
   auto brn    = ObjectRegister::get<Branch>(branch);
   auto buffer = boost::asio::buffer(data, static_cast<std::size_t>(datasize));
 
-  res = brn->send_broadcast(Payload(buffer, enc), block == YOGI_TRUE).error_code();
+  return brn->send_broadcast(Payload(buffer, enc), block == YOGI_TRUE).error_code();
 
   END_CHECKED_API_FUNCTION
-  return res;
 }
 
 YOGI_API int YOGI_BranchSendBroadcastAsync(void* branch, int enc, const void* data, int datasize, int retry,
                                            void (*fn)(int res, int oid, void* userarg), void* userarg) {
-  int res;
-  BEGIN_CHECKED_API_FUNCTION
+  BEGIN_CHECKED_API_FUNCTION_RETURN_INT
 
   CHECK_PARAM(branch != nullptr);
   CHECK_PARAM(enc == YOGI_ENC_JSON || enc == YOGI_ENC_MSGPACK);
@@ -194,11 +191,10 @@ YOGI_API int YOGI_BranchSendBroadcastAsync(void* branch, int enc, const void* da
   auto brn    = ObjectRegister::get<Branch>(branch);
   auto buffer = boost::asio::buffer(data, static_cast<std::size_t>(datasize));
 
-  res = brn->send_broadcast_async(Payload(buffer, enc), retry == YOGI_TRUE,
-                                  [=](auto& res, auto oid) { fn(res.error_code(), oid, userarg); });
+  return brn->send_broadcast_async(Payload(buffer, enc), retry == YOGI_TRUE,
+                                   [=](auto& res, auto oid) { fn(res.error_code(), oid, userarg); });
 
   END_CHECKED_API_FUNCTION
-  return res;
 }
 
 YOGI_API int YOGI_BranchCancelSendBroadcast(void* branch, int oid) {
