@@ -19,7 +19,6 @@ class YogiDotnetConan(ConanFile):
     default_options = {"build_tests": True}
     generators = "virtualenv"
     build_requires = f"yogi-core-mock/{version}"
-    requires = f"yogi-core/{version}"
     exports_sources = "yogi/*", "test/*", "*.targets", "*.sln"
 
     @property
@@ -36,5 +35,4 @@ class YogiDotnetConan(ConanFile):
             self.run(f"dotnet test --no-restore --configuration {self.settings.build_type}", cwd=self.source_folder)
 
     def package(self):
-        print(f"yogi/bin/{self.settings.build_type}/{self.target_framework}")
         self.copy("*", src=f"yogi/bin/{self.settings.build_type}/{self.target_framework}", dst="lib")

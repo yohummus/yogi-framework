@@ -22,12 +22,8 @@ set(src_files
 )
 
 add_library(yogi-core-mock SHARED ${src_files})
-
 set_target_properties(yogi-core-mock PROPERTIES VERSION ${version})
 
-
-if (WIN32)
-    set_target_properties (yogi-core-mock PROPERTIES
-        OUTPUT_NAME "libyogi-core-mock.${version}"
-    )
-endif ()
+if(WIN32)
+    set_target_properties(yogi-core-mock PROPERTIES OUTPUT_NAME "libyogi-core-mock.${version}")
+endif()
