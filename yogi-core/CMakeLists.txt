@@ -83,7 +83,6 @@ endif()
 # ========== SHARED LIBRARY ==========
 add_library(yogi-core SHARED ${src_files})
 target_link_libraries(yogi-core yogi-core-static)
-
 set_target_properties(yogi-core PROPERTIES VERSION ${version})
 
 if(WIN32)
