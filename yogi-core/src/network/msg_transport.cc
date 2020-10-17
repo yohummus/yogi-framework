@@ -162,7 +162,7 @@ bool MessageTransport::try_send_impl(const SmallBuffer& msg_bytes) {
 }
 
 bool MessageTransport::can_send(std::size_t msg_size) const {
-  YOGI_ASSERT(msg_size + calculate_msg_size_field_length(msg_size) <= tx_rb_.Capacity());
+    YOGI_ASSERT(msg_size + calculate_msg_size_field_length(msg_size) <= tx_rb_.capacity());
 
   auto n = tx_rb_.available_for_write();
   if (n >= msg_size + 5) return true;  // optimisation since this is very likely
@@ -192,7 +192,7 @@ void MessageTransport::send_async_impl(OutgoingMessage* msg, OperationTag tag, S
 }
 
 void MessageTransport::send_some_bytes_to_transport() {
-  YOGI_ASSERT(!tx_rb_.Empty());
+  YOGI_ASSERT(!tx_rb_.empty());
 
   if (send_to_transport_running_) return;
   send_to_transport_running_ = true;
