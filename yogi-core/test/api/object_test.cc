@@ -73,7 +73,7 @@ TEST_F(ObjectTest, Cast) {
   EXPECT_THROW(obj->cast<Dummy>(), Error);
 }
 
-TEST_F(ObjectTest, make_weak_ptr) {
+TEST_F(ObjectTest, MakeWeakPtr) {
   auto obj  = MyObject::create(123);
   auto weak = obj->make_weak_ptr();
   EXPECT_EQ(weak.lock(), obj);

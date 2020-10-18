@@ -300,7 +300,7 @@ TEST_F(ConnectionManagerTest, AwaitBranchEventOnDestruction) {
   }
 }
 
-TEST_F(ConnectionManagerTest, get_connected_branches) {
+TEST_F(ConnectionManagerTest, GetConnectedBranches) {
   void* branch_a = create_branch(context_, "a");
   void* branch_b = create_branch(context_, "b");
 

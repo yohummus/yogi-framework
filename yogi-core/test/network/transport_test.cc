@@ -51,7 +51,7 @@ class TransportTest : public TestFixture {
   Buffer data_                              = {1, 2, 3, 4, 5, 6};
 };
 
-TEST_F(TransportTest, get_context) {
+TEST_F(TransportTest, GetContext) {
   EXPECT_EQ(transport_->get_context(), context_);
 }
 

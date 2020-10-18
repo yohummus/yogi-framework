@@ -133,7 +133,7 @@ TEST(MessagesTest, MakeMsgBytes) {
   EXPECT_EQ(bytes, (SmallBuffer{type, 0x93, 0xc3, 0xc2, 0x7b, 'x'}));
 }
 
-TEST(MessagesTest, get_size) {
+TEST(MessagesTest, GetSize) {
   auto msg = FakeOutgoingMessage({1, 2, 3});
   EXPECT_EQ(msg.get_size(), 3);
 }
@@ -147,7 +147,7 @@ TEST(MessagesTest, Serialize) {
   EXPECT_EQ(msg.serialize(), bytes);
 }
 
-TEST(MessagesTest, serialize_shared) {
+TEST(MessagesTest, SerializeShared) {
   auto msg   = FakeOutgoingMessage({1, 2, 3});
   auto bytes = msg.serialize_shared();
   EXPECT_EQ(*bytes, (SmallBuffer{1, 2, 3}));

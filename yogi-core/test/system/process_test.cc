@@ -26,7 +26,7 @@
 
 #include <regex>
 
-TEST(SystemTest, get_process_id) {
+TEST(SystemTest, GetProcessId) {
   EXPECT_GT(get_process_id(), 0);
 }
 
