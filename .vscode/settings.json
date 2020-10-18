@@ -33,6 +33,18 @@
     "future": "cpp",
     "condition_variable": "cpp",
     "tuple": "cpp",
-    "chrono": "cpp"
-  }
+    "chrono": "cpp",
+    "array": "cpp",
+    "hash_map": "cpp",
+    "hash_set": "cpp",
+    "any": "cpp",
+    "string_view": "cpp",
+    "rope": "cpp",
+    "slist": "cpp",
+    "ranges": "cpp",
+    "span": "cpp",
+    "string": "cpp",
+    "bitset": "cpp"
+  },
+  "python.pythonPath": "/Users/yohummus/Projects/yogi-framework/.venv/bin/python3"
 }

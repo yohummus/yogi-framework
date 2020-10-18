@@ -34,6 +34,7 @@ include_directories(include .)
 # ========== STATIC LIBRARY ==========
 set(src_files
     # :CODEGEN_BEGIN:
+    src/util/json_helpers.cc
     src/util/time.cc
     src/network/msg_transport.cc
     src/network/messages.cc
@@ -47,6 +48,12 @@ set(src_files
     src/objects/branch.cc
     src/objects/configuration.cc
     src/objects/configuration/cmdline_parser.cc
+    src/objects/branch/connection_manager.cc
+    src/objects/branch/branch_info.cc
+    src/objects/branch/advertising_receiver.cc
+    src/objects/branch/broadcast_manager.cc
+    src/objects/branch/branch_connection.cc
+    src/objects/branch/advertising_sender.cc
     src/schemas/schemas.cc
     src/system/network_info.cc
     src/system/glob.cc
@@ -108,8 +115,11 @@ set(test_files
     test/objects/configuration_test.cc
     test/objects/context_test.cc
     test/objects/timer_test.cc
+    test/objects/branch_test.cc
     test/objects/signal_set_test.cc
     test/objects/configuration/cmdline_parser_test.cc
+    test/objects/branch/broadcast_manager_test.cc
+    test/objects/branch/connection_manager_test.cc
     test/schemas/schemas_test.cc
     test/system/console_test.cc
     test/system/glob_test.cc

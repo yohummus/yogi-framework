@@ -23,7 +23,10 @@
 
 #include <src/config.h>
 
+#include <nlohmann/json.hpp>
+
 const char* get_schema(int schema);
+void validate_json(const nlohmann::json& json, int schema, const std::string& error_location = {});
 
 namespace schemas {
 

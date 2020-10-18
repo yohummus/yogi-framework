@@ -5,18 +5,26 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "name":                   { "$ref": "branch_properties.schema.json#/name" },
-    "description":            { "$ref": "branch_properties.schema.json#/description" },
-    "path":                   { "$ref": "branch_properties.schema.json#/path" },
-    "network_name":           { "$ref": "branch_properties.schema.json#/network_name" },
-    "network_password":       { "$ref": "branch_properties.schema.json#/network_password" },
-    "advertising_interfaces": { "$ref": "branch_properties.schema.json#/advertising_interfaces" },
-    "advertising_address":    { "$ref": "branch_properties.schema.json#/advertising_address" },
-    "advertising_port":       { "$ref": "branch_properties.schema.json#/advertising_port" },
-    "advertising_interval":   { "$ref": "branch_properties.schema.json#/advertising_interval" },
-    "timeout":                { "$ref": "branch_properties.schema.json#/timeout" },
-    "ghost_mode":             { "$ref": "branch_properties.schema.json#/ghost_mode" },
-    "tx_queue_size":          { "$ref": "branch_properties.schema.json#/tx_queue_size" },
-    "rx_queue_size":          { "$ref": "branch_properties.schema.json#/rx_queue_size" }
+    "name":                   { "$ref": "branch_properties.schema.json#/properties/name" },
+    "description":            { "$ref": "branch_properties.schema.json#/properties/description" },
+    "path":                   { "$ref": "branch_properties.schema.json#/properties/path" },
+    "network_name":           { "$ref": "branch_properties.schema.json#/properties/network_name" },
+    "network_password":       { "$ref": "branch_properties.schema.json#/properties/network_password" },
+    "advertising_interfaces": { "$ref": "branch_properties.schema.json#/properties/advertising_interfaces" },
+    "advertising_address":    { "$ref": "branch_properties.schema.json#/properties/advertising_address" },
+    "advertising_port":       { "$ref": "branch_properties.schema.json#/properties/advertising_port" },
+    "advertising_interval":   { "$ref": "branch_properties.schema.json#/properties/advertising_interval" },
+    "timeout":                { "$ref": "branch_properties.schema.json#/properties/timeout" },
+    "ghost_mode":             { "$ref": "branch_properties.schema.json#/properties/ghost_mode" },
+    "tx_queue_size":          { "$ref": "branch_properties.schema.json#/properties/tx_queue_size" },
+    "rx_queue_size":          { "$ref": "branch_properties.schema.json#/properties/rx_queue_size" },
+
+    "_transceive_byte_limit": {
+      "title": "DO NOT USE! Transceive byte limit",
+      "description": "Maximum number of bytes to send/receive at once; used for testing and debugging",
+      "type": "integer",
+      "minimum": 1,
+      "default": -1
+    }
   }
 }

@@ -31,8 +31,8 @@
 
 namespace {
 
-SmallBuffer make_sha256_impl(const void* data, std::size_t len) {
-  SmallBuffer hash(SHA256_DIGEST_LENGTH);
+Buffer make_sha256_impl(const void* data, std::size_t len) {
+  Buffer hash(SHA256_DIGEST_LENGTH);
 
   SHA256_CTX sha256;
   SHA256_Init(&sha256);
@@ -44,11 +44,11 @@ SmallBuffer make_sha256_impl(const void* data, std::size_t len) {
 
 }  // anonymous namespace
 
-SmallBuffer make_sha256(const Buffer& data) {
+Buffer make_sha256(const Buffer& data) {
   return make_sha256_impl(data.data(), data.size());
 }
 
-SmallBuffer make_sha256(std::string_view data) {
+Buffer make_sha256(std::string_view data) {
   return make_sha256_impl(data.data(), data.size());
 }
 

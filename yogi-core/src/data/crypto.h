@@ -27,7 +27,7 @@
 
 #include <string_view>
 
-SmallBuffer make_sha256(const Buffer& data);
-SmallBuffer make_sha256(std::string_view data);
+Buffer make_sha256(const Buffer& data);
+Buffer make_sha256(std::string_view data);
 
 Buffer generate_random_bytes(std::size_t n);

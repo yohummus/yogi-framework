@@ -51,7 +51,9 @@ class Result {
   int error_code() const {
     return ec_ > 0 ? 0 : ec_;
   }
+
   const char* description() const;
+
   bool is_success() const {
     return ec_ >= 0;
   }
@@ -59,6 +61,7 @@ class Result {
   bool is_error() const {
     return ec_ < 0;
   }
+
   Error to_error() const;
 
  private:

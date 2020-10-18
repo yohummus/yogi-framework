@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug yogi-core-test",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/yogi-core/bin/yogi-core-test",
+      "args": [],
+      "cwd": "${workspaceFolder}/build/yogi-core/lib"
+    }
+  ]
+}

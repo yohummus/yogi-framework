@@ -3,18 +3,18 @@
   "$id": "file:///remote_branch_info.schema.json",
   "additionalProperties": false,
   "properties": {
-    "uuid":                   { "$ref": "branch_properties.schema.json#/uuid" },
-    "name":                   { "$ref": "branch_properties.schema.json#/name" },
-    "description":            { "$ref": "branch_properties.schema.json#/description" },
-    "network_name":           { "$ref": "branch_properties.schema.json#/network_name" },
-    "path":                   { "$ref": "branch_properties.schema.json#/path" },
-    "hostname":               { "$ref": "branch_properties.schema.json#/hostname" },
-    "pid":                    { "$ref": "branch_properties.schema.json#/pid" },
-    "tcp_server_address":     { "$ref": "branch_properties.schema.json#/tcp_server_address" },
-    "tcp_server_port":        { "$ref": "branch_properties.schema.json#/tcp_server_port" },
-    "start_time":             { "$ref": "branch_properties.schema.json#/start_time" },
-    "timeout":                { "$ref": "branch_properties.schema.json#/timeout" },
-    "advertising_interval":   { "$ref": "branch_properties.schema.json#/advertising_interval" },
-    "ghost_mode":             { "$ref": "branch_properties.schema.json#/ghost_mode" }
+    "uuid":                   { "$ref": "branch_properties.schema.json#/properties/uuid" },
+    "name":                   { "$ref": "branch_properties.schema.json#/properties/name" },
+    "description":            { "$ref": "branch_properties.schema.json#/properties/description" },
+    "network_name":           { "$ref": "branch_properties.schema.json#/properties/network_name" },
+    "path":                   { "$ref": "branch_properties.schema.json#/properties/path" },
+    "hostname":               { "$ref": "branch_properties.schema.json#/properties/hostname" },
+    "pid":                    { "$ref": "branch_properties.schema.json#/properties/pid" },
+    "tcp_server_address":     { "$ref": "branch_properties.schema.json#/properties/tcp_server_address" },
+    "tcp_server_port":        { "$ref": "branch_properties.schema.json#/properties/tcp_server_port" },
+    "start_time":             { "$ref": "branch_properties.schema.json#/properties/start_time" },
+    "timeout":                { "$ref": "branch_properties.schema.json#/properties/timeout" },
+    "advertising_interval":   { "$ref": "branch_properties.schema.json#/properties/advertising_interval" },
+    "ghost_mode":             { "$ref": "branch_properties.schema.json#/properties/ghost_mode" }
   }
 }

@@ -4,3 +4,4 @@ __pycache__
 yogi-dotnet/**/bin
 yogi-dotnet/**/obj
 .pytest_cache
+.venv

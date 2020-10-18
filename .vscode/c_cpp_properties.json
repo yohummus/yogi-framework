@@ -17,11 +17,19 @@
         "${commonIncludePaths}",
         "/usr/local/include"
       ],
+      "browse": {
+        "path": [
+          "${commonIncludePaths}",
+          "/usr/local/include"
+        ],
+        "limitSymbolsToIncludedHeaders": true
+      },
       "defines": [],
       "macFrameworkPath": [
         "/System/Library/Frameworks"
       ],
-      "cppStandard": "c++17"
+      "cppStandard": "c++17",
+      "configurationProvider": "ms-vscode.cmake-tools"
     },
     {
       "name": "Linux",
@@ -30,20 +38,36 @@
         "/usr/include",
         "/usr/local/include"
       ],
+      "browse": {
+        "path": [
+          "${commonIncludePaths}",
+          "/usr/include",
+          "/usr/local/include"
+        ],
+        "limitSymbolsToIncludedHeaders": true
+      },
       "defines": [],
-      "cppStandard": "c++17"
+      "cppStandard": "c++17",
+      "configurationProvider": "ms-vscode.cmake-tools"
     },
     {
       "name": "Win32",
       "includePath": [
         "${commonIncludePaths}"
       ],
+      "browse": {
+        "path": [
+          "${commonIncludePaths}"
+        ],
+        "limitSymbolsToIncludedHeaders": true
+      },
       "defines": [
         "_DEBUG",
         "UNICODE",
         "WIN32"
       ],
-      "cppStandard": "c++17"
+      "cppStandard": "c++17",
+      "configurationProvider": "ms-vscode.cmake-tools"
     }
   ],
   "version": 4
