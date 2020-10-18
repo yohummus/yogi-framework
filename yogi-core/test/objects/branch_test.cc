@@ -52,8 +52,6 @@ TEST_F(BranchTest, CreateWithJsonPointer) {
   props["arr"]            = {"some string", kBranchProps, 123};
   props["arr"][1]["name"] = "Samosa";
 
-  char err[100];
-
   void* branch;
   int res = YOGI_BranchCreate(&branch, context_, create_configuration(props), "/blabla");
   EXPECT_ERR(res, YOGI_ERR_CONFIGURATION_SECTION_NOT_FOUND);
@@ -97,8 +95,6 @@ TEST_F(BranchTest, InvalidQueueSizes) {
   for (auto entry : entries) {
     nlohmann::json props;
     props[entry.first] = entry.second;
-
-    char err[100];
 
     void* branch;
     int res = YOGI_BranchCreate(&branch, context_, create_configuration(props), nullptr);

@@ -341,7 +341,6 @@ void* create_branch(void* context, const char* name, const char* net_name, const
     props["_transceive_byte_limit"] = transceive_byte_limit;
   }
 
-  char err[256];
   void* branch = nullptr;
   int res      = YOGI_BranchCreate(&branch, context, create_configuration(props), nullptr);
   EXPECT_OK(res);

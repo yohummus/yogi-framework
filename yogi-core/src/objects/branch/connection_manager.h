@@ -45,7 +45,6 @@ typedef std::weak_ptr<ConnectionManager> ConnectionManagerWeakPtr;
 
 class ConnectionManager : public std::enable_shared_from_this<ConnectionManager>, public LogUser {
  public:
-  using Buffer = Buffer;
   typedef std::function<void(const Result&, int branch_event, const Result&, const boost::uuids::uuid&,
                              const std::string& json)>
       BranchEventHandler;

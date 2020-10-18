@@ -42,14 +42,14 @@ const auto validators = [] {
   }
 
   // Create the validators
-  std::vector<json_schema::json_validator> validators;
+  std::vector<json_schema::json_validator> jvals;
   for (auto schema : schemas) {
-    json_schema::json_validator validator([&](auto& loc, auto& sch) { sch = schema_map.at(loc.location()); });
-    validator.set_root_schema(*schema);
-    validators.emplace_back(std::move(validator));
+    json_schema::json_validator jval([&](auto& loc, auto& sch) { sch = schema_map.at(loc.location()); });
+    jval.set_root_schema(*schema);
+    jvals.emplace_back(std::move(jval));
   }
 
-  return validators;
+  return jvals;
 }();
 
 }  // anonymous namespace
