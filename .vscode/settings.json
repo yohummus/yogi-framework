@@ -44,7 +44,8 @@
     "ranges": "cpp",
     "span": "cpp",
     "string": "cpp",
-    "bitset": "cpp"
+    "bitset": "cpp",
+    "type_traits": "cpp"
   },
   "python.pythonPath": "/Users/yohummus/Projects/yogi-framework/.venv/bin/python3"
 }

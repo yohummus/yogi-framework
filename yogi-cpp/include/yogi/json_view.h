@@ -26,6 +26,8 @@
 //!
 //! Helpers for passing JSON-encoded data to functions.
 
+#include "json.h"
+
 #include <cstring>
 #include <string>
 #include <vector>
@@ -63,14 +65,10 @@ class JsonView {
   /// \param s Referenced NULL-terminated string.
   JsonView(const char* s) : s_(s), size_(static_cast<int>(strlen(s) + 1)){};
 
-// Define a constructor that takes a nlohmann::json object if that library has been included
-#if NLOHMANN_JSON_VERSION_MAJOR
   /// Constructs a view from a JSON object.
   ///
   /// \param json The JSON object to reference.
-  JsonView(const ::nlohmann::json& json)
-      : tmp_(json.dump()), s_(tmp_.c_str()), size_(static_cast<int>(tmp_.size() + 1)){};
-#endif
+  JsonView(const Json& json) : tmp_(json.dump()), s_(tmp_.c_str()), size_(static_cast<int>(tmp_.size() + 1)){};
 
   /// Returns a NULL-terminated string holding the serialized JSON data.
   ///
