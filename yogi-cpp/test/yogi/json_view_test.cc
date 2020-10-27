@@ -52,8 +52,8 @@ TEST(JsonViewTest, StdString) {
 }
 
 TEST(JsonViewTest, JsonObject) {
-  nlohmann::json json = {12345};
-  auto view           = yogi::JsonView(json);
+  yogi::Json json = {12345};
+  auto view       = yogi::JsonView(json);
   EXPECT_EQ(json.dump(), view.data());
   EXPECT_EQ(view.size(), static_cast<int>(json.dump().size()) + 1);
 }
@@ -63,8 +63,8 @@ TEST(JsonViewTest, ConversionOperator) {
   auto view     = yogi::JsonView(s);
   EXPECT_EQ(static_cast<const char*>(view), view.data());
 
-  nlohmann::json json = {12345};
-  auto view2          = yogi::JsonView(json);
+  yogi::Json json = {12345};
+  auto view2      = yogi::JsonView(json);
   EXPECT_EQ(static_cast<const char*>(view), view.data());
 }
 

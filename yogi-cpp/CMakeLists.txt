@@ -25,6 +25,7 @@ set(test_files
     test/yogi/json_view_test.cc
     test/yogi/msgpack_view_test.cc
     test/yogi/configuration_test.cc
+    test/yogi/json_test.cc
     test/yogi/context_test.cc
     test/yogi/version_test.cc
     test/yogi/operation_id_test.cc
@@ -45,6 +46,7 @@ set(test_files
     test/yogi_inc/operation_id_inc_test.cc
     test/yogi_inc/io_inc_test.cc
     test/yogi_inc/errors_inc_test.cc
+    test/yogi_inc/json_inc_test.cc
     test/yogi_inc/duration_inc_test.cc
     test/yogi_inc/string_view_inc_test.cc
     test/yogi_inc/object_inc_test.cc
