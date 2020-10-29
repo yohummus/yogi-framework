@@ -32,6 +32,7 @@
 #include "context.h"
 #include "duration.h"
 #include "io.h"
+#include "json.h"
 #include "object.h"
 #include "operation_id.h"
 #include "payload_view.h"
@@ -54,56 +55,56 @@ class BranchInfo {
   /// Returns the UUID of the branch.
   ///
   /// \returns UUID of the branch.
-  const Uuid& GetUuid() const {
+  const Uuid& uuid() const {
     return uuid_;
   }
 
   /// Returns the name of the branch.
   ///
   /// \returns The name of the branch.
-  std::string GetName() const {
+  std::string name() const {
     return json_["name"];
   }
 
   /// Returns the description of the branch.
   ///
   /// \returns The description of the branch.
-  std::string GetDescription() const {
+  std::string description() const {
     return json_["description"];
   }
 
   /// Returns the name of the network.
   ///
   /// \returns The name of the network.
-  std::string GetNetworkName() const {
+  std::string network_name() const {
     return json_["network_name"];
   }
 
   /// Returns the  path of the branch.
   ///
   /// \returns The  path of the branch.
-  std::string GetPath() const {
+  std::string path() const {
     return json_["path"];
   }
 
   /// Returns the machine's hostname.
   ///
   /// \returns The machine's hostname.
-  std::string GetHostname() const {
+  std::string hostname() const {
     return json_["hostname"];
   }
 
   /// Returns the ID of the process.
   ///
   /// \returns The ID of the process.
-  int GetPid() const {
+  int pid() const {
     return json_["pid"];
   }
 
   /// Returns the advertising interval.
   ///
   /// \returns The advertising interval.
-  Duration GetAdvertisingInterval() const {
+  Duration advertising_interval() const {
     float val = json_["advertising_interval"];
     return val < 0 ? Duration::kInfinity : Duration::FromSeconds(val);
   }
@@ -111,21 +112,21 @@ class BranchInfo {
   /// Returns the listening port of the TCP server for incoming connections.
   ///
   /// \returns The listening port of the TCP server for incoming connections.
-  int GetTcpServerPort() const {
+  int tcp_server_port() const {
     return json_["tcp_server_port"];
   }
 
   /// Returns the time when the branch was started (UTC time).
   ///
   /// \returns The time when the branch was started (UTC time).
-  Timestamp GetStartTime() const {
+  Timestamp start_time() const {
     return Timestamp::Parse(static_cast<const std::string&>(json_["start_time"]));
   }
 
   /// Returns the connection timeout.
   ///
   /// \returns The connection timeout.
-  Duration GetTimeout() const {
+  Duration timeout() const {
     float val = json_["timeout"];
     return val < 0 ? Duration::kInfinity : Duration::FromSeconds(val);
   }
@@ -133,21 +134,21 @@ class BranchInfo {
   /// Returns true if the branch is in ghost mode.
   ///
   /// \return True if the branch is in ghost mode.
-  bool GetGhostMode() const {
+  bool ghost_mode() const {
     return json_["ghost_mode"];
   }
 
   /// Returns the branch information as JSON-encoded string.
   ///
   /// \returns Branch information as JSON-encoded string.
-  const std::string& ToString() const {
+  const std::string& to_string() const {
     return json_str_;
   }
 
   /// Returns the branch information as a JSON object.
   ///
   /// \return Branch information as a JSON object.
-  const Json& ToJson() const {
+  const Json& to_json() const {
     return json_;
   }
 
@@ -175,8 +176,8 @@ class RemoteBranchInfo : public BranchInfo {
   /// Returns the address of the TCP server for incoming connections.
   ///
   /// \returns The address of the TCP server for incoming connections.
-  std::string GetTcpServerAddress() const {
-    return ToJson()["tcp_server_address"];
+  std::string tcp_server_address() const {
+    return to_json()["tcp_server_address"];
   }
 
  protected:
@@ -193,29 +194,29 @@ class LocalBranchInfo : public BranchInfo {
   /// Advertising IP address.
   ///
   /// \returns The advertising IP address.
-  std::string GetAdvertisingAddress() const {
-    return ToJson()["advertising_address"];
+  std::string advertising_address() const {
+    return to_json()["advertising_address"];
   }
 
   /// Advertising port.
   ///
   /// \returns The advertising port.
-  int GetAdvertisingPort() const {
-    return ToJson()["advertising_port"];
+  int advertising_port() const {
+    return to_json()["advertising_port"];
   }
 
   /// Size of the send queues for remote branches.
   ///
   /// \returns The size of the send queues.
-  int GetTxQueueSize() const {
-    return ToJson()["tx_queue_size"];
+  int tx_queue_size() const {
+    return to_json()["tx_queue_size"];
   }
 
   /// Size of the receive queues for remote branches.
   ///
   /// \returns The size of the receive queues.
-  int GetRxQueueSize() const {
-    return ToJson()["rx_queue_size"];
+  int rx_queue_size() const {
+    return to_json()["rx_queue_size"];
   }
 
  protected:
@@ -236,21 +237,21 @@ class BranchEventInfo {
   /// Returns the UUID of the branch.
   ///
   /// \returns UUID of the branch.
-  const Uuid& GetUuid() const {
+  const Uuid& uuid() const {
     return uuid_;
   }
 
   /// Returns the event information as JSON-encoded string.
   ///
   /// \returns Event information as JSON-encoded string.
-  const std::string& ToString() const {
+  const std::string& to_string() const {
     return json_str_;
   }
 
   /// Returns the event information as a JSON object.
   ///
   /// \return Event information as a JSON object.
-  const Json& ToJson() const {
+  const Json& to_json() const {
     return json_;
   }
 
@@ -278,15 +279,15 @@ class BranchDiscoveredEventInfo : public BranchEventInfo {
   /// Returns the address of the TCP server for incoming connections.
   ///
   /// \returns The address of the TCP server for incoming connections.
-  std::string GetTcpServerAddress() const {
-    return ToJson()["tcp_server_address"];
+  std::string tcp_server_address() const {
+    return to_json()["tcp_server_address"];
   }
 
   /// Returns the listening port of the TCP server for incoming connections.
   ///
   /// \returns The listening port of the TCP server for incoming connections.
-  int GetTcpServerPort() const {
-    return ToJson()["tcp_server_port"];
+  int tcp_server_port() const {
+    return to_json()["tcp_server_port"];
   }
 
  protected:
@@ -304,94 +305,94 @@ class BranchQueriedEventInfo : public BranchEventInfo {
   /// Returns the name of the branch.
   ///
   /// \returns The name of the branch.
-  std::string GetName() const {
-    return ToJson()["name"];
+  std::string name() const {
+    return to_json()["name"];
   }
 
   /// Returns the description of the branch.
   ///
   /// \returns The description of the branch.
-  std::string GetDescription() const {
-    return ToJson()["description"];
+  std::string description() const {
+    return to_json()["description"];
   }
 
   /// Returns the name of the network.
   ///
   /// \returns The name of the network.
-  std::string GetNetworkName() const {
-    return ToJson()["network_name"];
+  std::string network_name() const {
+    return to_json()["network_name"];
   }
 
   /// Returns the  path of the branch.
   ///
   /// \returns The  path of the branch.
-  std::string GetPath() const {
-    return ToJson()["path"];
+  std::string path() const {
+    return to_json()["path"];
   }
 
   /// Returns the machine's hostname.
   ///
   /// \returns The machine's hostname.
-  std::string GetHostname() const {
-    return ToJson()["hostname"];
+  std::string hostname() const {
+    return to_json()["hostname"];
   }
 
   /// Returns the ID of the process.
   ///
   /// \returns The ID of the process.
-  int GetPid() const {
-    return ToJson()["pid"];
+  int pid() const {
+    return to_json()["pid"];
   }
 
   /// Returns the advertising interval.
   ///
   /// \returns The advertising interval.
-  Duration GetAdvertisingInterval() const {
-    float val = ToJson()["advertising_interval"];
+  Duration advertising_interval() const {
+    float val = to_json()["advertising_interval"];
     return val < 0 ? Duration::kInfinity : Duration::FromSeconds(val);
   }
 
   /// Returns the address of the TCP server for incoming connections.
   ///
   /// \returns The address of the TCP server for incoming connections.
-  std::string GetTcpServerAddress() const {
-    return ToJson()["tcp_server_address"];
+  std::string tcp_server_address() const {
+    return to_json()["tcp_server_address"];
   }
 
   /// Returns the listening port of the TCP server for incoming connections.
   ///
   /// \returns The listening port of the TCP server for incoming connections.
-  int GetTcpServerPort() const {
-    return ToJson()["tcp_server_port"];
+  int tcp_server_port() const {
+    return to_json()["tcp_server_port"];
   }
 
   /// Returns the time when the branch was started (UTC time).
   ///
   /// \returns The time when the branch was started (UTC time).
-  Timestamp GetStartTime() const {
-    return Timestamp::Parse(static_cast<const std::string&>(ToJson()["start_time"]));
+  Timestamp start_time() const {
+    return Timestamp::Parse(static_cast<const std::string&>(to_json()["start_time"]));
   }
 
   /// Returns the connection timeout.
   ///
   /// \returns The connection timeout.
-  Duration GetTimeout() const {
-    float val = ToJson()["timeout"];
+  Duration timeout() const {
+    float val = to_json()["timeout"];
     return val < 0 ? Duration::kInfinity : Duration::FromSeconds(val);
   }
 
   /// Returns true if the branch is in ghost mode.
   ///
   /// \return True if the branch is in ghost mode.
-  bool GetGhostMode() const {
-    return ToJson()["ghost_mode"];
+  bool ghost_mode() const {
+    return to_json()["ghost_mode"];
   }
 
   /// Converts the event information to a RemoteBranchInfo object.
   ///
   /// \returns The converted RemoteBranchInfo object.
-  RemoteBranchInfo ToRemoteBranchInfo() const {
-    return RemoteBranchInfo(GetUuid(), ToJson(), ToString());
+  RemoteBranchInfo to_remote_branch_info() const {
+    return RemoteBranchInfo(uuid(), to_json(), to_string());
   }
 
  protected:
@@ -443,7 +444,7 @@ using BranchPtr = std::shared_ptr<Branch>;
 ////////////////////////////////////////////////////////////////////////////////
 class Branch : public ObjectT<Branch> {
  public:
-  /// Callback function used in AwaitEventAsync().
+  /// Callback function used in await_event_async().
   ///
   /// \param res    %Result of the wait operation.
   /// \param event  The branch event that occurred.
@@ -452,13 +453,13 @@ class Branch : public ObjectT<Branch> {
   using AwaitEventFn =
       std::function<void(const Result& res, BranchEvents event, const Result& ev_res, BranchEventInfo& info)>;
 
-  /// Callback function used in SendBroadcastAsync().
+  /// Callback function used in send_broadcast_async().
   ///
   /// \param res %Result of the send operation.
   /// \param oid ID of the send operation.
   using SendBroadcastFn = std::function<void(const Result& res, OperationId oid)>;
 
-  /// Callback function used in ReceiveBroadcastAsync().
+  /// Callback function used in receive_broadcast_async().
   ///
   /// \param res     %Result of the receive operation.
   /// \param source  UUID of the sending branch.
@@ -467,7 +468,7 @@ class Branch : public ObjectT<Branch> {
   using ReceiveBroadcastFn =
       std::function<void(const Result& res, const Uuid& source, const PayloadView& payload, BufferPtr&& buffer)>;
 
-  /// Callback function used in ReceiveBroadcastAsync().
+  /// Callback function used in receive_broadcast_async().
   ///
   /// As opposed to ReceiveBroadcastFn, this function does not include the
   /// buffer parameter.
@@ -558,7 +559,7 @@ class Branch : public ObjectT<Branch> {
   ///                syntax is JSON pointer (RFC 6901)
   ///
   /// \returns The created branch.
-  static BranchPtr Create(ContextPtr context, const ConfigurationPtr& config = {}, const StringView& section = {}) {
+  static BranchPtr create(ContextPtr context, const ConfigurationPtr& config = {}, const StringView& section = {}) {
     return BranchPtr(new Branch(context, config, section));
   }
 
@@ -640,128 +641,128 @@ class Branch : public ObjectT<Branch> {
   ///                syntax is JSON pointer (RFC 6901)
   ///
   /// \returns The created branch.
-  static BranchPtr Create(ContextPtr context, const JsonView& json, const StringView& section = {}) {
-    auto config = Configuration::Create(json, yogi::ConfigurationFlags::kDisableVariables);
-    return Create(context, config, section);
+  static BranchPtr create(ContextPtr context, const JsonView& json, const StringView& section = {}) {
+    auto config = Configuration::create(json, yogi::ConfigurationFlags::kDisableVariables);
+    return create(context, config, section);
   }
 
   /// Returns information about the local branch.
   ///
   /// \returns Information about the local branch.
-  const LocalBranchInfo& GetInfo() const {
+  const LocalBranchInfo& info() const {
     return info_;
   }
 
   /// Returns the UUID of the branch.
   ///
   /// \returns UUID of the branch.
-  const Uuid& GetUuid() const {
-    return info_.GetUuid();
+  const Uuid& uuid() const {
+    return info_.uuid();
   }
 
   /// Returns the name of the branch.
   ///
   /// \returns The name of the branch.
-  std::string GetName() const {
-    return info_.GetName();
+  std::string name() const {
+    return info_.name();
   }
 
   /// Returns the description of the branch.
   ///
   /// \returns The description of the branch.
-  std::string GetDescription() const {
-    return info_.GetDescription();
+  std::string description() const {
+    return info_.description();
   }
 
   /// Returns the name of the network.
   ///
   /// \returns The name of the network.
-  std::string GetNetworkName() const {
-    return info_.GetNetworkName();
+  std::string network_name() const {
+    return info_.network_name();
   }
 
   /// Returns the  path of the branch.
   ///
   /// \returns The  path of the branch.
-  std::string GetPath() const {
-    return info_.GetPath();
+  std::string path() const {
+    return info_.path();
   }
 
   /// Returns the machine's hostname.
   ///
   /// \returns The machine's hostname.
-  std::string GetHostname() const {
-    return info_.GetHostname();
+  std::string hostname() const {
+    return info_.hostname();
   }
 
   /// Returns the ID of the process.
   ///
   /// \returns The ID of the process.
-  int GetPid() const {
-    return info_.GetPid();
+  int pid() const {
+    return info_.pid();
   }
 
   /// Returns the advertising interval.
   ///
   /// \returns The advertising interval.
-  Duration GetAdvertisingInterval() const {
-    return info_.GetAdvertisingInterval();
+  Duration advertising_interval() const {
+    return info_.advertising_interval();
   }
 
   /// Returns the listening port of the TCP server for incoming connections.
   ///
   /// \returns The listening port of the TCP server for incoming connections.
-  int GetTcpServerPort() const {
-    return info_.GetTcpServerPort();
+  int tcp_server_port() const {
+    return info_.tcp_server_port();
   }
 
   /// Returns the time when the branch was started (UTC time).
   ///
   /// \returns The time when the branch was started (UTC time).
-  Timestamp GetStartTime() const {
-    return info_.GetStartTime();
+  Timestamp start_time() const {
+    return info_.start_time();
   }
 
   /// Returns the connection timeout.
   ///
   /// \returns The connection timeout.
-  Duration GetTimeout() const {
-    return info_.GetTimeout();
+  Duration timeout() const {
+    return info_.timeout();
   }
 
   /// Returns true if the branch is in ghost mode.
   ///
   /// \return True if the branch is in ghost mode.
-  bool GetGhostMode() const {
-    return info_.GetGhostMode();
+  bool ghost_mode() const {
+    return info_.ghost_mode();
   }
 
   /// Advertising IP address.
   ///
   /// \returns The advertising IP address.
-  std::string GetAdvertisingAddress() const {
-    return info_.GetAdvertisingAddress();
+  std::string advertising_address() const {
+    return info_.advertising_address();
   }
 
   /// Advertising port.
   ///
   /// \returns The advertising port.
-  int GetAdvertisingPort() const {
-    return info_.GetAdvertisingPort();
+  int advertising_port() const {
+    return info_.advertising_port();
   }
 
   /// Size of the send queues for remote branches.
   ///
   /// \returns The size of the send queues.
-  int GetTxQueueSize() const {
-    return info_.GetTxQueueSize();
+  int tx_queue_size() const {
+    return info_.tx_queue_size();
   }
 
   /// Size of the receive queues for remote branches.
   ///
   /// \returns The size of the receive queues.
-  int GetRxQueueSize() const {
-    return info_.GetRxQueueSize();
+  int rx_queue_size() const {
+    return info_.rx_queue_size();
   }
 
   /// Retrieves information about all connected remote branches.
@@ -769,19 +770,19 @@ class Branch : public ObjectT<Branch> {
   /// \returns A map mapping the UUID of each connected remote branch to a
   ///          RemoteBranchInfo object with detailed information about the
   ///          branch.
-  std::unordered_map<Uuid, RemoteBranchInfo> GetConnectedBranches() const {
+  std::unordered_map<Uuid, RemoteBranchInfo> connected_branches() const {
     struct CallbackData {
       Uuid uuid;
       const char* str;
       std::unordered_map<Uuid, RemoteBranchInfo> branches;
     } data;
 
-    internal::QueryString([&](auto str, auto size) {
+    internal::query_string([&](auto str, auto size) {
       data.str = str;
       data.branches.clear();
 
       return internal::YOGI_BranchGetConnectedBranches(
-          this->GetHandle(), &data.uuid, str, size,
+          this->handle(), &data.uuid, str, size,
           [](int res, void* userarg) {
             if (res == static_cast<int>(ErrorCode::kOk)) {
               auto data = static_cast<CallbackData*>(userarg);
@@ -814,7 +815,7 @@ class Branch : public ObjectT<Branch> {
   /// \param fn          Handler function to call.
   /// \param buffer_size Size of the internal buffer for reading event
   ///                    information.
-  void AwaitEventAsync(BranchEvents events, AwaitEventFn fn, int buffer_size = 1024) {
+  void await_event_async(BranchEvents events, AwaitEventFn fn, int buffer_size = 1024) {
     struct CallbackData {
       AwaitEventFn fn;
       Uuid uuid;
@@ -825,8 +826,8 @@ class Branch : public ObjectT<Branch> {
     data->fn  = fn;
     data->json.resize(static_cast<std::size_t>(buffer_size));
 
-    int res = internal::YOGI_BranchAwaitEventAsync(
-        GetHandle(), static_cast<int>(events), &data->uuid, data->json.data(), buffer_size,
+    int res = internal::YOGI_Branchawait_event_async(
+        handle(), static_cast<int>(events), &data->uuid, data->json.data(), buffer_size,
         [](int res, int event, int ev_res, void* userarg) {
           auto data = std::unique_ptr<CallbackData>(static_cast<CallbackData*>(userarg));
           if (!data->fn) return;
@@ -836,19 +837,19 @@ class Branch : public ObjectT<Branch> {
           if (Result(res) && be != BranchEvents::kNone) {
             switch (be) {
               case BranchEvents::kBranchDiscovered:
-                CallAwaitEventFn<BranchDiscoveredEventInfo>(res, be, ev_res, data);
+                call_await_event_fn<BranchDiscoveredEventInfo>(res, be, ev_res, data);
                 break;
 
               case BranchEvents::kBranchQueried:
-                CallAwaitEventFn<BranchQueriedEventInfo>(res, be, ev_res, data);
+                call_await_event_fn<BranchQueriedEventInfo>(res, be, ev_res, data);
                 break;
 
               case BranchEvents::kConnectFinished:
-                CallAwaitEventFn<ConnectFinishedEventInfo>(res, be, ev_res, data);
+                call_await_event_fn<ConnectFinishedEventInfo>(res, be, ev_res, data);
                 break;
 
               case BranchEvents::kConnectionLost:
-                CallAwaitEventFn<ConnectionLostEventInfo>(res, be, ev_res, data);
+                call_await_event_fn<ConnectionLostEventInfo>(res, be, ev_res, data);
                 break;
 
               default: {
@@ -857,24 +858,24 @@ class Branch : public ObjectT<Branch> {
               }
             }
           } else {
-            CallAwaitEventFn<BranchEventInfo>(res, be, ev_res, data);
+            call_await_event_fn<BranchEventInfo>(res, be, ev_res, data);
           }
         },
         data.get());
 
-    internal::CheckErrorCode(res);
+    internal::check_error_code(res);
     data.release();
   }
 
   /// Cancels waiting for a branch event.
   ///
   /// Calling this function will cause the handler registered via
-  /// AwaitEventAsync() to be called with a cancellation error.
+  /// await_event_async() to be called with a cancellation error.
   ///
   /// \return True if the wait operation was cancelled successfully.
-  bool CancelAwaitEvent() {
-    int res = internal::YOGI_BranchCancelAwaitEvent(GetHandle());
-    return internal::FalseIfSpecificErrorElseThrow(res, ErrorCode::kOperationNotRunning);
+  bool cancel_await_event() {
+    int res = internal::YOGI_BranchCancelAwaitEvent(handle());
+    return internal::false_if_specific_error_else_throw(res, ErrorCode::kOperationNotRunning);
   }
 
   /// Sends a broadcast message to all connected branches.
@@ -900,14 +901,14 @@ class Branch : public ObjectT<Branch> {
   /// \param block   Block until message has been put into all send buffers.
   ///
   /// \return _true_ if the message was successfully put into all send buffers.
-  bool SendBroadcast(const PayloadView& payload, bool block = true) {
-    int res = internal::YOGI_BranchSendBroadcast(GetHandle(), static_cast<int>(payload.Encoding()), payload.Data(),
-                                                 payload.Size(), block ? 1 : 0);
+  bool send_broadcast(const PayloadView& payload, bool block = true) {
+    int res = internal::YOGI_Branchsend_broadcast(handle(), static_cast<int>(payload.encoding()), payload.data(),
+                                                  payload.size(), block ? 1 : 0);
 
     if (res == static_cast<int>(ErrorCode::kTxQueueFull)) {
       return false;
     } else {
-      internal::CheckErrorCode(res);
+      internal::check_error_code(res);
       return true;
     }
   }
@@ -929,7 +930,7 @@ class Branch : public ObjectT<Branch> {
   ///
   /// The function returns an ID which uniquely identifies this send operation
   /// until \p fn has been called. It can be used in a subsequent
-  /// CancelSendBroadcast() call to abort the operation.
+  /// cancel_send_broadcast() call to abort the operation.
   ///
   /// \note
   ///   The payload will be copied if necessary, i.e. \p payload only needs to
@@ -940,7 +941,7 @@ class Branch : public ObjectT<Branch> {
   /// \param fn      Handler to call once the operation finishes.
   ///
   /// \return ID of the send operation.
-  OperationId SendBroadcastAsync(const PayloadView& payload, bool retry, SendBroadcastFn fn) {
+  OperationId send_broadcast_async(const PayloadView& payload, bool retry, SendBroadcastFn fn) {
     struct CallbackData {
       SendBroadcastFn fn;
     };
@@ -949,16 +950,16 @@ class Branch : public ObjectT<Branch> {
     data->fn  = fn;
 
     int res = internal::YOGI_BranchSendBroadcastAsync(
-        GetHandle(), static_cast<int>(payload.Encoding()), payload.Data(), payload.Size(), retry ? 1 : 0,
+        handle(), static_cast<int>(payload.encoding()), payload.data(), payload.size(), retry ? 1 : 0,
         [](int res, int oid, void* userarg) {
           auto data = std::unique_ptr<CallbackData>(static_cast<CallbackData*>(userarg));
           if (!data->fn) return;
 
-          internal::WithErrorCodeToResult(res, data->fn, internal::MakeOperationId(oid));
+          internal::with_error_code_to_result(res, data->fn, internal::MakeOperationId(oid));
         },
         data.get());
 
-    internal::CheckErrorCode(res);
+    internal::check_error_code(res);
     data.release();
 
     return internal::MakeOperationId(res);
@@ -977,7 +978,7 @@ class Branch : public ObjectT<Branch> {
   ///
   /// The function returns an ID which uniquely identifies this send operation
   /// until \p fn has been called. It can be used in a subsequent
-  /// CancelSendBroadcast() call to abort the operation.
+  /// cancel_send_broadcast() call to abort the operation.
   ///
   /// \note
   ///   The payload will be copied if necessary, i.e. \p payload only needs to
@@ -987,15 +988,15 @@ class Branch : public ObjectT<Branch> {
   /// \param fn      Handler to call once the operation finishes.
   ///
   /// \return ID of the send operation.
-  OperationId SendBroadcastAsync(const PayloadView& payload, SendBroadcastFn fn) {
-    return SendBroadcastAsync(payload, true, fn);
+  OperationId send_broadcast_async(const PayloadView& payload, SendBroadcastFn fn) {
+    return send_broadcast_async(payload, true, fn);
   }
 
   /// Cancels a send broadcast operation.
   ///
   /// Calling this function will cause the send operation with the specified
   /// operation ID \p oid to be canceled, resulting in the handler function
-  /// registered via the SendBroadcastAsync() call that returned the same \p oid
+  /// registered via the send_broadcast_async() call that returned the same \p oid
   /// to be called with the #kCanceled error.
   ///
   /// \note
@@ -1006,9 +1007,9 @@ class Branch : public ObjectT<Branch> {
   /// \param oid ID of the send operation.
   ///
   /// \returns True if the operation has been canceled successfully.
-  bool CancelSendBroadcast(OperationId oid) {
-    int res = internal::YOGI_BranchCancelSendBroadcast(GetHandle(), oid.Value());
-    return internal::FalseIfSpecificErrorElseThrow(res, ErrorCode::kInvalidOperationId);
+  bool cancel_send_broadcast(OperationId oid) {
+    int res = internal::YOGI_BranchCancelsend_broadcast(handle(), oid.Value());
+    return internal::false_if_specific_error_else_throw(res, ErrorCode::kInvalidOperationId);
   }
 
   /// Receives a broadcast message from any of the connected branches.
@@ -1034,13 +1035,13 @@ class Branch : public ObjectT<Branch> {
   /// \attention
   ///   Broadcast messages do not get queued, i.e. if a branch is not actively
   ///   receiving broadcast messages then they will be discarded. To ensure that
-  ///   no messages get missed, call ReceiveBroadcastAsync() again from within
+  ///   no messages get missed, call receive_broadcast_async() again from within
   ///   the handler \p fn.
   ///
   /// \param fn Handler to call for the received broadcast message.
-  void ReceiveBroadcastAsync(ReceiveBroadcastFn fn) {
+  void receive_broadcast_async(ReceiveBroadcastFn fn) {
     auto buffer = std::make_unique<Buffer>(constants::kMaxMessagePayloadSize);
-    ReceiveBroadcastAsync(std::move(buffer), fn);
+    receive_broadcast_async(std::move(buffer), fn);
   }
 
   /// Receives a broadcast message from any of the connected branches.
@@ -1066,14 +1067,14 @@ class Branch : public ObjectT<Branch> {
   /// \attention
   ///   Broadcast messages do not get queued, i.e. if a branch is not actively
   ///   receiving broadcast messages then they will be discarded. To ensure that
-  ///   no messages get missed, call ReceiveBroadcastAsync() again from within
+  ///   no messages get missed, call receive_broadcast_async() again from within
   ///   the handler \p fn.
   ///
   /// \param enc Encoding to use for the received payload.
   /// \param fn  Handler to call for the received broadcast message.
-  void ReceiveBroadcastAsync(EncodingType enc, ReceiveBroadcastFn fn) {
+  void receive_broadcast_async(EncodingType enc, ReceiveBroadcastFn fn) {
     auto buffer = std::make_unique<Buffer>(constants::kMaxMessagePayloadSize);
-    ReceiveBroadcastAsync(enc, std::move(buffer), fn);
+    receive_broadcast_async(enc, std::move(buffer), fn);
   }
 
   /// Receives a broadcast message from any of the connected branches.
@@ -1100,13 +1101,13 @@ class Branch : public ObjectT<Branch> {
   /// \attention
   ///   Broadcast messages do not get queued, i.e. if a branch is not actively
   ///   receiving broadcast messages then they will be discarded. To ensure that
-  ///   no messages get missed, call ReceiveBroadcastAsync() again from within
+  ///   no messages get missed, call receive_broadcast_async() again from within
   ///   the handler \p fn.
   ///
   /// \param buffer Buffer to use for receiving the payload.
   /// \param fn     Handler to call for the received broadcast message.
-  void ReceiveBroadcastAsync(BufferPtr&& buffer, ReceiveBroadcastFn fn) {
-    ReceiveBroadcastAsync(EncodingType::kMsgpack, std::move(buffer), fn);
+  void receive_broadcast_async(BufferPtr&& buffer, ReceiveBroadcastFn fn) {
+    receive_broadcast_async(EncodingType::kMsgpack, std::move(buffer), fn);
   }
 
   /// Receives a broadcast message from any of the connected branches.
@@ -1133,13 +1134,13 @@ class Branch : public ObjectT<Branch> {
   /// \attention
   ///   Broadcast messages do not get queued, i.e. if a branch is not actively
   ///   receiving broadcast messages then they will be discarded. To ensure that
-  ///   no messages get missed, call ReceiveBroadcastAsync() again from within
+  ///   no messages get missed, call receive_broadcast_async() again from within
   ///   the handler \p fn.
   ///
   /// \param enc    Encoding to use for the received payload.
   /// \param buffer Buffer to use for receiving the payload.
   /// \param fn     Handler to call for the received broadcast message.
-  void ReceiveBroadcastAsync(EncodingType enc, BufferPtr&& buffer, ReceiveBroadcastFn fn) {
+  void receive_broadcast_async(EncodingType enc, BufferPtr&& buffer, ReceiveBroadcastFn fn) {
     struct CallbackData {
       ReceiveBroadcastFn fn;
       Uuid uuid;
@@ -1153,7 +1154,7 @@ class Branch : public ObjectT<Branch> {
     data->enc    = enc;
 
     int res = internal::YOGI_BranchReceiveBroadcastAsync(
-        GetHandle(), &data->uuid, static_cast<int>(enc), data->buffer->data(), static_cast<int>(data->buffer->size()),
+        handle(), &data->uuid, static_cast<int>(enc), data->buffer->data(), static_cast<int>(data->buffer->size()),
         [](int res, int size, void* userarg) {
           auto data = std::unique_ptr<CallbackData>(static_cast<CallbackData*>(userarg));
           if (!data->fn) return;
@@ -1163,11 +1164,11 @@ class Branch : public ObjectT<Branch> {
             payload = PayloadView(data->buffer->data(), size, data->enc);
           }
 
-          internal::WithErrorCodeToResult(res, data->fn, data->uuid, payload, std::move(data->buffer));
+          internal::with_error_code_to_result(res, data->fn, data->uuid, payload, std::move(data->buffer));
         },
         data.get());
 
-    internal::CheckErrorCode(res);
+    internal::check_error_code(res);
     data.release();
   }
 
@@ -1194,13 +1195,13 @@ class Branch : public ObjectT<Branch> {
   /// \attention
   ///   Broadcast messages do not get queued, i.e. if a branch is not actively
   ///   receiving broadcast messages then they will be discarded. To ensure that
-  ///   no messages get missed, call ReceiveBroadcastAsync() again from within
+  ///   no messages get missed, call receive_broadcast_async() again from within
   ///   the handler \p fn.
   ///
   /// \param fn Handler to call for the received broadcast message.
-  void ReceiveBroadcastAsync(ReceiveBroadcastSimpleFn fn) {
+  void receive_broadcast_async(ReceiveBroadcastSimpleFn fn) {
     auto buffer = std::make_unique<Buffer>(constants::kMaxMessagePayloadSize);
-    ReceiveBroadcastAsync(std::move(buffer), fn);
+    receive_broadcast_async(std::move(buffer), fn);
   }
 
   /// Receives a broadcast message from any of the connected branches.
@@ -1226,14 +1227,14 @@ class Branch : public ObjectT<Branch> {
   /// \attention
   ///   Broadcast messages do not get queued, i.e. if a branch is not actively
   ///   receiving broadcast messages then they will be discarded. To ensure that
-  ///   no messages get missed, call ReceiveBroadcastAsync() again from within
+  ///   no messages get missed, call receive_broadcast_async() again from within
   ///   the handler \p fn.
   ///
   /// \param enc Encoding to use for the received payload.
   /// \param fn  Handler to call for the received broadcast message.
-  void ReceiveBroadcastAsync(EncodingType enc, ReceiveBroadcastSimpleFn fn) {
+  void receive_broadcast_async(EncodingType enc, ReceiveBroadcastSimpleFn fn) {
     auto buffer = std::make_unique<Buffer>(constants::kMaxMessagePayloadSize);
-    ReceiveBroadcastAsync(enc, std::move(buffer), fn);
+    receive_broadcast_async(enc, std::move(buffer), fn);
   }
 
   /// Receives a broadcast message from any of the connected branches.
@@ -1260,13 +1261,13 @@ class Branch : public ObjectT<Branch> {
   /// \attention
   ///   Broadcast messages do not get queued, i.e. if a branch is not actively
   ///   receiving broadcast messages then they will be discarded. To ensure that
-  ///   no messages get missed, call ReceiveBroadcastAsync() again from within
+  ///   no messages get missed, call receive_broadcast_async() again from within
   ///   the handler \p fn.
   ///
   /// \param buffer Buffer to use for receiving the payload.
   /// \param fn     Handler to call for the received broadcast message.
-  void ReceiveBroadcastAsync(BufferPtr&& buffer, ReceiveBroadcastSimpleFn fn) {
-    ReceiveBroadcastAsync(EncodingType::kMsgpack, std::move(buffer), fn);
+  void receive_broadcast_async(BufferPtr&& buffer, ReceiveBroadcastSimpleFn fn) {
+    receive_broadcast_async(EncodingType::kMsgpack, std::move(buffer), fn);
   }
 
   /// Receives a broadcast message from any of the connected branches.
@@ -1293,57 +1294,59 @@ class Branch : public ObjectT<Branch> {
   /// \attention
   ///   Broadcast messages do not get queued, i.e. if a branch is not actively
   ///   receiving broadcast messages then they will be discarded. To ensure that
-  ///   no messages get missed, call ReceiveBroadcastAsync() again from within
+  ///   no messages get missed, call receive_broadcast_async() again from within
   ///   the handler \p fn.
   ///
   /// \param enc    Encoding to use for the received payload.
   /// \param buffer Buffer to use for receiving the payload.
   /// \param fn     Handler to call for the received broadcast message.
-  void ReceiveBroadcastAsync(EncodingType enc, BufferPtr&& buffer, ReceiveBroadcastSimpleFn fn) {
-    ReceiveBroadcastAsync(enc, std::move(buffer),
-                          [=](auto& res, auto& source, auto& payload, auto&&) { fn(res, source, payload); });
+  void receive_broadcast_async(EncodingType enc, BufferPtr&& buffer, ReceiveBroadcastSimpleFn fn) {
+    receive_broadcast_async(enc, std::move(buffer),
+                            [=](auto& res, auto& source, auto& payload, auto&&) { fn(res, source, payload); });
   }
 
   /// Cancels receiving a broadcast message.
   ///
   /// Calling this function will cause the handler registered via
-  /// ReceiveBroadcastAsync() to be called with the kCanceled error.
+  /// receive_broadcast_async() to be called with the kCanceled error.
   ///
   /// \note
   ///   If the receive handler has already been scheduled for execution,
   ///   this function will return _false_.
   ///
   /// \returns True if the operation was canceled successfully.
-  bool CancelReceiveBroadcast() {
-    int res = internal::YOGI_BranchCancelReceiveBroadcast(GetHandle());
-    return internal::FalseIfSpecificErrorElseThrow(res, ErrorCode::kOperationNotRunning);
+  bool cancel_receive_broadcast() {
+    int res = internal::YOGI_BranchCancelReceiveBroadcast(handle());
+    return internal::false_if_specific_error_else_throw(res, ErrorCode::kOperationNotRunning);
   }
 
  private:
   Branch(ContextPtr context, const ConfigurationPtr& config, const StringView& section)
-      : ObjectT(internal::CallApiCreateWithDescriptiveErrorCode(internal::YOGI_BranchCreate, GetForeignHandle(context),
-                                                                GetForeignHandle(config), section),
+      : ObjectT(internal::call_api_create_with_descriptive_error_code(
+                    internal::YOGI_BranchCreate, get_foreign_handle(context), get_foreign_handle(config), section),
                 {context}),
-        info_(QueryInfo()) {
+        info_(query_info()) {
   }
 
-  LocalBranchInfo QueryInfo() {
+  LocalBranchInfo query_info() {
     Uuid uuid;
-    auto json = internal::QueryString(
-        [&](auto str, auto size) { return internal::YOGI_BranchGetInfo(this->GetHandle(), &uuid, str, size); });
+    auto json = internal::query_string(
+        [&](auto str, auto size) { return internal::YOGI_BranchGetInfo(this->handle(), &uuid, str, size); });
 
     return LocalBranchInfo(uuid, std::move(json));
   }
 
   template <typename EventInfo, typename CallbackData>
-  static void CallAwaitEventFn(int res, BranchEvents be, int ev_res, CallbackData&& data) {
-    internal::WithErrorCodeToResult(res, [&](const auto& result) {
+  static void call_await_event_fn(int res, BranchEvents be, int ev_res, CallbackData&& data) {
+    internal::with_error_code_to_result(res, [&](const auto& result) {
       if (result) {
         EventInfo info(data->uuid, data->json.data());
-        internal::WithErrorCodeToResult(ev_res, [&](const auto& ev_result) { data->fn(result, be, ev_result, info); });
+        internal::with_error_code_to_result(ev_res,
+                                            [&](const auto& ev_result) { data->fn(result, be, ev_result, info); });
       } else {
         BranchEventInfo info;
-        internal::WithErrorCodeToResult(ev_res, [&](const auto& ev_result) { data->fn(result, be, ev_result, info); });
+        internal::with_error_code_to_result(ev_res,
+                                            [&](const auto& ev_result) { data->fn(result, be, ev_result, info); });
       }
     });
   }
