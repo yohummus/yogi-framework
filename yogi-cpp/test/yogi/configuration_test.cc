@@ -51,6 +51,23 @@ TEST_F(ConfigurationTest, CreateError) {
   EXPECT_THROW(Configuration::create(ConfigurationFlags::kMutableCmdLine), FailureException);
 }
 
+TEST_F(ConfigurationTest, CreateFromJson) {
+  MOCK_ConfigurationCreate([](void** config, int flags) {
+    EXPECT_NE(config, nullptr);
+    EXPECT_EQ(flags, YOGI_CFG_NONE);
+    *config = kPointer;
+    return YOGI_OK;
+  });
+
+  MOCK_ConfigurationUpdateFromJson([](void* config, const char* json) {
+    EXPECT_EQ(config, kPointer);
+    EXPECT_STREQ(json, "foo");
+    return YOGI_OK;
+  });
+
+  EXPECT_TRUE(!!yogi::Configuration::create("foo"));
+}
+
 TEST_F(ConfigurationTest, Flags) {
   auto cfg = create_configuration(ConfigurationFlags::kMutableCmdLine);
   EXPECT_EQ(cfg->flags(), ConfigurationFlags::kMutableCmdLine);

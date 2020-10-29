@@ -21,6 +21,9 @@
 
 #include <test/common.h>
 
+#include <chrono>
+using namespace std::chrono_literals;
+
 Test::Test() {
   MOCK_ResetMocks();
   MOCK_Destroy([](void*) { return YOGI_OK; });

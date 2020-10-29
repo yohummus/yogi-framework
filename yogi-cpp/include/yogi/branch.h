@@ -30,6 +30,7 @@
 #include "configuration.h"
 #include "constants.h"
 #include "context.h"
+#include "detail/query_string.h"
 #include "duration.h"
 #include "io.h"
 #include "json.h"
@@ -106,7 +107,7 @@ class BranchInfo {
   /// \returns The advertising interval.
   Duration advertising_interval() const {
     float val = json_["advertising_interval"];
-    return val < 0 ? Duration::kInfinity : Duration::FromSeconds(val);
+    return val < 0 ? Duration::kInf : Duration::from_seconds(val);
   }
 
   /// Returns the listening port of the TCP server for incoming connections.
@@ -120,7 +121,7 @@ class BranchInfo {
   ///
   /// \returns The time when the branch was started (UTC time).
   Timestamp start_time() const {
-    return Timestamp::Parse(static_cast<const std::string&>(json_["start_time"]));
+    return Timestamp::parse(static_cast<const std::string&>(json_["start_time"]));
   }
 
   /// Returns the connection timeout.
@@ -128,7 +129,7 @@ class BranchInfo {
   /// \returns The connection timeout.
   Duration timeout() const {
     float val = json_["timeout"];
-    return val < 0 ? Duration::kInfinity : Duration::FromSeconds(val);
+    return val < 0 ? Duration::kInf : Duration::from_seconds(val);
   }
 
   /// Returns true if the branch is in ghost mode.
@@ -349,7 +350,7 @@ class BranchQueriedEventInfo : public BranchEventInfo {
   /// \returns The advertising interval.
   Duration advertising_interval() const {
     float val = to_json()["advertising_interval"];
-    return val < 0 ? Duration::kInfinity : Duration::FromSeconds(val);
+    return val < 0 ? Duration::kInf : Duration::from_seconds(val);
   }
 
   /// Returns the address of the TCP server for incoming connections.
@@ -370,7 +371,7 @@ class BranchQueriedEventInfo : public BranchEventInfo {
   ///
   /// \returns The time when the branch was started (UTC time).
   Timestamp start_time() const {
-    return Timestamp::Parse(static_cast<const std::string&>(to_json()["start_time"]));
+    return Timestamp::parse(static_cast<const std::string&>(to_json()["start_time"]));
   }
 
   /// Returns the connection timeout.
@@ -378,7 +379,7 @@ class BranchQueriedEventInfo : public BranchEventInfo {
   /// \returns The connection timeout.
   Duration timeout() const {
     float val = to_json()["timeout"];
-    return val < 0 ? Duration::kInfinity : Duration::FromSeconds(val);
+    return val < 0 ? Duration::kInf : Duration::from_seconds(val);
   }
 
   /// Returns true if the branch is in ghost mode.
@@ -777,11 +778,11 @@ class Branch : public ObjectT<Branch> {
       std::unordered_map<Uuid, RemoteBranchInfo> branches;
     } data;
 
-    internal::query_string([&](auto str, auto size) {
+    detail::query_string([&](auto str, auto size) {
       data.str = str;
       data.branches.clear();
 
-      return internal::YOGI_BranchGetConnectedBranches(
+      return detail::YOGI_BranchGetConnectedBranches(
           this->handle(), &data.uuid, str, size,
           [](int res, void* userarg) {
             if (res == static_cast<int>(ErrorCode::kOk)) {
@@ -826,7 +827,7 @@ class Branch : public ObjectT<Branch> {
     data->fn  = fn;
     data->json.resize(static_cast<std::size_t>(buffer_size));
 
-    int res = internal::YOGI_Branchawait_event_async(
+    int res = detail::YOGI_BranchAwaitEventAsync(
         handle(), static_cast<int>(events), &data->uuid, data->json.data(), buffer_size,
         [](int res, int event, int ev_res, void* userarg) {
           auto data = std::unique_ptr<CallbackData>(static_cast<CallbackData*>(userarg));
@@ -863,7 +864,7 @@ class Branch : public ObjectT<Branch> {
         },
         data.get());
 
-    internal::check_error_code(res);
+    detail::check_error_code(res);
     data.release();
   }
 
@@ -874,8 +875,8 @@ class Branch : public ObjectT<Branch> {
   ///
   /// \return True if the wait operation was cancelled successfully.
   bool cancel_await_event() {
-    int res = internal::YOGI_BranchCancelAwaitEvent(handle());
-    return internal::false_if_specific_error_else_throw(res, ErrorCode::kOperationNotRunning);
+    int res = detail::YOGI_BranchCancelAwaitEvent(handle());
+    return detail::false_if_specific_error_else_throw(res, ErrorCode::kOperationNotRunning);
   }
 
   /// Sends a broadcast message to all connected branches.
@@ -902,13 +903,13 @@ class Branch : public ObjectT<Branch> {
   ///
   /// \return _true_ if the message was successfully put into all send buffers.
   bool send_broadcast(const PayloadView& payload, bool block = true) {
-    int res = internal::YOGI_Branchsend_broadcast(handle(), static_cast<int>(payload.encoding()), payload.data(),
-                                                  payload.size(), block ? 1 : 0);
+    int res = detail::YOGI_BranchSendBroadcast(handle(), static_cast<int>(payload.encoding()), payload.data(),
+                                               payload.size(), block ? 1 : 0);
 
     if (res == static_cast<int>(ErrorCode::kTxQueueFull)) {
       return false;
     } else {
-      internal::check_error_code(res);
+      detail::check_error_code(res);
       return true;
     }
   }
@@ -949,20 +950,20 @@ class Branch : public ObjectT<Branch> {
     auto data = std::make_unique<CallbackData>();
     data->fn  = fn;
 
-    int res = internal::YOGI_BranchSendBroadcastAsync(
+    int res = detail::YOGI_BranchSendBroadcastAsync(
         handle(), static_cast<int>(payload.encoding()), payload.data(), payload.size(), retry ? 1 : 0,
         [](int res, int oid, void* userarg) {
           auto data = std::unique_ptr<CallbackData>(static_cast<CallbackData*>(userarg));
           if (!data->fn) return;
 
-          internal::with_error_code_to_result(res, data->fn, internal::MakeOperationId(oid));
+          detail::with_error_code_to_result(res, data->fn, detail::make_operation_id(oid));
         },
         data.get());
 
-    internal::check_error_code(res);
+    detail::check_error_code(res);
     data.release();
 
-    return internal::MakeOperationId(res);
+    return detail::make_operation_id(res);
   }
 
   /// Sends a broadcast message to all connected branches.
@@ -1008,8 +1009,8 @@ class Branch : public ObjectT<Branch> {
   ///
   /// \returns True if the operation has been canceled successfully.
   bool cancel_send_broadcast(OperationId oid) {
-    int res = internal::YOGI_BranchCancelsend_broadcast(handle(), oid.Value());
-    return internal::false_if_specific_error_else_throw(res, ErrorCode::kInvalidOperationId);
+    int res = detail::YOGI_BranchCancelSendBroadcast(handle(), oid.value());
+    return detail::false_if_specific_error_else_throw(res, ErrorCode::kInvalidOperationId);
   }
 
   /// Receives a broadcast message from any of the connected branches.
@@ -1072,7 +1073,7 @@ class Branch : public ObjectT<Branch> {
   ///
   /// \param enc Encoding to use for the received payload.
   /// \param fn  Handler to call for the received broadcast message.
-  void receive_broadcast_async(EncodingType enc, ReceiveBroadcastFn fn) {
+  void receive_broadcast_async(Encoding enc, ReceiveBroadcastFn fn) {
     auto buffer = std::make_unique<Buffer>(constants::kMaxMessagePayloadSize);
     receive_broadcast_async(enc, std::move(buffer), fn);
   }
@@ -1107,7 +1108,7 @@ class Branch : public ObjectT<Branch> {
   /// \param buffer Buffer to use for receiving the payload.
   /// \param fn     Handler to call for the received broadcast message.
   void receive_broadcast_async(BufferPtr&& buffer, ReceiveBroadcastFn fn) {
-    receive_broadcast_async(EncodingType::kMsgpack, std::move(buffer), fn);
+    receive_broadcast_async(Encoding::kMsgpack, std::move(buffer), fn);
   }
 
   /// Receives a broadcast message from any of the connected branches.
@@ -1140,12 +1141,12 @@ class Branch : public ObjectT<Branch> {
   /// \param enc    Encoding to use for the received payload.
   /// \param buffer Buffer to use for receiving the payload.
   /// \param fn     Handler to call for the received broadcast message.
-  void receive_broadcast_async(EncodingType enc, BufferPtr&& buffer, ReceiveBroadcastFn fn) {
+  void receive_broadcast_async(Encoding enc, BufferPtr&& buffer, ReceiveBroadcastFn fn) {
     struct CallbackData {
       ReceiveBroadcastFn fn;
       Uuid uuid;
       BufferPtr buffer;
-      EncodingType enc;
+      Encoding enc;
     };
 
     auto data    = std::make_unique<CallbackData>();
@@ -1153,7 +1154,7 @@ class Branch : public ObjectT<Branch> {
     data->buffer = std::move(buffer);
     data->enc    = enc;
 
-    int res = internal::YOGI_BranchReceiveBroadcastAsync(
+    int res = detail::YOGI_BranchReceiveBroadcastAsync(
         handle(), &data->uuid, static_cast<int>(enc), data->buffer->data(), static_cast<int>(data->buffer->size()),
         [](int res, int size, void* userarg) {
           auto data = std::unique_ptr<CallbackData>(static_cast<CallbackData*>(userarg));
@@ -1164,11 +1165,11 @@ class Branch : public ObjectT<Branch> {
             payload = PayloadView(data->buffer->data(), size, data->enc);
           }
 
-          internal::with_error_code_to_result(res, data->fn, data->uuid, payload, std::move(data->buffer));
+          detail::with_error_code_to_result(res, data->fn, data->uuid, payload, std::move(data->buffer));
         },
         data.get());
 
-    internal::check_error_code(res);
+    detail::check_error_code(res);
     data.release();
   }
 
@@ -1232,7 +1233,7 @@ class Branch : public ObjectT<Branch> {
   ///
   /// \param enc Encoding to use for the received payload.
   /// \param fn  Handler to call for the received broadcast message.
-  void receive_broadcast_async(EncodingType enc, ReceiveBroadcastSimpleFn fn) {
+  void receive_broadcast_async(Encoding enc, ReceiveBroadcastSimpleFn fn) {
     auto buffer = std::make_unique<Buffer>(constants::kMaxMessagePayloadSize);
     receive_broadcast_async(enc, std::move(buffer), fn);
   }
@@ -1267,7 +1268,7 @@ class Branch : public ObjectT<Branch> {
   /// \param buffer Buffer to use for receiving the payload.
   /// \param fn     Handler to call for the received broadcast message.
   void receive_broadcast_async(BufferPtr&& buffer, ReceiveBroadcastSimpleFn fn) {
-    receive_broadcast_async(EncodingType::kMsgpack, std::move(buffer), fn);
+    receive_broadcast_async(Encoding::kMsgpack, std::move(buffer), fn);
   }
 
   /// Receives a broadcast message from any of the connected branches.
@@ -1300,7 +1301,7 @@ class Branch : public ObjectT<Branch> {
   /// \param enc    Encoding to use for the received payload.
   /// \param buffer Buffer to use for receiving the payload.
   /// \param fn     Handler to call for the received broadcast message.
-  void receive_broadcast_async(EncodingType enc, BufferPtr&& buffer, ReceiveBroadcastSimpleFn fn) {
+  void receive_broadcast_async(Encoding enc, BufferPtr&& buffer, ReceiveBroadcastSimpleFn fn) {
     receive_broadcast_async(enc, std::move(buffer),
                             [=](auto& res, auto& source, auto& payload, auto&&) { fn(res, source, payload); });
   }
@@ -1316,37 +1317,37 @@ class Branch : public ObjectT<Branch> {
   ///
   /// \returns True if the operation was canceled successfully.
   bool cancel_receive_broadcast() {
-    int res = internal::YOGI_BranchCancelReceiveBroadcast(handle());
-    return internal::false_if_specific_error_else_throw(res, ErrorCode::kOperationNotRunning);
+    int res = detail::YOGI_BranchCancelReceiveBroadcast(handle());
+    return detail::false_if_specific_error_else_throw(res, ErrorCode::kOperationNotRunning);
   }
 
  private:
   Branch(ContextPtr context, const ConfigurationPtr& config, const StringView& section)
-      : ObjectT(internal::call_api_create_with_descriptive_error_code(
-                    internal::YOGI_BranchCreate, get_foreign_handle(context), get_foreign_handle(config), section),
+      : ObjectT(detail::call_api_create(detail::YOGI_BranchCreate, get_foreign_handle(context),
+                                        get_foreign_handle(config), section),
                 {context}),
         info_(query_info()) {
   }
 
   LocalBranchInfo query_info() {
     Uuid uuid;
-    auto json = internal::query_string(
-        [&](auto str, auto size) { return internal::YOGI_BranchGetInfo(this->handle(), &uuid, str, size); });
+    auto json = detail::query_string(
+        [&](auto str, auto size) { return detail::YOGI_BranchGetInfo(this->handle(), &uuid, str, size); });
 
     return LocalBranchInfo(uuid, std::move(json));
   }
 
   template <typename EventInfo, typename CallbackData>
   static void call_await_event_fn(int res, BranchEvents be, int ev_res, CallbackData&& data) {
-    internal::with_error_code_to_result(res, [&](const auto& result) {
+    detail::with_error_code_to_result(res, [&](const auto& result) {
       if (result) {
         EventInfo info(data->uuid, data->json.data());
-        internal::with_error_code_to_result(ev_res,
-                                            [&](const auto& ev_result) { data->fn(result, be, ev_result, info); });
+        detail::with_error_code_to_result(ev_res,
+                                          [&](const auto& ev_result) { data->fn(result, be, ev_result, info); });
       } else {
         BranchEventInfo info;
-        internal::with_error_code_to_result(ev_res,
-                                            [&](const auto& ev_result) { data->fn(result, be, ev_result, info); });
+        detail::with_error_code_to_result(ev_res,
+                                          [&](const auto& ev_result) { data->fn(result, be, ev_result, info); });
       }
     });
   }

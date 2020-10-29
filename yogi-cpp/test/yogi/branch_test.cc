@@ -19,58 +19,200 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "../common.h"
+#include <test/common.h>
 
 #include <yogi_core.h>
 
-class BranchTest : public testing::Test {
- protected:
-  BranchTest()
-      : context_(yogi::Context::create()),
-        json_view_(json_data_),
-        big_json_data_(make_big_json_data()),
-        big_json_view_(big_json_data_),
-        msgpack_view_(msgpack_data_, sizeof(msgpack_data_)) {
+#include <chrono>
+using namespace std::chrono_literals;
+
+#define MAKE_CTORS_PUBLIC(cls, new_cls)                          \
+  class new_cls : public cls {                                   \
+   public:                                                       \
+    template <typename... Args>                                  \
+    new_cls(Args&&... args) : cls(std::forward<Args>(args)...) { \
+    }                                                            \
   }
 
-  static std::vector<char> make_big_json_data(std::size_t size = 10000) {
-    std::vector<char> data{'[', '"', '"', ']', '\0'};
-    data.insert(data.begin() + 2, size - data.size(), '.');
-    return data;
-  }
+MAKE_CTORS_PUBLIC(yogi::BranchInfo, TestBranchInfo);
+MAKE_CTORS_PUBLIC(yogi::RemoteBranchInfo, TestRemoteBranchInfo);
+MAKE_CTORS_PUBLIC(yogi::LocalBranchInfo, TestLocalBranchInfo);
+MAKE_CTORS_PUBLIC(yogi::BranchEventInfo, TestBranchEventInfo);
+MAKE_CTORS_PUBLIC(yogi::BranchDiscoveredEventInfo, TestBranchDiscoveredEventInfo);
+MAKE_CTORS_PUBLIC(yogi::BranchQueriedEventInfo, TestBranchQueriedEventInfo);
+MAKE_CTORS_PUBLIC(yogi::ConnectFinishedEventInfo, TestConnectFinishedEventInfo);
+MAKE_CTORS_PUBLIC(yogi::ConnectionLostEventInfo, TestConnectionLostEventInfo);
 
-  yogi::ContextPtr context_;
-  const char json_data_[8] = "[1,2,3]";
-  const yogi::JsonView json_view_;
-  const std::vector<char> big_json_data_;
-  const yogi::JsonView big_json_view_;
-  const char msgpack_data_[4] = {-109, 1, 2, 3};
-  const yogi::MsgpackView msgpack_view_;
-};
+class BranchTest : public Test {};
 
+TEST_F(BranchTest, BranchInfo) {
+  yogi::Uuid uuid = {};
+  uuid.data()[0]  = 123;
+
+  auto json = R"({
+    "name":                 "foo",
+    "description":          "bar",
+    "network_name":         "local",
+    "path":                 "/test",
+    "hostname":             "localhost",
+    "pid":                  12345,
+    "advertising_interval": 5.5,
+    "tcp_server_port":      10000,
+    "start_time":           "foobar",
+    "timeout":              3.5,
+    "ghost_mode":           true
+  })";
+
+  TestBranchInfo info(uuid, json);
+
+  MOCK_ParseTime([](long long* timestamp, const char* str, const char* timefmt) {
+    EXPECT_NE(timestamp, nullptr);
+    EXPECT_STREQ(str, "foobar");
+    EXPECT_EQ(timefmt, nullptr);
+    *timestamp = 1234356789123000000ll;
+    return YOGI_OK;
+  });
+
+  EXPECT_EQ(info.uuid(), uuid);
+  EXPECT_EQ(info.to_string(), json);
+  EXPECT_EQ(info.to_json(), yogi::Json::parse(json));
+  EXPECT_EQ(info.name(), "foo");
+  EXPECT_EQ(info.description(), "bar");
+  EXPECT_EQ(info.network_name(), "local");
+  EXPECT_EQ(info.path(), "/test");
+  EXPECT_EQ(info.hostname(), "localhost");
+  EXPECT_EQ(info.pid(), 12345);
+  EXPECT_FLOAT_EQ(info.advertising_interval().total_seconds(), 5.5);
+  EXPECT_EQ(info.tcp_server_port(), 10000);
+  EXPECT_EQ(info.start_time().duration_since_epoch(), 1234356789123000000ns);
+  EXPECT_FLOAT_EQ(info.timeout().total_seconds(), 3.5);
+  EXPECT_EQ(info.ghost_mode(), true);
+}
+
+TEST_F(BranchTest, RemoteBranchInfo) {
+  yogi::Uuid uuid = {};
+  uuid.data()[0]  = 123;
+
+  TestRemoteBranchInfo info(uuid, R"({
+    "tcp_server_address": "1.2.3.4"
+  })");
+
+  EXPECT_EQ(info.uuid(), uuid);
+  EXPECT_EQ(info.tcp_server_address(), "1.2.3.4");
+}
+
+TEST_F(BranchTest, LocalBranchInfo) {
+  yogi::Uuid uuid = {};
+  uuid.data()[0]  = 123;
+
+  TestLocalBranchInfo info(uuid, R"({
+    "advertising_address": "1.2.3.4",
+    "advertising_port":    5555,
+    "tx_queue_size":       6666,
+    "rx_queue_size":       7777
+  })");
+
+  EXPECT_EQ(info.uuid(), uuid);
+  EXPECT_EQ(info.advertising_address(), "1.2.3.4");
+  EXPECT_EQ(info.advertising_port(), 5555);
+  EXPECT_EQ(info.tx_queue_size(), 6666);
+  EXPECT_EQ(info.rx_queue_size(), 7777);
+}
+
+TEST_F(BranchTest, BranchEventInfo) {
+  yogi::Uuid uuid = {};
+  uuid.data()[0]  = 123;
+
+  auto json = R"({
+  })";
+
+  TestBranchEventInfo info(uuid, json);
+
+  EXPECT_EQ(info.uuid(), uuid);
+  EXPECT_EQ(info.to_string(), json);
+  EXPECT_EQ(info.to_json(), yogi::Json::parse(json));
+}
+
+TEST_F(BranchTest, BranchDiscoveredEventInfo) {
+  yogi::Uuid uuid = {};
+  uuid.data()[0]  = 123;
+
+  TestBranchDiscoveredEventInfo info(uuid, R"({
+    "tcp_server_address": "1.2.3.4",
+    "tcp_server_port":    10000
+  })");
+
+  EXPECT_EQ(info.uuid(), uuid);
+  EXPECT_EQ(info.tcp_server_address(), "1.2.3.4");
+  EXPECT_EQ(info.tcp_server_port(), 10000);
+}
+
+TEST_F(BranchTest, BranchQueriedEventInfo) {
+  yogi::Uuid uuid = {};
+  uuid.data()[0]  = 123;
+
+  TestBranchQueriedEventInfo info(uuid, R"({
+    "name":                 "foo",
+    "description":          "bar",
+    "network_name":         "local",
+    "path":                 "/test",
+    "hostname":             "localhost",
+    "pid":                  12345,
+    "advertising_interval": 5.5,
+    "tcp_server_address":   "1.2.3.4",
+    "tcp_server_port":      10000,
+    "start_time":           "foobar",
+    "timeout":              3.5,
+    "ghost_mode":           true
+  })");
+
+  MOCK_ParseTime([](long long* timestamp, const char* str, const char* timefmt) {
+    EXPECT_NE(timestamp, nullptr);
+    EXPECT_STREQ(str, "foobar");
+    EXPECT_EQ(timefmt, nullptr);
+    *timestamp = 1234356789123000000ll;
+    return YOGI_OK;
+  });
+
+  EXPECT_EQ(info.uuid(), uuid);
+  EXPECT_EQ(info.name(), "foo");
+  EXPECT_EQ(info.description(), "bar");
+  EXPECT_EQ(info.network_name(), "local");
+  EXPECT_EQ(info.path(), "/test");
+  EXPECT_EQ(info.hostname(), "localhost");
+  EXPECT_EQ(info.pid(), 12345);
+  EXPECT_FLOAT_EQ(info.advertising_interval().total_seconds(), 5.5);
+  EXPECT_EQ(info.tcp_server_address(), "1.2.3.4");
+  EXPECT_EQ(info.tcp_server_port(), 10000);
+  EXPECT_EQ(info.start_time().duration_since_epoch(), 1234356789123000000ns);
+  EXPECT_FLOAT_EQ(info.timeout().total_seconds(), 3.5);
+  EXPECT_EQ(info.ghost_mode(), true);
+}
+
+TEST_F(BranchTest, ConnectFinishedEventInfo) {
+  yogi::Uuid uuid = {};
+  uuid.data()[0]  = 123;
+
+  TestConnectFinishedEventInfo info(uuid, R"({
+  })");
+
+  EXPECT_EQ(info.uuid(), uuid);
+}
+
+TEST_F(BranchTest, ConnectionLostEventInfo) {
+  yogi::Uuid uuid = {};
+  uuid.data()[0]  = 123;
+
+  TestConnectionLostEventInfo info(uuid, R"({
+  })");
+
+  EXPECT_EQ(info.uuid(), uuid);
+}
+
+/*
 TEST_F(BranchTest, CreateWithSubSection) {
   auto branch = yogi::Branch::create(context_, "{\"branch\":{\"name\":\"Cow\"}}", "/branch");
   EXPECT_EQ(branch->name(), "Cow");
-}
-
-TEST_F(BranchTest, BranchEventsEnum) {
-  // clang-format off
-  CHECK_ENUM_ELEMENT(BranchEvents, kNone,             YOGI_BEV_NONE);
-  CHECK_ENUM_ELEMENT(BranchEvents, kBranchDiscovered, YOGI_BEV_BRANCH_DISCOVERED);
-  CHECK_ENUM_ELEMENT(BranchEvents, kBranchQueried,    YOGI_BEV_BRANCH_QUERIED);
-  CHECK_ENUM_ELEMENT(BranchEvents, kConnectFinished,  YOGI_BEV_CONNECT_FINISHED);
-  CHECK_ENUM_ELEMENT(BranchEvents, kConnectionLost,   YOGI_BEV_CONNECTION_LOST);
-  CHECK_ENUM_ELEMENT(BranchEvents, kAll,              YOGI_BEV_ALL);
-  // clang-format on
-
-  auto events = yogi::BranchEvents::kNone;
-  EXPECT_EQ(yogi::to_string(events), "kNone");
-  events = events | yogi::BranchEvents::kBranchDiscovered;
-  EXPECT_EQ(yogi::to_string(events), "kBranchDiscovered");
-  events |= yogi::BranchEvents::kConnectFinished;
-  EXPECT_EQ(yogi::to_string(events), "kBranchDiscovered | kConnectFinished");
-  events |= yogi::BranchEvents::kAll;
-  EXPECT_EQ(yogi::to_string(events), "kAll");
 }
 
 TEST_F(BranchTest, Info) {
@@ -91,32 +233,32 @@ TEST_F(BranchTest, Info) {
 
   EXPECT_NE(info.uuid(), yogi::Uuid{});
   EXPECT_EQ(info.name(), "My Branch");
-  EXPECT_EQ(info.get_description(), "Stuff");
-  EXPECT_EQ(info.get_network_name(), "My Network");
+  EXPECT_EQ(info.description(), "Stuff");
+  EXPECT_EQ(info.network_name(), "My Network");
   EXPECT_EQ(info.path(), "/some/path");
   EXPECT_FALSE(info.hostname().empty());
   EXPECT_GT(info.pid(), 0);
   EXPECT_EQ(info.advertising_address(), "239.255.0.1");
   EXPECT_EQ(info.advertising_port(), 12345);
   EXPECT_EQ(info.advertising_interval(), yogi::Duration::from_seconds(7));
-  EXPECT_GT(info.get_tcp_server_port(), 0);
-  EXPECT_LT(info.start_time(), yogi::current_time());
-  EXPECT_EQ(info.timeout(), yogi::Duration::kInfinity);
+  EXPECT_GT(info.tcp_server_port(), 0);
+  EXPECT_LT(info.start_time(), yogi::Timestamp::now());
+  EXPECT_EQ(info.timeout(), yogi::Duration::kInf);
   EXPECT_FALSE(info.ghost_mode());
   EXPECT_GT(info.tx_queue_size(), 1000);
   EXPECT_GT(info.rx_queue_size(), 1000);
 
   EXPECT_EQ(branch->uuid(), info.uuid());
   EXPECT_EQ(branch->name(), info.name());
-  EXPECT_EQ(branch->get_description(), info.get_description());
-  EXPECT_EQ(branch->get_network_name(), info.get_network_name());
+  EXPECT_EQ(branch->description(), info.description());
+  EXPECT_EQ(branch->network_name(), info.network_name());
   EXPECT_EQ(branch->path(), info.path());
   EXPECT_EQ(branch->hostname(), info.hostname());
   EXPECT_EQ(branch->pid(), info.pid());
   EXPECT_EQ(branch->advertising_address(), info.advertising_address());
   EXPECT_EQ(branch->advertising_port(), info.advertising_port());
   EXPECT_EQ(branch->advertising_interval(), info.advertising_interval());
-  EXPECT_EQ(branch->get_tcp_server_port(), info.get_tcp_server_port());
+  EXPECT_EQ(branch->tcp_server_port(), info.tcp_server_port());
   EXPECT_EQ(branch->start_time(), info.start_time());
   EXPECT_EQ(branch->timeout(), info.timeout());
   EXPECT_EQ(branch->ghost_mode(), info.ghost_mode());
@@ -152,12 +294,12 @@ TEST_F(BranchTest, AwaitEventAsync) {
   auto events = yogi::BranchEvents::kBranchQueried | yogi::BranchEvents::kConnectionLost;
   bool called = false;
   branch->await_event_async(events, [&](auto& res, auto event, auto& evres, auto& info) {
-    EXPECT_NO_THROW(dynamic_cast<const yogi::Success&>(res));
+    EXPECT_NE(dynamic_cast<const yogi::Success*>(&res), nullptr);
     EXPECT_EQ(res.error_code(), yogi::ErrorCode::kOk);
     EXPECT_EQ(event, yogi::BranchEvents::kBranchQueried);
-    EXPECT_NO_THROW(dynamic_cast<const yogi::Success&>(evres));
+    EXPECT_NE(dynamic_cast<const yogi::Success*>(&evres), nullptr);
     EXPECT_EQ(evres.error_code(), yogi::ErrorCode::kOk);
-    EXPECT_NO_THROW(dynamic_cast<const yogi::BranchQueriedEventInfo&>(info));
+    EXPECT_NE(dynamic_cast<const yogi::BranchQueriedEventInfo*>(&info), nullptr);
     EXPECT_EQ(static_cast<const yogi::BranchQueriedEventInfo&>(info).start_time(), branch_a->start_time());
     EXPECT_EQ(static_cast<const yogi::BranchQueriedEventInfo&>(info).timeout(), branch_a->timeout());
     EXPECT_EQ(info.to_json(), yogi::Json::parse(info.to_string()));
@@ -176,10 +318,10 @@ TEST_F(BranchTest, CancelAwaitEvent) {
 
   bool called = false;
   branch->await_event_async(yogi::BranchEvents::kAll, [&](auto& res, auto event, auto& evres, auto&) {
-    EXPECT_NO_THROW(dynamic_cast<const yogi::Failure&>(res));
+    EXPECT_NE(dynamic_cast<const yogi::Failure*>(&res), nullptr);
     EXPECT_EQ(res.error_code(), yogi::ErrorCode::kCanceled);
     EXPECT_EQ(event, yogi::BranchEvents::kNone);
-    EXPECT_NO_THROW(dynamic_cast<const yogi::Success&>(evres));
+    EXPECT_NE(dynamic_cast<const yogi::Success*>(&evres), nullptr);
     EXPECT_EQ(evres.error_code(), yogi::ErrorCode::kOk);
     called = true;
   });
@@ -197,7 +339,7 @@ TEST_F(BranchTest, SendBroadcast) {
 
   // Receive a broadcast to verify that it has actually been sent
   bool broadcast_received = false;
-  branch_b->receive_broadcast_async(yogi::EncodingType::kJson, [&](auto& res, auto&, auto& payload) {
+  branch_b->receive_broadcast_async(yogi::Encoding::kJson, [&](auto& res, auto&, auto& payload) {
     EXPECT_EQ(res, yogi::Success());
     EXPECT_EQ(payload, big_json_view_);
     broadcast_received = true;
@@ -226,7 +368,7 @@ TEST_F(BranchTest, SendBroadcastAsync) {
 
   // Receive a broadcast to verify that it has actually been sent
   bool broadcast_received = false;
-  branch_b->receive_broadcast_async(yogi::EncodingType::kJson, [&](auto& res, auto&, auto& payload) {
+  branch_b->receive_broadcast_async(yogi::Encoding::kJson, [&](auto& res, auto&, auto& payload) {
     EXPECT_EQ(res, yogi::Success());
     EXPECT_EQ(payload, big_json_view_);
     broadcast_received = true;
@@ -312,7 +454,7 @@ TEST_F(BranchTest, ReceiveBroadcast) {
 
   // With encoding
   called = false;
-  branch_a->receive_broadcast_async(yogi::EncodingType::kJson, [&](auto& res, auto&, auto& payload) {
+  branch_a->receive_broadcast_async(yogi::Encoding::kJson, [&](auto& res, auto&, auto& payload) {
     EXPECT_EQ(res, yogi::Success());
     EXPECT_EQ(payload, json_view_);
     called = true;
@@ -323,7 +465,7 @@ TEST_F(BranchTest, ReceiveBroadcast) {
 
   // With encoding and with buffer in handler function
   called = false;
-  branch_a->receive_broadcast_async(yogi::EncodingType::kJson, [&](auto& res, auto&, auto& payload, auto&& buffer) {
+  branch_a->receive_broadcast_async(yogi::Encoding::kJson, [&](auto& res, auto&, auto& payload, auto&& buffer) {
     EXPECT_EQ(res, yogi::Success());
     EXPECT_EQ(payload, json_view_);
     EXPECT_GE(buffer->size(), static_cast<std::size_t>(yogi::constants::kMaxMessagePayloadSize));
@@ -361,7 +503,7 @@ TEST_F(BranchTest, ReceiveBroadcast) {
   // With custom buffer and encoding
   buffer = std::make_unique<yogi::Buffer>(123);
   called = false;
-  branch_a->receive_broadcast_async(yogi::EncodingType::kJson, std::move(buffer), [&](auto& res, auto&, auto& payload) {
+  branch_a->receive_broadcast_async(yogi::Encoding::kJson, std::move(buffer), [&](auto& res, auto&, auto& payload) {
     EXPECT_EQ(res, yogi::Success());
     EXPECT_EQ(payload, json_view_);
     called = true;
@@ -373,7 +515,7 @@ TEST_F(BranchTest, ReceiveBroadcast) {
   // With custom buffer and encoding and buffer in handler function
   buffer = std::make_unique<yogi::Buffer>(123);
   called = false;
-  branch_a->receive_broadcast_async(yogi::EncodingType::kJson, std::move(buffer),
+  branch_a->receive_broadcast_async(yogi::Encoding::kJson, std::move(buffer),
                                     [&](auto& res, auto&, auto& payload, auto&& buffer) {
                                       EXPECT_EQ(res, yogi::Success());
                                       EXPECT_EQ(payload, json_view_);
@@ -400,3 +542,4 @@ TEST_F(BranchTest, CancelReceiveBroadcast) {
   context_->poll();
   EXPECT_TRUE(called);
 }
+*/

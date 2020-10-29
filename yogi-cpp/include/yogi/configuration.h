@@ -62,6 +62,18 @@ class Configuration : public ObjectT<Configuration> {
     return ConfigurationPtr(new Configuration(flags));
   }
 
+  /// Creates a configuration from JSON.
+  ///
+  /// \param json  JSON to use initially.
+  /// \param flags Flags for behaviour adjustments.
+  ///
+  /// \returns The created configuration.
+  static ConfigurationPtr create(const JsonView& json, ConfigurationFlags flags = ConfigurationFlags::kNone) {
+    auto config = create(flags);
+    config->update_from_json(json);
+    return config;
+  }
+
   /// Returns the flags set for the configuration.
   ///
   /// \return Flags set for the configuration.

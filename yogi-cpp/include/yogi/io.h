@@ -32,7 +32,7 @@
 
 namespace yogi {
 
-_YOGI_DEFINE_SFINAE_METHOD_TESTER(HasToStringMethod, .to_string() == std::string())
+_YOGI_DEFINE_SFINAE_METHOD_TESTER(has_to_string_method, .to_string() == std::string())
 
 /// \addtogroup freefn
 /// @{
@@ -46,7 +46,7 @@ _YOGI_DEFINE_SFINAE_METHOD_TESTER(HasToStringMethod, .to_string() == std::string
 /// \returns Human-readable string name or description of the object.
 template <typename T>
 inline std::string to_string(T printable) {
-  static_assert(internal::HasToStringMethod<T>::value, "T has no usable to_string() method.");
+  static_assert(detail::has_to_string_method<T>::value, "T has no usable to_string() method.");
 
   return printable.to_string();
 }

@@ -27,6 +27,8 @@ using namespace yogi;
 
 #include <gtest/gtest.h>
 
+#include <initializer_list>
+
 class Test : public testing::Test {
  public:
   Test();
