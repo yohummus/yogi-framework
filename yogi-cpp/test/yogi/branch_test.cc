@@ -209,12 +209,139 @@ TEST_F(BranchTest, ConnectionLostEventInfo) {
   EXPECT_EQ(info.uuid(), uuid);
 }
 
-/*
-TEST_F(BranchTest, CreateWithSubSection) {
-  auto branch = yogi::Branch::create(context_, "{\"branch\":{\"name\":\"Cow\"}}", "/branch");
-  EXPECT_EQ(branch->name(), "Cow");
+TEST_F(BranchTest, CreateFromConfiguration) {
+  auto context = create_context();
+  auto config  = create_configuration();
+
+  MOCK_BranchCreate([](void** branch, void* context, void* config, const char* section) {
+    EXPECT_NE(branch, nullptr);
+    EXPECT_EQ(context, kPointer);
+    EXPECT_EQ(config, kPointer);
+    EXPECT_STREQ(section, "bar");
+    *branch = kPointer;
+    return YOGI_OK;
+  });
+
+  MOCK_BranchGetInfo([](void* branch, void* uuid, char* json, int jsonsize) {
+    EXPECT_EQ(branch, kPointer);
+    EXPECT_NE(uuid, nullptr);
+    EXPECT_NE(json, nullptr);
+    EXPECT_GT(jsonsize, 100);
+    strcpy(json, "{}");
+    return YOGI_OK;
+  });
+
+  auto branch = yogi::Branch::create(context, config, "bar");
 }
 
+TEST_F(BranchTest, CreateFromJson) {
+  auto context = create_context();
+
+  MOCK_ConfigurationCreate([](void** config, int) {
+    *config = kPointer;
+    return YOGI_OK;
+  });
+
+  MOCK_ConfigurationUpdateFromJson([](void* config, const char* json) {
+    EXPECT_EQ(config, kPointer);
+    EXPECT_STREQ(json, "foo");
+    return YOGI_OK;
+  });
+
+  MOCK_BranchCreate([](void** branch, void* context, void* config, const char* section) {
+    EXPECT_NE(branch, nullptr);
+    EXPECT_EQ(context, kPointer);
+    EXPECT_EQ(config, kPointer);
+    EXPECT_STREQ(section, "bar");
+    *branch = kPointer;
+    return YOGI_OK;
+  });
+
+  MOCK_BranchGetInfo([](void* branch, void* uuid, char* json, int jsonsize) {
+    EXPECT_EQ(branch, kPointer);
+    EXPECT_NE(uuid, nullptr);
+    EXPECT_NE(json, nullptr);
+    EXPECT_GT(jsonsize, 100);
+    strcpy(json, "{}");
+    return YOGI_OK;
+  });
+
+  auto branch = yogi::Branch::create(context, "foo", "bar");
+}
+
+TEST_F(BranchTest, Info) {
+  auto context = create_context();
+  auto config  = create_configuration();
+
+  MOCK_BranchCreate([](void** branch, void* context, void* config, const char* section) {
+    EXPECT_NE(branch, nullptr);
+    EXPECT_EQ(context, kPointer);
+    EXPECT_EQ(config, kPointer);
+    EXPECT_STREQ(section, "bar");
+    *branch = kPointer;
+    return YOGI_OK;
+  });
+
+  MOCK_BranchGetInfo([](void* branch, void* uuid, char* json, int jsonsize) {
+    EXPECT_EQ(branch, kPointer);
+    EXPECT_NE(uuid, nullptr);
+    EXPECT_NE(json, nullptr);
+
+    auto json_str = R"({
+      "name":                 "foo",
+      "description":          "bar",
+      "network_name":         "local",
+      "path":                 "/test",
+      "hostname":             "localhost",
+      "pid":                  12345,
+      "advertising_interval": 5.5,
+      "advertising_address":  "1.2.3.4",
+      "advertising_port":     5555,
+      "tcp_server_address":   "1.2.3.4",
+      "tcp_server_port":      10000,
+      "tx_queue_size":        6666,
+      "rx_queue_size":        7777,
+      "start_time":           "foobar",
+      "timeout":              3.5,
+      "ghost_mode":           true
+    })";
+
+    if (jsonsize < static_cast<int>(strlen(json_str))) return YOGI_ERR_BUFFER_TOO_SMALL;
+    strcpy(json, json_str);
+
+    return YOGI_OK;
+  });
+
+  MOCK_ParseTime([](long long* timestamp, const char* str, const char* timefmt) {
+    EXPECT_NE(timestamp, nullptr);
+    EXPECT_STREQ(str, "foobar");
+    EXPECT_EQ(timefmt, nullptr);
+    *timestamp = 1234356789123000000ll;
+    return YOGI_OK;
+  });
+
+  auto branch = yogi::Branch::create(context, config, "bar");
+  EXPECT_EQ(branch->info().name(), "foo");
+
+  EXPECT_NE(branch->uuid(), yogi::Uuid{});
+  EXPECT_EQ(branch->name(), "foo");
+  EXPECT_EQ(branch->description(), "bar");
+  EXPECT_EQ(branch->network_name(), "local");
+  EXPECT_EQ(branch->path(), "/test");
+  EXPECT_EQ(branch->hostname(), "localhost");
+  EXPECT_EQ(branch->pid(), 12345);
+  EXPECT_FLOAT_EQ(branch->advertising_interval().total_seconds(), 5.5);
+  EXPECT_EQ(branch->advertising_address(), "1.2.3.4");
+  EXPECT_EQ(branch->advertising_port(), 5555);
+  EXPECT_EQ(branch->tcp_server_port(), 10000);
+  EXPECT_EQ(branch->tx_queue_size(), 6666);
+  EXPECT_EQ(branch->rx_queue_size(), 7777);
+  EXPECT_EQ(branch->start_time().duration_since_epoch(), 1234356789123000000ns);
+  EXPECT_FLOAT_EQ(branch->timeout().total_seconds(), 3.5);
+  EXPECT_EQ(branch->ghost_mode(), true);
+}
+
+/*
 TEST_F(BranchTest, Info) {
   auto branch = yogi::Branch::create(context_, R"raw({
     "name": "My Branch",
