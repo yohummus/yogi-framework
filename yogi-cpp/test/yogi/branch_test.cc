@@ -341,79 +341,46 @@ TEST_F(BranchTest, Info) {
   EXPECT_EQ(branch->ghost_mode(), true);
 }
 
-/*
-TEST_F(BranchTest, Info) {
-  auto branch = yogi::Branch::create(context_, R"raw({
-    "name": "My Branch",
-    "description": "Stuff",
-    "network_name": "My Network",
-    "network_password": "Password",
-    "path": "/some/path",
-    "advertising_address": "239.255.0.1",
-    "advertising_port": 12345,
-    "advertising_interval": 7,
-    "timeout": -1
-    })raw");
-
-  auto info = branch->info();
-  EXPECT_EQ(info.to_json(), yogi::Json::parse(info.to_string()));
-
-  EXPECT_NE(info.uuid(), yogi::Uuid{});
-  EXPECT_EQ(info.name(), "My Branch");
-  EXPECT_EQ(info.description(), "Stuff");
-  EXPECT_EQ(info.network_name(), "My Network");
-  EXPECT_EQ(info.path(), "/some/path");
-  EXPECT_FALSE(info.hostname().empty());
-  EXPECT_GT(info.pid(), 0);
-  EXPECT_EQ(info.advertising_address(), "239.255.0.1");
-  EXPECT_EQ(info.advertising_port(), 12345);
-  EXPECT_EQ(info.advertising_interval(), yogi::Duration::from_seconds(7));
-  EXPECT_GT(info.tcp_server_port(), 0);
-  EXPECT_LT(info.start_time(), yogi::Timestamp::now());
-  EXPECT_EQ(info.timeout(), yogi::Duration::kInf);
-  EXPECT_FALSE(info.ghost_mode());
-  EXPECT_GT(info.tx_queue_size(), 1000);
-  EXPECT_GT(info.rx_queue_size(), 1000);
-
-  EXPECT_EQ(branch->uuid(), info.uuid());
-  EXPECT_EQ(branch->name(), info.name());
-  EXPECT_EQ(branch->description(), info.description());
-  EXPECT_EQ(branch->network_name(), info.network_name());
-  EXPECT_EQ(branch->path(), info.path());
-  EXPECT_EQ(branch->hostname(), info.hostname());
-  EXPECT_EQ(branch->pid(), info.pid());
-  EXPECT_EQ(branch->advertising_address(), info.advertising_address());
-  EXPECT_EQ(branch->advertising_port(), info.advertising_port());
-  EXPECT_EQ(branch->advertising_interval(), info.advertising_interval());
-  EXPECT_EQ(branch->tcp_server_port(), info.tcp_server_port());
-  EXPECT_EQ(branch->start_time(), info.start_time());
-  EXPECT_EQ(branch->timeout(), info.timeout());
-  EXPECT_EQ(branch->ghost_mode(), info.ghost_mode());
-  EXPECT_EQ(branch->tx_queue_size(), info.tx_queue_size());
-  EXPECT_EQ(branch->rx_queue_size(), info.rx_queue_size());
-}
-
 TEST_F(BranchTest, GetConnectedBranches) {
-  auto branch   = yogi::Branch::create(context_, "{\"name\":\"My Branch\"}");
-  auto branch_a = yogi::Branch::create(context_, "{\"name\":\"A\"}");
-  auto branch_b = yogi::Branch::create(context_, "{\"name\":\"B\"}");
+  MOCK_BranchGetConnectedBranches(
+      [](void* branch, void* uuid, char* json, int jsonsize, void (*fn)(int res, void* userarg), void* userarg) {
+        EXPECT_EQ(branch, kPointer);
+        EXPECT_NE(uuid, nullptr);
+        EXPECT_NE(json, nullptr);
+        EXPECT_GT(jsonsize, 100);
+        EXPECT_NE(fn, nullptr);
 
-  while (!branch->connected_branches().count(branch_a->uuid()) ||
-         !branch->connected_branches().count(branch_b->uuid())) {
-    context_->run_one();
-  }
+        auto uuid_data = static_cast<char*>(uuid);
+        memset(uuid_data, 0, 16);
 
-  auto branches = branch->connected_branches();
+        uuid_data[0] = 33;
+        strcpy(json, R"({"name": "foo"})");
+        fn(YOGI_OK, userarg);
 
-  ASSERT_EQ(branches.count(branch_a->uuid()), 1u);
-  EXPECT_EQ(branches.at(branch_a->uuid()).name(), branch_a->name());
-  EXPECT_FALSE(branches.at(branch_a->uuid()).tcp_server_address().empty());
+        uuid_data[0] = 66;
+        strcpy(json, R"({"name": "bar"})");
+        fn(YOGI_OK, userarg);
 
-  ASSERT_EQ(branches.count(branch_b->uuid()), 1u);
-  EXPECT_EQ(branches.at(branch_b->uuid()).name(), branch_b->name());
-  EXPECT_FALSE(branches.at(branch_b->uuid()).tcp_server_address().empty());
+        return YOGI_OK;
+      });
+
+  auto branch = create_branch();
+  auto infos  = branch->get_connected_branches();
+
+  ASSERT_EQ(infos.size(), 2);
+  yogi::Uuid uuid;
+  memset(uuid.data(), 0, 16);
+
+  uuid.data()[0] = 33;
+  ASSERT_EQ(infos.count(uuid), 1);
+  EXPECT_EQ(infos.at(uuid).name(), "foo");
+
+  uuid.data()[0] = 66;
+  ASSERT_EQ(infos.count(uuid), 1);
+  EXPECT_EQ(infos.at(uuid).name(), "bar");
 }
 
+/*
 TEST_F(BranchTest, AwaitEventAsync) {
   auto branch   = yogi::Branch::create(context_, "{\"name\":\"My Branch\"}");
   auto branch_a = yogi::Branch::create(context_, "{\"name\":\"A\"}");

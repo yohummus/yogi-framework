@@ -52,6 +52,24 @@ yogi::ConfigurationPtr Test::create_configuration(ConfigurationFlags flags) {
   return yogi::Configuration::create(flags);
 }
 
+yogi::BranchPtr Test::create_branch() {
+  auto context = create_context();
+  auto config  = create_configuration();
+
+  MOCK_BranchCreate([](void** branch, void* context, void* config, const char* section) {
+    *branch = kPointer;
+    return YOGI_OK;
+  });
+
+  MOCK_BranchGetInfo([](void* branch, void* uuid, char* json, int jsonsize) {
+    EXPECT_GT(jsonsize, 3);
+    strcpy(json, "{}");
+    return YOGI_OK;
+  });
+
+  return yogi::Branch::create(context, config);
+}
+
 // clang-format off
 
 void (*Test::MOCK_ResetMocks)()

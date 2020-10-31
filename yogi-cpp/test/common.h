@@ -39,6 +39,7 @@ class Test : public testing::Test {
 
   static yogi::ContextPtr create_context();
   static yogi::ConfigurationPtr create_configuration(ConfigurationFlags flags = ConfigurationFlags::kNone);
+  static yogi::BranchPtr create_branch();
 
   static void (*MOCK_ResetMocks)();
 

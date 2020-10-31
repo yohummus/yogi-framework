@@ -771,7 +771,7 @@ class Branch : public ObjectT<Branch> {
   /// \returns A map mapping the UUID of each connected remote branch to a
   ///          RemoteBranchInfo object with detailed information about the
   ///          branch.
-  std::unordered_map<Uuid, RemoteBranchInfo> connected_branches() const {
+  std::unordered_map<Uuid, RemoteBranchInfo> get_connected_branches() const {
     struct CallbackData {
       Uuid uuid;
       const char* str;
