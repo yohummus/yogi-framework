@@ -380,30 +380,45 @@ TEST_F(BranchTest, GetConnectedBranches) {
   EXPECT_EQ(infos.at(uuid).name(), "bar");
 }
 
-/*
 TEST_F(BranchTest, AwaitEventAsync) {
-  auto branch   = yogi::Branch::create(context_, "{\"name\":\"My Branch\"}");
-  auto branch_a = yogi::Branch::create(context_, "{\"name\":\"A\"}");
+  static void (*callback_fn)(int res, int ev, int evres, void* userarg);
+  static void* callback_userarg;
 
-  auto events = yogi::BranchEvents::kBranchQueried | yogi::BranchEvents::kConnectionLost;
-  bool called = false;
-  branch->await_event_async(events, [&](auto& res, auto event, auto& evres, auto& info) {
-    EXPECT_NE(dynamic_cast<const yogi::Success*>(&res), nullptr);
-    EXPECT_EQ(res.error_code(), yogi::ErrorCode::kOk);
-    EXPECT_EQ(event, yogi::BranchEvents::kBranchQueried);
-    EXPECT_NE(dynamic_cast<const yogi::Success*>(&evres), nullptr);
-    EXPECT_EQ(evres.error_code(), yogi::ErrorCode::kOk);
-    EXPECT_NE(dynamic_cast<const yogi::BranchQueriedEventInfo*>(&info), nullptr);
-    EXPECT_EQ(static_cast<const yogi::BranchQueriedEventInfo&>(info).start_time(), branch_a->start_time());
-    EXPECT_EQ(static_cast<const yogi::BranchQueriedEventInfo&>(info).timeout(), branch_a->timeout());
-    EXPECT_EQ(info.to_json(), yogi::Json::parse(info.to_string()));
-    called = true;
+  MOCK_BranchAwaitEventAsync([](void* branch, int events, void* uuid, char* json, int jsonsize,
+                                void (*fn)(int res, int ev, int evres, void* userarg), void* userarg) {
+    EXPECT_EQ(branch, kPointer);
+    EXPECT_EQ(events, YOGI_BEV_BRANCH_QUERIED);
+    EXPECT_NE(nullptr, uuid);
+    EXPECT_NE(json, nullptr);
+    EXPECT_GT(jsonsize, 100);
+    EXPECT_NE(fn, nullptr);
+
+    memset(uuid, 123, 16);
+    strcpy(json, R"({"name": "foo"})");
+
+    callback_fn      = fn;
+    callback_userarg = userarg;
+
+    return YOGI_OK;
   });
 
-  while (!called) context_->run_one();
+  auto branch = create_branch();
 
-  EXPECT_TRUE(called);
+  int calls = 0;
+  branch->await_event_async(yogi::BranchEvents::kBranchQueried, [&](auto& res, auto event, auto& ev_res, auto& info) {
+    EXPECT_EQ(res, yogi::Success());
+    EXPECT_EQ(event, yogi::BranchEvents::kConnectFinished);
+    EXPECT_EQ(ev_res.error_code(), yogi::ErrorCode::kBusy);
+    EXPECT_NE(dynamic_cast<const yogi::ConnectFinishedEventInfo*>(&info), nullptr);
+    calls++;
+  });
+
+  EXPECT_EQ(calls, 0);
+  callback_fn(YOGI_OK, YOGI_BEV_CONNECT_FINISHED, YOGI_ERR_BUSY, callback_userarg);
+  EXPECT_EQ(calls, 1);
 }
+
+/*
 
 TEST_F(BranchTest, CancelAwaitEvent) {
   auto branch = yogi::Branch::create(context_, "{\"name\":\"My Branch\"}");
