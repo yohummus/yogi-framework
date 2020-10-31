@@ -418,27 +418,35 @@ TEST_F(BranchTest, AwaitEventAsync) {
   EXPECT_EQ(calls, 1);
 }
 
-/*
-
 TEST_F(BranchTest, CancelAwaitEvent) {
-  auto branch = yogi::Branch::create(context_, "{\"name\":\"My Branch\"}");
+  auto branch = create_branch();
 
-  EXPECT_FALSE(branch->cancel_await_event());
-
-  bool called = false;
-  branch->await_event_async(yogi::BranchEvents::kAll, [&](auto& res, auto event, auto& evres, auto&) {
-    EXPECT_NE(dynamic_cast<const yogi::Failure*>(&res), nullptr);
-    EXPECT_EQ(res.error_code(), yogi::ErrorCode::kCanceled);
-    EXPECT_EQ(event, yogi::BranchEvents::kNone);
-    EXPECT_NE(dynamic_cast<const yogi::Success*>(&evres), nullptr);
-    EXPECT_EQ(evres.error_code(), yogi::ErrorCode::kOk);
-    called = true;
+  // Successful cancellation
+  MOCK_BranchCancelAwaitEvent([](void* branch) {
+    EXPECT_EQ(branch, kPointer);
+    return YOGI_OK;
   });
 
   EXPECT_TRUE(branch->cancel_await_event());
-  context_->poll();
-  EXPECT_TRUE(called);
+
+  // No operation running
+  MOCK_BranchCancelAwaitEvent([](void* branch) {
+    EXPECT_EQ(branch, kPointer);
+    return YOGI_ERR_OPERATION_NOT_RUNNING;
+  });
+
+  EXPECT_FALSE(branch->cancel_await_event());
+
+  // Error
+  MOCK_BranchCancelAwaitEvent([](void* branch) {
+    EXPECT_EQ(branch, kPointer);
+    return YOGI_ERR_TIMEOUT;
+  });
+
+  EXPECT_THROW(branch->cancel_await_event(), yogi::FailureException);
 }
+
+/*
 
 TEST_F(BranchTest, SendBroadcast) {
   auto branch_a = yogi::Branch::create(context_, "{\"name\":\"a\", \"_transceive_byte_limit\": 5}");
