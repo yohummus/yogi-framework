@@ -1,4 +1,4 @@
-conan==1.29.0
+conan==1.33.1
 Jinja2==2.11.2
 munch==2.5.0
 stringcase==1.2.0
