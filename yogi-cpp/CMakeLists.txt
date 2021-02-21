@@ -35,11 +35,13 @@ set(test_files
     test/yogi/duration_test.cc
     test/yogi/logging_test.cc
     test/yogi/uuid_test.cc
+    test/yogi/branch_test.cc
     test/yogi/string_view_test.cc
     test/yogi/schemas_test.cc
     test/yogi/errors_test.cc
     test/yogi_inc/schemas_inc_test.cc
     test/yogi_inc/timestamp_inc_test.cc
+    test/yogi_inc/branch_inc_test.cc
     test/yogi_inc/version_inc_test.cc
     test/yogi_inc/timer_inc_test.cc
     test/yogi_inc/json_view_inc_test.cc

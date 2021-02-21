@@ -29,7 +29,7 @@
 #include <type_traits>
 
 #define _YOGI_DEFINE_SFINAE_METHOD_TESTER(class_name, test_expression)                       \
-  namespace internal {                                                                       \
+  namespace detail {                                                                         \
   template <typename T>                                                                      \
   struct class_name {                                                                        \
    private:                                                                                  \

@@ -172,4 +172,4 @@ def make_function_signature(fn_name: str, fn_props: munch.Munch) -> str:
         else:
             fn_args += [f'{arg_type} {arg_name}']
 
-    return f'{fn_props.return_type} {fn_name}({",".join(fn_args)})'
+    return f'{fn_props.return_type} {fn_name}({", ".join(fn_args)})'

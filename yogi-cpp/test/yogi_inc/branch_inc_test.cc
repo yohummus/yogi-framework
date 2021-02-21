@@ -19,40 +19,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _YOGI_IO_H
-#define _YOGI_IO_H
+#include <gtest/gtest.h>
 
-//! \file
-//!
-//! Functions for printing various Yogi types.
+// Test if the following file can be included without resulting in compiler errors
+#include <yogi/branch.h>
 
-#include "detail/sfinae.h"
-
-#include <string>
-
-namespace yogi {
-
-_YOGI_DEFINE_SFINAE_METHOD_TESTER(has_to_string_method, .to_string() == std::string())
-
-/// \addtogroup freefn
-/// @{
-
-/// Converts a given Yogi enum value or object to a string.
-///
-/// \tparam T Type of the enum or object.
-///
-/// \param printable The object to convert to a string.
-///
-/// \returns Human-readable string name or description of the object.
-template <typename T>
-inline std::string to_string(T printable) {
-  static_assert(detail::has_to_string_method<T>::value, "T has no usable to_string() method.");
-
-  return printable.to_string();
+TEST(HeaderIncludeTest, branch) {
+    SUCCEED();
 }
-
-/// @} freefn
-
-}  // namespace yogi
-
-#endif  // _YOGI_IO_H

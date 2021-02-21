@@ -40,6 +40,7 @@
 //! Macros for creating log entries.
 
 // :CODEGEN_BEGIN:
+#include "yogi/branch.h"
 #include "yogi/buffer.h"
 #include "yogi/configuration.h"
 #include "yogi/constants.h"

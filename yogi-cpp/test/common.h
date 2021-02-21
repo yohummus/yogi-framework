@@ -21,11 +21,17 @@
 
 #pragma once
 
+#ifdef _MSC_VER
+#  define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include <yogi.h>
 #include <yogi_core.h>
 using namespace yogi;
 
 #include <gtest/gtest.h>
+
+#include <initializer_list>
 
 class Test : public testing::Test {
  public:
@@ -37,6 +43,7 @@ class Test : public testing::Test {
 
   static yogi::ContextPtr create_context();
   static yogi::ConfigurationPtr create_configuration(ConfigurationFlags flags = ConfigurationFlags::kNone);
+  static yogi::BranchPtr create_branch();
 
   static void (*MOCK_ResetMocks)();
 
