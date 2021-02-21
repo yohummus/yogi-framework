@@ -478,48 +478,61 @@ TEST_F(BranchTest, SendBroadcast) {
   EXPECT_THROW(branch->send_broadcast(yogi::MsgpackView(s)), yogi::FailureException);
 }
 
-/*
-
 TEST_F(BranchTest, SendBroadcastAsync) {
-  auto branch_a = yogi::Branch::create(context_, "{\"name\":\"a\", \"_transceive_byte_limit\": 5}");
-  auto branch_b = yogi::Branch::create(context_, "{\"name\":\"b\"}");
-  run_context_until_branches_are_connected(context_, {branch_a, branch_b});
+  auto branch = create_branch();
 
-  // Receive a broadcast to verify that it has actually been sent
-  bool broadcast_received = false;
-  branch_b->receive_broadcast_async(yogi::Encoding::kJson, [&](auto& res, auto&, auto& payload) {
+  // Send JSON-encoded data with retry
+  bool called = false;
+  auto fn     = [&](const yogi::Result& res, yogi::OperationId oid) {
     EXPECT_EQ(res, yogi::Success());
-    EXPECT_EQ(payload, big_json_view_);
-    broadcast_received = true;
+    EXPECT_EQ(oid.value(), 456);
+    called = true;
+  };
+
+  MOCK_BranchSendBroadcastAsync([](void* branch, int enc, const void* data, int datasize, int retry,
+                                   void (*fn)(int res, int oid, void* userarg), void* userarg) {
+    EXPECT_EQ(branch, kPointer);
+    EXPECT_EQ(enc, YOGI_ENC_JSON);
+    EXPECT_NE(data, nullptr);
+    EXPECT_EQ(datasize, 6);
+    EXPECT_EQ(retry, YOGI_TRUE);
+    EXPECT_NE(userarg, nullptr);
+    fn(YOGI_OK, 456, userarg);
+    return 123;
   });
 
-  // Send with retry = true
-  const int n = 3;
-  std::vector<yogi::Result> results;
-  for (int i = 0; i < n; ++i) {
-    auto oid = branch_a->send_broadcast_async(big_json_view_, true, [&](auto& res, auto oid) {
-      EXPECT_EQ(res, yogi::Success());
-      EXPECT_TRUE(oid.is_valid());
-      results.push_back(res);
-    });
-    EXPECT_TRUE(oid.is_valid());
-  }
+  const char* s = "hello";
+  EXPECT_EQ(branch->send_broadcast_async(yogi::JsonView(s), true, fn).value(), 123);
+  EXPECT_TRUE(called);
 
-  while (results.size() != n) context_->poll();
+  // Send Msgpack-encoded data without retry
+  called   = false;
+  auto fn2 = [&](const yogi::Result& res, yogi::OperationId oid) {
+    EXPECT_EQ(res.error_code(), yogi::ErrorCode::kBusy);
+    EXPECT_EQ(oid.value(), 456);
+    called = true;
+  };
 
-  // Send with retry = false
-  do {
-    branch_a->send_broadcast_async(big_json_view_, false, [&](auto& res, auto) { results.push_back(res); });
+  MOCK_BranchSendBroadcastAsync([](void* branch, int enc, const void* data, int datasize, int retry,
+                                   void (*fn)(int res, int oid, void* userarg), void* userarg) {
+    EXPECT_EQ(enc, YOGI_ENC_MSGPACK);
+    EXPECT_EQ(retry, YOGI_FALSE);
+    EXPECT_NE(userarg, nullptr);
+    fn(YOGI_ERR_BUSY, 456, userarg);
+    return 123;
+  });
 
-    context_->poll_one();
-  } while (results.back() == yogi::Success());
+  EXPECT_EQ(branch->send_broadcast_async(yogi::MsgpackView(s), false, fn2).value(), 123);
+  EXPECT_TRUE(called);
 
-  EXPECT_EQ(results.back(), yogi::Failure(yogi::ErrorCode::kTxQueueFull));
+  // Error
+  MOCK_BranchSendBroadcastAsync([](void* branch, int enc, const void* data, int datasize, int retry,
+                                   void (*fn)(int res, int oid, void* userarg),
+                                   void* userarg) { return YOGI_ERR_TIMEOUT; });
 
-  // Verify that a broadcast has actually been sent
-  while (!broadcast_received) context_->run_one();
+  EXPECT_THROW(branch->send_broadcast_async(yogi::MsgpackView(s), fn), yogi::FailureException);
 }
-
+/*
 TEST_F(BranchTest, CancelSendBroadcast) {
   auto branch_a = yogi::Branch::create(context_, "{\"name\":\"a\", \"_transceive_byte_limit\": 5}");
   auto branch_b = yogi::Branch::create(context_, "{\"name\":\"b\"}");
