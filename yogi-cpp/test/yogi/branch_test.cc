@@ -532,28 +532,30 @@ TEST_F(BranchTest, SendBroadcastAsync) {
 
   EXPECT_THROW(branch->send_broadcast_async(yogi::MsgpackView(s), fn), yogi::FailureException);
 }
-/*
+
 TEST_F(BranchTest, CancelSendBroadcast) {
-  auto branch_a = yogi::Branch::create(context_, "{\"name\":\"a\", \"_transceive_byte_limit\": 5}");
-  auto branch_b = yogi::Branch::create(context_, "{\"name\":\"b\"}");
-  run_context_until_branches_are_connected(context_, {branch_a, branch_b});
+  // Cancel successfully
+  auto branch = create_branch();
 
-  std::map<yogi::OperationId, yogi::ErrorCode> oid_to_ec;
-  while (true) {
-    auto oid =
-        branch_a->send_broadcast_async(big_json_view_, [&](auto& res, auto oid) { oid_to_ec[oid] = res.error_code(); });
-    EXPECT_TRUE(oid.is_valid());
+  MOCK_BranchCancelSendBroadcast([](void* branch, int oid) {
+    EXPECT_EQ(branch, kPointer);
+    EXPECT_EQ(oid, 123);
+    return YOGI_OK;
+  });
 
-    oid_to_ec[oid] = yogi::ErrorCode::kUnknown;
+  EXPECT_TRUE(branch->cancel_send_broadcast(yogi::detail::make_operation_id(123)));
 
-    if (branch_a->cancel_send_broadcast(oid)) {
-      context_->poll();
-      EXPECT_EQ(oid_to_ec[oid], yogi::ErrorCode::kCanceled);
-      break;
-    }
-  }
+  // Operation not running
+  MOCK_BranchCancelSendBroadcast([](void* branch, int oid) { return YOGI_ERR_INVALID_OPERATION_ID; });
+
+  EXPECT_FALSE(branch->cancel_send_broadcast(yogi::detail::make_operation_id(123)));
+
+  // Error
+  MOCK_BranchCancelSendBroadcast([](void* branch, int oid) { return YOGI_ERR_TIMEOUT; });
+
+  EXPECT_THROW(branch->cancel_send_broadcast(yogi::detail::make_operation_id(123)), yogi::FailureException);
 }
-
+/*
 TEST_F(BranchTest, ReceiveBroadcast) {
   auto branch_a = yogi::Branch::create(context_, "{\"name\":\"a\"}");
   auto branch_b = yogi::Branch::create(context_, "{\"name\":\"b\"}");
