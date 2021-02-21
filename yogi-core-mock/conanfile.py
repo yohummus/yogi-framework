@@ -14,7 +14,7 @@ class YogiCoreMockConan(ConanFile):
     description = "Core library mock of the Yogi Framework for testing purposes"
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake", "virtualenv"
-    build_requires = "cmake/3.18.4"
+    build_requires = "cmake/3.19.5"
     requires = f"yogi-core/{version}"
 
     @property

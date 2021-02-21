@@ -17,7 +17,7 @@ class YogiCppConan(ConanFile):
     default_options = {"build_tests": True}
     generators = "cmake"
     requires = "nlohmann_json/3.9.1"
-    build_requires = f"yogi-core-mock/{version}", "cmake/3.18.4", "gtest/1.10.0", "msgpack/3.3.0"
+    build_requires = f"yogi-core-mock/{version}", "cmake/3.19.5", "gtest/1.10.0", "msgpack/3.3.0"
     exports_sources = "test/*", "include/*", "CMakeLists.txt"
 
     def build(self):

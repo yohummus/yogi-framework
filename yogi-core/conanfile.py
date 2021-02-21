@@ -16,8 +16,8 @@ class YogiCoreConan(ConanFile):
     options = {"build_tests": [True, False], "gtest_options": "ANY"}
     default_options = {"build_tests": True, "gtest_options": ""}
     generators = "cmake", "virtualenv"
-    build_requires = "cmake/3.18.4", "gtest/1.10.0"
-    requires = "boost/1.74.0", "nlohmann_json/3.9.1", "json-schema-validator/2.1.0", "msgpack/3.3.0", "openssl/1.1.1i"
+    build_requires = "cmake/3.19.5", "gtest/1.10.0"
+    requires = "boost/1.75.0", "nlohmann_json/3.9.1", "json-schema-validator/2.1.0", "msgpack/3.3.0", "openssl/1.1.1i"
     exports_sources = "src/*", "test/*", "include/*", "CMakeLists.txt"
 
     def make_lib_path(self, version):
