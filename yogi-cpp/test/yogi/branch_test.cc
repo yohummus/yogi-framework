@@ -538,9 +538,9 @@ TEST_F(BranchTest, SendBroadcastAsync) {
 }
 
 TEST_F(BranchTest, CancelSendBroadcast) {
-  // Cancel successfully
   auto branch = create_branch();
 
+  // Cancel successfully
   MOCK_BranchCancelSendBroadcast([](void* branch, int oid) {
     EXPECT_EQ(branch, kPointer);
     EXPECT_EQ(oid, 123);
@@ -566,7 +566,70 @@ TEST_F(BranchTest, CancelSendBroadcast) {
   EXPECT_THROW(branch->cancel_send_broadcast(yogi::detail::make_operation_id(123)), yogi::FailureException);
 }
 
-TEST_F(BranchTest, ReceiveBroadcast) {
+TEST_F(BranchTest, ReceiveBroadcastAsync) {
+  auto branch = create_branch();
+
+  // Receive msg successfully as JSON
+  bool called = false;
+  auto fn     = [&](const yogi::Result& res, const yogi::Uuid& source, const yogi::PayloadView& payload,
+                yogi::BufferPtr&& buffer) {
+    EXPECT_EQ(res, yogi::Success());
+    EXPECT_NE(branch->uuid(), yogi::Uuid{});
+    EXPECT_EQ(payload.size(), 1);
+    EXPECT_EQ(buffer->size(), 1);
+    called = true;
+  };
+
+  MOCK_BranchReceiveBroadcastAsync([](void* branch, void* uuid, int enc, void* data, int datasize,
+                                      void (*fn)(int res, int size, void* userarg), void* userarg) {
+    EXPECT_EQ(branch, kPointer);
+    EXPECT_NE(nullptr, uuid);
+    EXPECT_EQ(enc, YOGI_ENC_JSON);
+    EXPECT_NE(data, nullptr);
+    EXPECT_EQ(datasize, 1);  // kMaxMessagePayloadSize of yogi-core-mock
+    EXPECT_NE(userarg, nullptr);
+    fn(YOGI_OK, 1, userarg);
+    return YOGI_OK;
+  });
+
+  branch->receive_broadcast_async(yogi::Encoding::kJson, fn);
+  EXPECT_TRUE(called);
+
+  // Receive msg successfully as Msgpack with custom buffer
+  auto buffer     = std::make_unique<yogi::Buffer>(123);
+  auto buffer_raw = buffer.get();
+
+  called   = false;
+  auto fn2 = [&](const yogi::Result& res, const yogi::Uuid& source, const yogi::PayloadView& payload,
+                 yogi::BufferPtr&& buffer) {
+    EXPECT_EQ(res.error_code(), yogi::ErrorCode::kBusy);
+    EXPECT_EQ(buffer.get(), buffer_raw);
+    called = true;
+  };
+
+  MOCK_BranchReceiveBroadcastAsync([](void* branch, void* uuid, int enc, void* data, int datasize,
+                                      void (*fn)(int res, int size, void* userarg), void* userarg) {
+    EXPECT_EQ(branch, kPointer);
+    EXPECT_NE(nullptr, uuid);
+    EXPECT_EQ(enc, YOGI_ENC_MSGPACK);
+    EXPECT_NE(data, nullptr);
+    EXPECT_EQ(datasize, 123);
+    EXPECT_NE(userarg, nullptr);
+    fn(YOGI_ERR_BUSY, 123, userarg);
+    return YOGI_OK;
+  });
+
+  branch->receive_broadcast_async(yogi::Encoding::kMsgpack, std::move(buffer), fn2);
+  EXPECT_TRUE(called);
+
+  // Error
+  MOCK_BranchReceiveBroadcastAsync([](void* branch, void* uuid, int enc, void* data, int datasize,
+                                      void (*fn)(int res, int size, void* userarg), void* userarg) {
+    EXPECT_EQ(branch, kPointer);
+    return YOGI_ERR_UNKNOWN;
+  });
+
+  EXPECT_THROW(branch->receive_broadcast_async(yogi::Encoding::kMsgpack, fn), yogi::FailureException);
 }
 
 TEST_F(BranchTest, CancelReceiveBroadcast) {
