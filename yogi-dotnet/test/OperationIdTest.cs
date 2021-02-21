@@ -58,11 +58,9 @@ namespace test
 
             Assert.True(id1 == id2);
             Assert.False(id1 == id3);
-            Assert.False(id1 == null);
 
             Assert.False(id1 != id2);
             Assert.True(id1 != id3);
-            Assert.True(id1 != null);
 
             Assert.False(id1.Equals(new Exception()));
             Assert.False(id1.Equals(null));
