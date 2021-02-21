@@ -584,6 +584,7 @@ TEST_F(BranchTest, ReceiveBroadcastAsync) {
                                       void (*fn)(int res, int size, void* userarg), void* userarg) {
     EXPECT_EQ(branch, kPointer);
     EXPECT_NE(nullptr, uuid);
+    *static_cast<char*>(uuid) = 111;
     EXPECT_EQ(enc, YOGI_ENC_JSON);
     EXPECT_NE(data, nullptr);
     EXPECT_EQ(datasize, 1);  // kMaxMessagePayloadSize of yogi-core-mock
@@ -610,7 +611,6 @@ TEST_F(BranchTest, ReceiveBroadcastAsync) {
   MOCK_BranchReceiveBroadcastAsync([](void* branch, void* uuid, int enc, void* data, int datasize,
                                       void (*fn)(int res, int size, void* userarg), void* userarg) {
     EXPECT_EQ(branch, kPointer);
-    EXPECT_NE(nullptr, uuid);
     EXPECT_EQ(enc, YOGI_ENC_MSGPACK);
     EXPECT_NE(data, nullptr);
     EXPECT_EQ(datasize, 123);
