@@ -82,10 +82,10 @@ TEST_F(BranchTest, BranchInfo) {
   EXPECT_EQ(info.path(), "/test");
   EXPECT_EQ(info.hostname(), "localhost");
   EXPECT_EQ(info.pid(), 12345);
-  EXPECT_FLOAT_EQ(info.advertising_interval().total_seconds(), 5.5);
+  EXPECT_DOUBLE_EQ(info.advertising_interval().total_seconds(), 5.5);
   EXPECT_EQ(info.tcp_server_port(), 10000);
   EXPECT_EQ(info.start_time().duration_since_epoch(), 1234356789123000000ns);
-  EXPECT_FLOAT_EQ(info.timeout().total_seconds(), 3.5);
+  EXPECT_DOUBLE_EQ(info.timeout().total_seconds(), 3.5);
   EXPECT_EQ(info.ghost_mode(), true);
 }
 
@@ -181,11 +181,11 @@ TEST_F(BranchTest, BranchQueriedEventInfo) {
   EXPECT_EQ(info.path(), "/test");
   EXPECT_EQ(info.hostname(), "localhost");
   EXPECT_EQ(info.pid(), 12345);
-  EXPECT_FLOAT_EQ(info.advertising_interval().total_seconds(), 5.5);
+  EXPECT_DOUBLE_EQ(info.advertising_interval().total_seconds(), 5.5);
   EXPECT_EQ(info.tcp_server_address(), "1.2.3.4");
   EXPECT_EQ(info.tcp_server_port(), 10000);
   EXPECT_EQ(info.start_time().duration_since_epoch(), 1234356789123000000ns);
-  EXPECT_FLOAT_EQ(info.timeout().total_seconds(), 3.5);
+  EXPECT_DOUBLE_EQ(info.timeout().total_seconds(), 3.5);
   EXPECT_EQ(info.ghost_mode(), true);
 }
 
@@ -330,14 +330,14 @@ TEST_F(BranchTest, Info) {
   EXPECT_EQ(branch->path(), "/test");
   EXPECT_EQ(branch->hostname(), "localhost");
   EXPECT_EQ(branch->pid(), 12345);
-  EXPECT_FLOAT_EQ(branch->advertising_interval().total_seconds(), 5.5);
+  EXPECT_DOUBLE_EQ(branch->advertising_interval().total_seconds(), 5.5);
   EXPECT_EQ(branch->advertising_address(), "1.2.3.4");
   EXPECT_EQ(branch->advertising_port(), 5555);
   EXPECT_EQ(branch->tcp_server_port(), 10000);
   EXPECT_EQ(branch->tx_queue_size(), 6666);
   EXPECT_EQ(branch->rx_queue_size(), 7777);
   EXPECT_EQ(branch->start_time().duration_since_epoch(), 1234356789123000000ns);
-  EXPECT_FLOAT_EQ(branch->timeout().total_seconds(), 3.5);
+  EXPECT_DOUBLE_EQ(branch->timeout().total_seconds(), 3.5);
   EXPECT_EQ(branch->ghost_mode(), true);
 }
 

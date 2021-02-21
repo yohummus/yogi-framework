@@ -29,6 +29,10 @@ using namespace yogi;
 
 #include <initializer_list>
 
+#ifdef _MSC_VER
+#  define _CRT_SECURE_NO_WARNINGS
+#endif
+
 class Test : public testing::Test {
  public:
   Test();
