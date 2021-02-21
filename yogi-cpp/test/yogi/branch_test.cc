@@ -574,6 +574,7 @@ TEST_F(BranchTest, ReceiveBroadcastAsync) {
   auto fn     = [&](const yogi::Result& res, const yogi::Uuid& source, const yogi::PayloadView& payload,
                 yogi::BufferPtr&& buffer) {
     EXPECT_EQ(res, yogi::Success());
+    printf("Check\n");
     EXPECT_NE(branch->uuid(), yogi::Uuid{});
     EXPECT_EQ(payload.size(), 1);
     EXPECT_EQ(buffer->size(), 1);
