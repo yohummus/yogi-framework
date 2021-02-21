@@ -472,8 +472,10 @@ TEST_F(BranchTest, SendBroadcast) {
   EXPECT_FALSE(branch->send_broadcast(yogi::MsgpackView(s), false));
 
   // Error
-  MOCK_BranchSendBroadcast(
-      [](void* branch, int enc, const void* data, int datasize, int block) { return YOGI_ERR_UNKNOWN; });
+  MOCK_BranchSendBroadcast([](void* branch, int enc, const void* data, int datasize, int block) {
+    EXPECT_EQ(branch, kPointer);
+    return YOGI_ERR_UNKNOWN;
+  });
 
   EXPECT_THROW(branch->send_broadcast(yogi::MsgpackView(s)), yogi::FailureException);
 }
@@ -527,8 +529,10 @@ TEST_F(BranchTest, SendBroadcastAsync) {
 
   // Error
   MOCK_BranchSendBroadcastAsync([](void* branch, int enc, const void* data, int datasize, int retry,
-                                   void (*fn)(int res, int oid, void* userarg),
-                                   void* userarg) { return YOGI_ERR_TIMEOUT; });
+                                   void (*fn)(int res, int oid, void* userarg), void* userarg) {
+    EXPECT_EQ(branch, kPointer);
+    return YOGI_ERR_TIMEOUT;
+  });
 
   EXPECT_THROW(branch->send_broadcast_async(yogi::MsgpackView(s), fn), yogi::FailureException);
 }
@@ -546,134 +550,49 @@ TEST_F(BranchTest, CancelSendBroadcast) {
   EXPECT_TRUE(branch->cancel_send_broadcast(yogi::detail::make_operation_id(123)));
 
   // Operation not running
-  MOCK_BranchCancelSendBroadcast([](void* branch, int oid) { return YOGI_ERR_INVALID_OPERATION_ID; });
+  MOCK_BranchCancelSendBroadcast([](void* branch, int oid) {
+    EXPECT_EQ(branch, kPointer);
+    return YOGI_ERR_INVALID_OPERATION_ID;
+  });
 
   EXPECT_FALSE(branch->cancel_send_broadcast(yogi::detail::make_operation_id(123)));
 
   // Error
-  MOCK_BranchCancelSendBroadcast([](void* branch, int oid) { return YOGI_ERR_TIMEOUT; });
+  MOCK_BranchCancelSendBroadcast([](void* branch, int oid) {
+    EXPECT_EQ(branch, kPointer);
+    return YOGI_ERR_TIMEOUT;
+  });
 
   EXPECT_THROW(branch->cancel_send_broadcast(yogi::detail::make_operation_id(123)), yogi::FailureException);
 }
-/*
+
 TEST_F(BranchTest, ReceiveBroadcast) {
-  auto branch_a = yogi::Branch::create(context_, "{\"name\":\"a\"}");
-  auto branch_b = yogi::Branch::create(context_, "{\"name\":\"b\"}");
-  run_context_until_branches_are_connected(context_, {branch_a, branch_b});
-
-  // Simplest form
-  auto uuid_b = branch_b->uuid();
-  bool called = false;
-  branch_a->receive_broadcast_async([&](auto& res, auto& source, auto& payload) {
-    EXPECT_EQ(res, yogi::Success());
-    EXPECT_EQ(source, uuid_b);
-    EXPECT_EQ(payload, msgpack_view_);
-    called = true;
-  });
-
-  branch_b->send_broadcast_async(msgpack_view_, {});
-  while (!called) context_->run_one();
-
-  // With buffer in handler function
-  called = false;
-  branch_a->receive_broadcast_async([&](auto& res, auto&, auto& payload, auto&& buffer) {
-    EXPECT_EQ(res, yogi::Success());
-    EXPECT_EQ(payload, msgpack_view_);
-    EXPECT_GE(buffer->size(), static_cast<std::size_t>(yogi::constants::kMaxMessagePayloadSize));
-    called = true;
-  });
-
-  branch_b->send_broadcast_async(msgpack_view_, {});
-  while (!called) context_->run_one();
-
-  // With encoding
-  called = false;
-  branch_a->receive_broadcast_async(yogi::Encoding::kJson, [&](auto& res, auto&, auto& payload) {
-    EXPECT_EQ(res, yogi::Success());
-    EXPECT_EQ(payload, json_view_);
-    called = true;
-  });
-
-  branch_b->send_broadcast_async(msgpack_view_, {});
-  while (!called) context_->run_one();
-
-  // With encoding and with buffer in handler function
-  called = false;
-  branch_a->receive_broadcast_async(yogi::Encoding::kJson, [&](auto& res, auto&, auto& payload, auto&& buffer) {
-    EXPECT_EQ(res, yogi::Success());
-    EXPECT_EQ(payload, json_view_);
-    EXPECT_GE(buffer->size(), static_cast<std::size_t>(yogi::constants::kMaxMessagePayloadSize));
-    called = true;
-  });
-
-  branch_b->send_broadcast_async(msgpack_view_, {});
-  while (!called) context_->run_one();
-
-  // With custom buffer
-  auto buffer = std::make_unique<yogi::Buffer>(123);
-  called      = false;
-  branch_a->receive_broadcast_async(std::move(buffer), [&](auto& res, auto&, auto& payload) {
-    EXPECT_EQ(res, yogi::Success());
-    EXPECT_EQ(payload, msgpack_view_);
-    called = true;
-  });
-
-  branch_b->send_broadcast_async(msgpack_view_, {});
-  while (!called) context_->run_one();
-
-  // With custom buffer and with buffer in handler function
-  buffer = std::make_unique<yogi::Buffer>(123);
-  called = false;
-  branch_a->receive_broadcast_async(std::move(buffer), [&](auto& res, auto&, auto& payload, auto&& buffer) {
-    EXPECT_EQ(res, yogi::Success());
-    EXPECT_EQ(payload, msgpack_view_);
-    EXPECT_EQ(buffer->size(), 123u);
-    called = true;
-  });
-
-  branch_b->send_broadcast_async(msgpack_view_, {});
-  while (!called) context_->run_one();
-
-  // With custom buffer and encoding
-  buffer = std::make_unique<yogi::Buffer>(123);
-  called = false;
-  branch_a->receive_broadcast_async(yogi::Encoding::kJson, std::move(buffer), [&](auto& res, auto&, auto& payload) {
-    EXPECT_EQ(res, yogi::Success());
-    EXPECT_EQ(payload, json_view_);
-    called = true;
-  });
-
-  branch_b->send_broadcast_async(msgpack_view_, {});
-  while (!called) context_->run_one();
-
-  // With custom buffer and encoding and buffer in handler function
-  buffer = std::make_unique<yogi::Buffer>(123);
-  called = false;
-  branch_a->receive_broadcast_async(yogi::Encoding::kJson, std::move(buffer),
-                                    [&](auto& res, auto&, auto& payload, auto&& buffer) {
-                                      EXPECT_EQ(res, yogi::Success());
-                                      EXPECT_EQ(payload, json_view_);
-                                      EXPECT_GE(buffer->size(), 123u);
-                                      called = true;
-                                    });
-
-  branch_b->send_broadcast_async(msgpack_view_, {});
-  while (!called) context_->run_one();
 }
 
 TEST_F(BranchTest, CancelReceiveBroadcast) {
-  auto branch_a = yogi::Branch::create(context_, "{\"name\":\"a\"}");
+  auto branch = create_branch();
 
-  EXPECT_FALSE(branch_a->cancel_receive_broadcast());
-
-  bool called = false;
-  branch_a->receive_broadcast_async([&](auto& res, auto&, auto&, auto&&) {
-    EXPECT_EQ(res, yogi::Failure(yogi::ErrorCode::kCanceled));
-    called = true;
+  // Success
+  MOCK_BranchCancelReceiveBroadcast([](void* branch) {
+    EXPECT_EQ(branch, kPointer);
+    return YOGI_OK;
   });
 
-  EXPECT_TRUE(branch_a->cancel_receive_broadcast());
-  context_->poll();
-  EXPECT_TRUE(called);
+  EXPECT_TRUE(branch->cancel_receive_broadcast());
+
+  // Operation not running
+  MOCK_BranchCancelReceiveBroadcast([](void* branch) {
+    EXPECT_EQ(branch, kPointer);
+    return YOGI_ERR_OPERATION_NOT_RUNNING;
+  });
+
+  EXPECT_FALSE(branch->cancel_receive_broadcast());
+
+  // Error
+  MOCK_BranchCancelReceiveBroadcast([](void* branch) {
+    EXPECT_EQ(branch, kPointer);
+    return YOGI_ERR_UNKNOWN;
+  });
+
+  EXPECT_THROW(branch->cancel_receive_broadcast(), yogi::FailureException);
 }
-*/
