@@ -574,8 +574,7 @@ TEST_F(BranchTest, ReceiveBroadcastAsync) {
   auto fn     = [&](const yogi::Result& res, const yogi::Uuid& source, const yogi::PayloadView& payload,
                 yogi::BufferPtr&& buffer) {
     EXPECT_EQ(res, yogi::Success());
-    printf("Check\n");
-    EXPECT_NE(branch->uuid(), yogi::Uuid{});
+    EXPECT_NE(source, yogi::Uuid{});
     EXPECT_EQ(payload.size(), 1);
     EXPECT_EQ(buffer->size(), 1);
     called = true;
@@ -584,7 +583,7 @@ TEST_F(BranchTest, ReceiveBroadcastAsync) {
   MOCK_BranchReceiveBroadcastAsync([](void* branch, void* uuid, int enc, void* data, int datasize,
                                       void (*fn)(int res, int size, void* userarg), void* userarg) {
     EXPECT_EQ(branch, kPointer);
-    EXPECT_NE(nullptr, uuid);
+    EXPECT_NE(uuid, nullptr);
     *static_cast<char*>(uuid) = 111;
     EXPECT_EQ(enc, YOGI_ENC_JSON);
     EXPECT_NE(data, nullptr);
