@@ -446,37 +446,39 @@ TEST_F(BranchTest, CancelAwaitEvent) {
   EXPECT_THROW(branch->cancel_await_event(), yogi::FailureException);
 }
 
-/*
-
 TEST_F(BranchTest, SendBroadcast) {
-  auto branch_a = yogi::Branch::create(context_, "{\"name\":\"a\", \"_transceive_byte_limit\": 5}");
-  auto branch_b = yogi::Branch::create(context_, "{\"name\":\"b\"}");
-  run_context_until_branches_are_connected(context_, {branch_a, branch_b});
-  context_->run_in_background();
+  auto branch = create_branch();
 
-  // Receive a broadcast to verify that it has actually been sent
-  bool broadcast_received = false;
-  branch_b->receive_broadcast_async(yogi::Encoding::kJson, [&](auto& res, auto&, auto& payload) {
-    EXPECT_EQ(res, yogi::Success());
-    EXPECT_EQ(payload, big_json_view_);
-    broadcast_received = true;
+  // Send JSON-encoded data in blocking mode
+  MOCK_BranchSendBroadcast([](void* branch, int enc, const void* data, int datasize, int block) {
+    EXPECT_EQ(branch, kPointer);
+    EXPECT_EQ(enc, YOGI_ENC_JSON);
+    EXPECT_NE(data, nullptr);
+    EXPECT_EQ(datasize, 6);
+    EXPECT_TRUE(block);
+    return YOGI_OK;
   });
 
-  // Blocking
-  for (int i = 0; i < 3; ++i) {
-    EXPECT_TRUE(branch_a->send_broadcast(big_json_view_, true));
-  }
+  const char* s = "hello";
+  EXPECT_TRUE(branch->send_broadcast(yogi::JsonView(s), true));
 
-  // Non-blocking
-  while (branch_a->send_broadcast(big_json_view_, false))
-    ;
+  // Send Msgpack-encoded data in non-blocking mode
+  MOCK_BranchSendBroadcast([](void* branch, int enc, const void* data, int datasize, int block) {
+    EXPECT_EQ(enc, YOGI_ENC_MSGPACK);
+    EXPECT_FALSE(block);
+    return YOGI_ERR_TX_QUEUE_FULL;
+  });
 
-  context_->stop();
-  context_->wait_for_stopped();
+  EXPECT_FALSE(branch->send_broadcast(yogi::MsgpackView(s), false));
 
-  // Verify that a broadcast has actually been sent
-  while (!broadcast_received) context_->run_one();
+  // Error
+  MOCK_BranchSendBroadcast(
+      [](void* branch, int enc, const void* data, int datasize, int block) { return YOGI_ERR_UNKNOWN; });
+
+  EXPECT_THROW(branch->send_broadcast(yogi::MsgpackView(s)), yogi::FailureException);
 }
+
+/*
 
 TEST_F(BranchTest, SendBroadcastAsync) {
   auto branch_a = yogi::Branch::create(context_, "{\"name\":\"a\", \"_transceive_byte_limit\": 5}");
