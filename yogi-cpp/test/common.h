@@ -21,6 +21,10 @@
 
 #pragma once
 
+#ifdef _MSC_VER
+#  define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include <yogi.h>
 #include <yogi_core.h>
 using namespace yogi;
@@ -28,10 +32,6 @@ using namespace yogi;
 #include <gtest/gtest.h>
 
 #include <initializer_list>
-
-#ifdef _MSC_VER
-#  define _CRT_SECURE_NO_WARNINGS
-#endif
 
 class Test : public testing::Test {
  public:
