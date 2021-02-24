@@ -1,7 +1,8 @@
-build/
+build
 .DS_Store
 __pycache__
 yogi-dotnet/**/bin
 yogi-dotnet/**/obj
 .pytest_cache
 .venv
+.idea
