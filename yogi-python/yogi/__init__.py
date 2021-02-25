@@ -18,7 +18,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from ._branch import BranchInfo, RemoteBranchInfo, LocalBranchInfo, BranchEventInfo, BranchDiscoveredEventInfo
-from ._branch import BranchQueriedEventInfo, ConnectFinishedEventInfo, ConnectionLostEventInfo
+from ._branch import BranchQueriedEventInfo, ConnectFinishedEventInfo, ConnectionLostEventInfo, Branch
 from ._configuration import Configuration
 from ._constants import constants
 from ._context import Context

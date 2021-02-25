@@ -28,7 +28,7 @@ from ._errors import ErrorCode, FailureException
 class Object:
     """Base class for all "creatable" objects."""
 
-    def __init__(self, handle: c_void_p, dependecies: List[Any] = []):
+    def __init__(self, handle: c_void_p, dependencies: List[Any] = []):
         """Constructs the object.
 
         The objects in the depencies list are stored in order to prevent the
@@ -42,7 +42,7 @@ class Object:
             dependencies: Other objects that this object depends on.
         """
         self._handle = handle
-        self._dependencies = dependecies
+        self._dependencies = dependencies
 
     def format(self, fmt: str = None, nullstr: str = None) -> str:
         """Creates a string describing the object.

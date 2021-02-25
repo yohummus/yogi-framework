@@ -39,7 +39,7 @@ class Timer(Object):
         """
         handle = c_void_p()
         yogi_core.YOGI_TimerCreate(byref(handle), context._handle)
-        Object.__init__(self, handle, [context])
+        super().__init__(handle, [context])
 
     def start_async(self, duration: Duration, fn: Callable[[Result], Any]) -> None:
         """Starts the timer.

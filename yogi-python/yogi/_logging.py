@@ -196,7 +196,7 @@ def disable_file_logging() -> None:
 
 
 class Logger(Object):
-    """Class forr generating log entries.
+    """Class for generating log entries.
 
     A logger is an object used for generating log entries that are tagged with
     the logger's component tag. A logger's component tag does not have to be
@@ -239,7 +239,7 @@ class Logger(Object):
         """
         handle = c_void_p()
         yogi_core.YOGI_LoggerCreate(byref(handle), component.encode())
-        Object.__init__(self, handle)
+        super().__init__(handle)
 
     @property
     def verbosity(self) -> Verbosity:
@@ -286,7 +286,7 @@ class AppLogger(Logger):
 
     def __init__(self):
         """Create an instance of the App logger."""
-        Object.__init__(self, None)
+        Object.__init__(self, c_void_p())  # We call the Object ctor directly on purpose
 
     def __del__(self):
         pass

@@ -20,7 +20,9 @@
 import yogi
 import pytest
 import gc
-from ctypes import c_void_p, c_char, c_char_p, c_int, c_longlong, CFUNCTYPE, POINTER, py_object
+import json
+from unittest.mock import patch
+from ctypes import c_void_p, c_char, c_char_p, c_int, c_longlong, CFUNCTYPE, POINTER, py_object, memmove
 
 
 _destroy_mock_fn_keepalive = []
@@ -57,7 +59,7 @@ def context(mocks):
 def signal_set(mocks, context):
     """Provides a mocked SignalSet instance"""
     def fn(timer, context, signals):
-        timer.contents.value = 1234
+        timer.contents.value = 1111
         return yogi.ErrorCode.OK
 
     mocks.MOCK_SignalSetCreate(fn)
@@ -68,7 +70,7 @@ def signal_set(mocks, context):
 def configuration(mocks):
     """Provides a mocked Configuration instance"""
     def fn(config, flags):
-        config.contents.value = 1234
+        config.contents.value = 2222
         return yogi.ErrorCode.OK
 
     mocks.MOCK_ConfigurationCreate(fn)
@@ -79,7 +81,7 @@ def configuration(mocks):
 def logger(mocks):
     """Provides a mocked Logger instance"""
     def fn(logger, component):
-        logger.contents.value = 1234
+        logger.contents.value = 5555
         return yogi.ErrorCode.OK
 
     mocks.MOCK_LoggerCreate(fn)
@@ -90,11 +92,51 @@ def logger(mocks):
 def timer(mocks, context):
     """Provides a mocked Timer instance"""
     def fn(timer, context):
-        timer.contents.value = 1234
+        timer.contents.value = 6666
         return yogi.ErrorCode.OK
 
     mocks.MOCK_TimerCreate(fn)
     return yogi.Timer(context)
+
+
+@pytest.fixture
+def branch(mocks, context, configuration):
+    """Provides a mocked Branch instance"""
+    info_string = json.dumps({
+        "uuid": "123e4567-e89b-12d3-a456-426655440000",
+        "name": "My Branch",
+        "description": "Stuff",
+        "network_name": "My Network",
+        "path": "/some/path",
+        "hostname": "localhost",
+        "pid": 3333,
+        "advertising_interval": 7.5,
+        "tcp_server_port": 11223,
+        "start_time": "2018-04-23T18:25:43.511Z",
+        "timeout": -1,
+        "ghost_mode": False,
+        "tx_queue_size": 2000,
+        "rx_queue_size": 3000,
+        "advertising_address": "239.255.0.1",
+        "advertising_port": 12345,
+    }).encode() + b'\0'
+
+    def create_fn(branch, context, config, section):
+        branch.contents.value = 8888
+        return yogi.ErrorCode.OK
+
+    def get_info_fn(branch, uuid, json, jsonsize):
+        memmove(json, info_string, len(info_string))
+        return yogi.ErrorCode.OK
+
+    mocks.MOCK_BranchCreate(create_fn)
+    mocks.MOCK_BranchGetInfo(get_info_fn)
+
+    ts = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_milliseconds(123))
+    with patch.object(yogi.Timestamp, 'parse', return_value=ts):
+        branch = yogi.Branch(context, configuration)
+
+    return branch
 
 
 class Mocks:
