@@ -102,7 +102,7 @@ def timer(mocks, context):
 @pytest.fixture
 def branch(mocks, context, configuration):
     """Provides a mocked Branch instance"""
-    info_string = json.dumps({
+    info_bytes = json.dumps({
         "uuid": "123e4567-e89b-12d3-a456-426655440000",
         "name": "My Branch",
         "description": "Stuff",
@@ -126,7 +126,8 @@ def branch(mocks, context, configuration):
         return yogi.ErrorCode.OK
 
     def get_info_fn(branch, uuid, json, jsonsize):
-        memmove(json, info_string, len(info_string))
+        assert jsonsize >= len(info_bytes)
+        memmove(json, info_bytes, len(info_bytes))
         return yogi.ErrorCode.OK
 
     mocks.MOCK_BranchCreate(create_fn)

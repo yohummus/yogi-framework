@@ -399,41 +399,40 @@ class Branch(Object):
         """Size of the receive queue for remote branches."""
         return self._info.rx_queue_size
 
-#     def get_connected_branches(self) -> Dict[str, RemoteBranchInfo]:
-#         """Retrieves information about all connected remote branches.
-#
-#         Returns:
-#             Dictionary mapping the UUID of each connected remote branch to an
-#             object containing detailed information.
-#         """
-#         s = create_string_buffer(1024)
-#         strings = []
-#
-#         def append_string(res, userarg):
-#             strings.append(s.value.decode("utf-8"))
-#
-#         c_append_string = yogi.YOGI_BranchGetConnectedBranches.argtypes[4](
-#             append_string)
-#
-#         while True:
-#             try:
-#                 yogi.YOGI_BranchGetConnectedBranches(
-#                     self._handle, None, s, sizeof(s), c_append_string, None)
-#                 break
-#             except FailureException as e:
-#                 if e.failure.error_code is ErrorCode.BUFFER_TOO_SMALL:
-#                     strings = []
-#                     s = create_string_buffer(sizeof(s) * 2)
-#                 else:
-#                     raise
-#
-#         branches = {}
-#         for string in strings:
-#             info = RemoteBranchInfo(string)
-#             branches[info.uuid] = info
-#
-#         return branches
-#
+    def get_connected_branches(self) -> Dict[UUID, RemoteBranchInfo]:
+        """Retrieves information about all connected remote branches.
+
+        Returns:
+            Dictionary mapping the UUID of each connected remote branch to an
+            object containing detailed information.
+        """
+        s = create_string_buffer(1024)
+        strings = []
+
+        def append_string(res, userarg):
+            strings.append(s.value.decode("utf-8"))
+
+        c_append_string = yogi_core.YOGI_BranchGetConnectedBranches.argtypes[4](append_string)
+
+        while True:
+            try:
+                strings.clear()
+                yogi_core.YOGI_BranchGetConnectedBranches(self._handle, None, s, sizeof(s), c_append_string, None)
+                break
+            except FailureException as e:
+                if e.failure.error_code is ErrorCode.BUFFER_TOO_SMALL:
+                    strings = []
+                    s = create_string_buffer(sizeof(s) * 2)
+                else:
+                    raise
+
+        branches = {}
+        for string in strings:
+            info = RemoteBranchInfo(string)
+            branches[info.uuid] = info
+
+        return branches
+
 #     def await_event_async(self, events: BranchEvents,
 #                           fn: Callable[[Result, BranchEvents, Result,
 #                                         Optional[BranchEventInfo]], Any],
