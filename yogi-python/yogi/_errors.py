@@ -181,7 +181,7 @@ def error_code_to_result(res: int) -> Result:
         return Success(res)
 
 
-def false_if_specific_ec_else_raise(res: int, ec: ErrorCode) -> Result:
+def false_if_specific_ec_else_raise(res: int, ec: ErrorCode) -> bool:
     if res == ec:
         return False
     elif res < 0:

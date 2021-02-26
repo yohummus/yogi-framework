@@ -21,7 +21,6 @@ import yogi
 import pytest
 import json
 from ctypes import memmove
-from unittest.mock import patch
 from uuid import UUID
 
 from .conftest import Mocks
@@ -57,15 +56,14 @@ def make_branch_info_string(uuid: str = "123e4567-e89b-12d3-a456-426655440000") 
 @pytest.mark.parametrize("info_cls", [yogi.BranchInfo, yogi.RemoteBranchInfo, yogi.LocalBranchInfo,
                                       yogi.BranchEventInfo, yogi.BranchDiscoveredEventInfo, yogi.BranchQueriedEventInfo,
                                       yogi.ConnectFinishedEventInfo, yogi.ConnectionLostEventInfo])
-def test_branch_info(info_cls):
+def test_branch_info(info_cls, mocker):
     """Verifies that the BranchInfo/BranchEventInfo and derived classes have the expected properties"""
     branch_info_string = make_branch_info_string()
 
     # Create the branch info object while mocking out the timestamp parse function
     ts = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_milliseconds(123))
-    with patch.object(yogi.Timestamp, "parse", return_value=ts) as mock_method:
-        info = info_cls(branch_info_string)
-    mock_method.assert_called_once_with("2018-04-23T18:25:43.511Z")
+    mock_parse = mocker.patch.object(yogi.Timestamp, "parse", return_value=ts)
+    info = info_cls(branch_info_string)
 
     # Check the info object"s properties
     assert str(info) == branch_info_string
@@ -99,12 +97,12 @@ def test_branch_info(info_cls):
         assert info.tcp_server_address == "192.168.1.1"
         assert info.tcp_server_port == 11223
 
+    mock_parse.assert_called_once_with("2018-04-23T18:25:43.511Z")
+
 
 @pytest.mark.parametrize("cfg_type", ["Configuration", "JSON"])
 def test_create(cfg_type, mocks: Mocks, context: yogi.Context, configuration: yogi.Configuration, monkeypatch):
     """Verifies that Branch can be instantiated with a given configuration"""
-    monkeypatch.setattr(yogi._branch, "convert_info_fields", lambda x: None)
-
     create_called = False
     get_info_called = False
     configuration_create_called = False
@@ -161,44 +159,81 @@ def test_create(cfg_type, mocks: Mocks, context: yogi.Context, configuration: yo
     assert str(branch.info) == "{}"
 
 
-def test_branch_info_properties(branch: yogi.Branch):
+def test_branch_info_properties(branch: yogi.Branch, mocker):
     """Verifies that the Branch class has all the properties that the LocalBranchInfo class has"""
+    ts = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_milliseconds(123))
+    mock_parse = mocker.patch.object(yogi.Timestamp, "parse", return_value=ts)
     assert isinstance(branch.info, yogi.LocalBranchInfo)
 
     for attr in [x for x in dir(branch.info) if not x.startswith("_")]:
         assert getattr(branch, attr) == getattr(branch.info, attr)
 
+    mock_parse.assert_called_once_with("2018-04-23T18:25:43.511Z")
 
-def test_branch_get_connected_branches(mocks: Mocks, branch: yogi.Branch):
+
+def test_get_connected_branches(mocks: Mocks, branch: yogi.Branch, mocker):
     """Verifies that the Branch class has a method for listing all remote branches that it is currently connected to"""
     branch_info_bytes_1 = make_branch_info_string("11111111-e89b-12d3-a456-426655440000").encode() + b"\0"
     branch_info_bytes_2 = make_branch_info_string("22222222-e89b-12d3-a456-426655440000").encode() + b"\0"
 
     trigger_error = True
 
-    def fn(branch, uuid, json, jsonsize, handlerFn, userarg):
+    def fn(branch, uuid, json, jsonsize, handler_fn, userarg):
         assert branch == 8888
         assert uuid is None
         assert json
         assert jsonsize >= len(branch_info_bytes_1)
         memmove(json, branch_info_bytes_1, len(branch_info_bytes_1))
-        handlerFn(yogi.ErrorCode.OK, userarg)
+        handler_fn(yogi.ErrorCode.OK, userarg)
 
         nonlocal trigger_error
         if trigger_error:
             trigger_error = False  # No error next time
-            handlerFn(yogi.ErrorCode.BUFFER_TOO_SMALL, userarg)
+            handler_fn(yogi.ErrorCode.BUFFER_TOO_SMALL, userarg)
             return yogi.ErrorCode.BUFFER_TOO_SMALL
         else:
             memmove(json, branch_info_bytes_2, len(branch_info_bytes_2))
-            handlerFn(yogi.ErrorCode.OK, userarg)
+            handler_fn(yogi.ErrorCode.OK, userarg)
             return yogi.ErrorCode.OK
 
     mocks.MOCK_BranchGetConnectedBranches(fn)
 
     ts = yogi.Timestamp.from_duration_since_epoch(yogi.Duration.from_milliseconds(123))
-    with patch.object(yogi.Timestamp, "parse", return_value=ts) as mock_method:
-        infos = branch.get_connected_branches()
+    mocker.patch.object(yogi.Timestamp, "parse", return_value=ts)
+    infos = branch.get_connected_branches()
 
     assert set([str(x).split("-")[0] for x in infos.keys()]) == {"11111111", "22222222"}
     assert list(infos.values())[0].name == "My Branch"
+
+
+def test_await_event_async(mocks: Mocks, branch: yogi.Branch):
+    """Verifies that the Branch class has a method to wait for branch events"""
+    branch_info_bytes = make_branch_info_string().encode() + b"\0"
+    called = False
+
+    def fn(branch, events, uuid, json, jsonsize, handler_fn, userarg):
+        assert branch == 8888
+        assert events == yogi.BranchEvents.BRANCH_QUERIED | yogi.BranchEvents.BRANCH_DISCOVERED
+        assert uuid is None
+        assert json
+        assert jsonsize >= len(branch_info_bytes)
+        memmove(json, branch_info_bytes, len(branch_info_bytes))
+        assert handler_fn
+        handler_fn(yogi.ErrorCode.OK, yogi.BranchEvents.BRANCH_DISCOVERED, yogi.ErrorCode.BUSY, userarg)
+        return yogi.ErrorCode.OK
+
+    def callback_fn(res, ev, evres, info):
+        assert isinstance(res, yogi.Result)
+        assert res == yogi.Success()
+        assert isinstance(ev, yogi.BranchEvents)
+        assert ev == yogi.BranchEvents.BRANCH_DISCOVERED
+        assert isinstance(evres, yogi.Result)
+        assert evres.error_code == yogi.ErrorCode.BUSY
+        assert isinstance(info, yogi.BranchDiscoveredEventInfo)
+        nonlocal called
+        called = True
+
+    mocks.MOCK_BranchAwaitEventAsync(fn)
+    branch.await_event_async(yogi.BranchEvents.BRANCH_QUERIED | yogi.BranchEvents.BRANCH_DISCOVERED, callback_fn)
+
+    assert called
