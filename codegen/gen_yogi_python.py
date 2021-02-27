@@ -1,11 +1,10 @@
 import munch
-import stringcase
 import textwrap
 
-from common import ROOT, VERSION, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_SUFFIX
-from common import replace_block_in_file
-from common import generate_copyright_headers
-from common import generate_conanfile_py
+from .common import VERSION, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_SUFFIX
+from .common import replace_block_in_file
+from .common import generate_copyright_headers
+from .common import generate_conanfile_py
 
 
 def generate(core_api: munch.Munch) -> None:
@@ -90,7 +89,15 @@ def generate_library_py(core_api: munch.Munch) -> None:
     api_fn_lines = []
     for name, props in core_api.functions.items():
         restype = core_api.type_mappings[props.return_type].py
-        fns_returning_c_int = ['YOGI_CheckBindingsCompatibility', 'YOGI_TimerCancel', 'YOGI_SignalSetCancelAwaitSignal']
+
+        fns_returning_c_int = ['YOGI_CheckBindingsCompatibility',
+                               'YOGI_TimerCancel',
+                               'YOGI_SignalSetCancelAwaitSignal',
+                               'YOGI_BranchCancelAwaitEvent',
+                               'YOGI_BranchCancelReceiveBroadcast',
+                               'YOGI_BranchSendBroadcast',
+                               'YOGI_BranchCancelSendBroadcast']
+
         if restype == 'c_int' and name not in fns_returning_c_int:
             restype = 'api_result_handler'
 

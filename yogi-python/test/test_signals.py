@@ -109,7 +109,7 @@ def test_await_signal(mocks: Mocks, signal_set: yogi.SignalSet):
         called = True
 
     def fn(sigset, fn_, userarg):
-        assert sigset == 1234
+        assert sigset == 1111
         assert fn_
         assert userarg is None
         fn_(yogi.ErrorCode.WRONG_OBJECT_TYPE, yogi.Signals.USR6, None, userarg)
@@ -143,7 +143,7 @@ def test_await_signal_with_sigarg(mocks: Mocks, signal_set: yogi.SignalSet):
         called = True
 
     def fn(sigset, fn_, userarg):
-        assert sigset == 1234
+        assert sigset == 1111
         assert fn_
         assert userarg is None
         fn_(yogi.ErrorCode.WRONG_OBJECT_TYPE, yogi.Signals.USR6, 'foo', userarg)
@@ -157,14 +157,14 @@ def test_await_signal_with_sigarg(mocks: Mocks, signal_set: yogi.SignalSet):
 def test_cancel_await_signal(mocks: Mocks, signal_set: yogi.SignalSet):
     """Verifies that waiting for a signal to arrive can be interrupted"""
     def fn(sigset):
-        assert sigset == 1234
+        assert sigset == 1111
         return yogi.ErrorCode.OK
 
     mocks.MOCK_SignalSetCancelAwaitSignal(fn)
     assert signal_set.cancel_await_signal()
 
     def fn2(sigset):
-        assert sigset == 1234
+        assert sigset == 1111
         return yogi.ErrorCode.OPERATION_NOT_RUNNING
 
     mocks.MOCK_SignalSetCancelAwaitSignal(fn2)

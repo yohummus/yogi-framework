@@ -47,7 +47,7 @@ def test_create(mocks: Mocks):
 
     mocks.MOCK_ConfigurationCreate(fn2)
 
-    configuration = yogi.Configuration(yogi.ConfigurationFlags.MUTABLE_CMD_LINE)
+    yogi.Configuration(yogi.ConfigurationFlags.MUTABLE_CMD_LINE)
 
 
 def test_flags(mocks: Mocks):
@@ -59,7 +59,7 @@ def test_flags(mocks: Mocks):
 def test_update_from_command_line(mocks: Mocks, configuration: yogi.Configuration):
     """Verifies that a configuration can be updated from command line arguments"""
     def fn(config, argc, argv, options):
-        assert config == 1234
+        assert config == 2222
         assert argc == 3
         assert argv[0][0:3] == b'ax\x00'
         assert argv[1][0:3] == b'by\x00'
@@ -74,7 +74,7 @@ def test_update_from_command_line(mocks: Mocks, configuration: yogi.Configuratio
 def test_update_from_json(mocks: Mocks, configuration: yogi.Configuration):
     """Verifies that a configuration can be updated from a JSON string"""
     def fn(config, json):
-        assert config == 1234
+        assert config == 2222
         assert json == b'foo'
         return yogi.ErrorCode.OK
 
@@ -85,7 +85,7 @@ def test_update_from_json(mocks: Mocks, configuration: yogi.Configuration):
 def test_update_from_file(mocks: Mocks, configuration: yogi.Configuration):
     """Verifies that a configuration can be updated from a JSON file"""
     def fn(config, filename):
-        assert config == 1234
+        assert config == 2222
         assert filename == b'foo'
         return yogi.ErrorCode.OK
 
@@ -96,7 +96,7 @@ def test_update_from_file(mocks: Mocks, configuration: yogi.Configuration):
 def test_dump(mocks: Mocks, configuration: yogi.Configuration, hello_bytes: bytes):
     """Verifies that a configuration can be dumped as JSON"""
     def fn(config, json, jsonsize, resvars, indent):
-        assert config == 1234
+        assert config == 2222
         assert json
         assert not jsonsize
         assert resvars
@@ -108,7 +108,7 @@ def test_dump(mocks: Mocks, configuration: yogi.Configuration, hello_bytes: byte
     assert configuration.dump() == 'hello'
 
     def fn2(config, json, jsonsize, resvars, indent):
-        assert config == 1234
+        assert config == 2222
         assert json
         assert not jsonsize
         assert not resvars
@@ -143,7 +143,7 @@ def test_to_json(mocks: Mocks, configuration: yogi.Configuration):
 def test_write_to_file(mocks: Mocks, configuration: yogi.Configuration):
     """Verifies that a configuration can be written to a file"""
     def fn(config, filename, resvars, indent):
-        assert config == 1234
+        assert config == 2222
         assert filename == b'foo'
         assert resvars
         assert indent == -1
@@ -167,9 +167,9 @@ def test_write_to_file(mocks: Mocks, configuration: yogi.Configuration):
 def test_validate(mocks: Mocks, configuration: yogi.Configuration):
     """Verifies that a configuration can be validated"""
     def fn(config, section, schema):
-        assert config == 1234
+        assert config == 2222
         assert section == b'foo'
-        assert schema == 1234
+        assert schema == 2222
         return yogi.ErrorCode.OK
 
     mocks.MOCK_ConfigurationValidate(fn)
@@ -187,7 +187,7 @@ def test_validate(mocks: Mocks, configuration: yogi.Configuration):
 def create_configuration(mocks: Mocks, flags=yogi.ConfigurationFlags.NONE):
     """Helper function to create a configuration with certain flags"""
     def fn(config, flags):
-        config.contents.value = 1234
+        config.contents.value = 2222
         return yogi.ErrorCode.OK
 
     mocks.MOCK_ConfigurationCreate(fn)

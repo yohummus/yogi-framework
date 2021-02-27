@@ -50,7 +50,7 @@ def test_start_async(mocks: Mocks, timer: yogi.Timer):
         called = True
 
     def fn(timer, duration, fn_, userarg):
-        assert timer == 1234
+        assert timer == 6666
         assert duration == 1234
         assert fn_
         assert userarg is None
@@ -85,14 +85,14 @@ def test_start_async_callback_cancel(mocks: Mocks, timer: yogi.Timer):
 def test_cancel(mocks: Mocks, timer: yogi.Timer):
     """Verifies that a timer can be canceled"""
     def fn(timer):
-        assert timer == 1234
+        assert timer == 6666
         return yogi.ErrorCode.OK
 
     mocks.MOCK_TimerCancel(fn)
     assert timer.cancel()
 
     def fn2(timer):
-        assert timer == 1234
+        assert timer == 6666
         return yogi.ErrorCode.TIMER_EXPIRED
 
     mocks.MOCK_TimerCancel(fn2)

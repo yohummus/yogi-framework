@@ -178,7 +178,7 @@ def test_create_logger(mocks: Mocks):
 
 def test_logger_get_verbosity(mocks: Mocks, logger: yogi.Logger):
     def fn(logger, verbosity):
-        assert logger == 1234
+        assert logger == 5555
         assert verbosity
         verbosity.contents.value = yogi.Verbosity.WARNING
         return yogi.ErrorCode.OK
@@ -191,7 +191,7 @@ def test_logger_set_verbosity(mocks: Mocks, logger: yogi.Logger):
     called = False
 
     def fn(logger, verbosity):
-        assert logger == 1234
+        assert logger == 5555
         assert verbosity == yogi.Verbosity.WARNING
         nonlocal called
         called = True
@@ -204,7 +204,7 @@ def test_logger_set_verbosity(mocks: Mocks, logger: yogi.Logger):
 
 def test_logger_log(mocks: Mocks, logger: yogi.Logger):
     def fn(logger, severity, file, line, msg):
-        assert logger == 1234
+        assert logger == 5555
         assert severity == yogi.Verbosity.WARNING
         assert file == b'foo'
         assert line == 123

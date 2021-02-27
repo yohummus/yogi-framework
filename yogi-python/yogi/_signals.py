@@ -100,7 +100,7 @@ class SignalSet(Object):
         """
         handle = c_void_p()
         yogi_core.YOGI_SignalSetCreate(byref(handle), context._handle, signals)
-        Object.__init__(self, handle, [context])
+        super().__init__(handle, [context])
 
     def await_signal_async(self,
                            fn: Union[Callable[[Result, Signals], Any], Callable[[Result, Signals, T], Any]]) -> None:

@@ -5,7 +5,6 @@ To run code-generation for specific sub-projects only, list them on the command 
 python codegen yogi-core yogi-cpp
 """
 
-import yaml
 import munch
 import pathlib
 import sys
@@ -22,4 +21,4 @@ mods_from_cmdline = ['gen_' + x.replace('-', '_') for x in sys.argv[1:]]
 all_mods = [x.stem for x in CODEGEN_DIR.glob('gen_*.py')]
 
 for mod in mods_from_cmdline or all_mods:
-    importlib.import_module(mod).generate(core_api)
+    importlib.import_module(f'codegen.{mod}').generate(core_api)

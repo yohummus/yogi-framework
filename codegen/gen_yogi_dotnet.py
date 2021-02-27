@@ -1,10 +1,10 @@
 import munch
 import stringcase
 
-from common import ROOT, VERSION, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_SUFFIX
-from common import replace_block_in_file
-from common import generate_copyright_headers
-from common import generate_conanfile_py
+from .common import VERSION, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_SUFFIX
+from .common import replace_block_in_file
+from .common import generate_copyright_headers
+from .common import generate_conanfile_py
 
 
 def generate(core_api: munch.Munch) -> None:
