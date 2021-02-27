@@ -584,28 +584,27 @@ class Branch(Object):
 
         return OperationId(res.value)
 
-#     def cancel_send_broadcast(self, oid: OperationId) -> bool:
-#         """Cancels a send broadcast operation.
-#
-#         Calling this function will cause the send operation with the specified
-#         operation ID to be canceled, resulting in the handler function
-#         registered via the send_broadcast_async() call that returned the same
-#         operation ID to be called with the Canceled error.
-#
-#         Note: If the send operation has already been carried out but the
-#               handler function has not been called yet, then cancelling the
-#               operation will fail and False will be returned.
-#
-#         Args:
-#             oid: ID of the send operation.
-#
-#         Returns:
-#             True if the operation has been canceled successfully.
-#         """
-#         res = yogi.YOGI_BranchCancelSendBroadcast(self._handle, oid.value)
-#         return false_if_specific_ec_else_raise(res,
-#                                                ErrorCode.INVALID_OPERATION_ID)
-#
+    def cancel_send_broadcast(self, oid: OperationId) -> bool:
+        """Cancels a send broadcast operation.
+
+        Calling this function will cause the send operation with the specified
+        operation ID to be canceled, resulting in the handler function
+        registered via the send_broadcast_async() call that returned the same
+        operation ID to be called with the Canceled error.
+
+        Note: If the send operation has already been carried out but the
+              handler function has not been called yet, then cancelling the
+              operation will fail and False will be returned.
+
+        Args:
+            oid: ID of the send operation.
+
+        Returns:
+            True if the operation has been canceled successfully.
+        """
+        res = yogi_core.YOGI_BranchCancelSendBroadcast(self._handle, oid.value)
+        return false_if_specific_ec_else_raise(res, ErrorCode.INVALID_OPERATION_ID)
+
 #     def receive_broadcast_async(self, fn: Callable[[Result, UUID, PayloadView,
 #                                                     Optional[bytearray]], Any],
 #                                 *,

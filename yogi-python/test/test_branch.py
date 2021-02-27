@@ -312,6 +312,24 @@ def test_send_broadcast_async(mocks: Mocks, branch: yogi.Branch):
     assert branch.send_broadcast_async(yogi.JsonView({}), handler_fn2, retry=False).value == 222
 
 
+def test_cancel_send_broadcast(mocks: Mocks, branch: yogi.Branch):
+    """Verifies that an asynchronous send broadcast operation can be cancelled"""
+    def fn(branch, oid):
+        assert branch == 8888
+        assert oid == 111
+        return yogi.ErrorCode.OK
+
+    mocks.MOCK_BranchCancelSendBroadcast(fn)
+    assert branch.cancel_send_broadcast(yogi.OperationId(111))
+
+    def fn2(branch, oid):
+        assert oid == 222
+        return yogi.ErrorCode.INVALID_OPERATION_ID
+
+    mocks.MOCK_BranchCancelSendBroadcast(fn2)
+    assert not branch.cancel_send_broadcast(yogi.OperationId(222))
+
+
 def test_cancel_receive_broadcast(mocks: Mocks, branch: yogi.Branch):
     """Verifies that a receive broadcast operation can be cancelled"""
     def fn(branch):
@@ -322,7 +340,6 @@ def test_cancel_receive_broadcast(mocks: Mocks, branch: yogi.Branch):
     assert branch.cancel_receive_broadcast()
 
     def fn2(branch):
-        assert branch == 8888
         return yogi.ErrorCode.OPERATION_NOT_RUNNING
 
     mocks.MOCK_BranchCancelReceiveBroadcast(fn2)
