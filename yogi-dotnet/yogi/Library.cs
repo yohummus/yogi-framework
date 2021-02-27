@@ -157,23 +157,26 @@ public static partial class Yogi
         }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        delegate int CheckBindingsCompatibilityDelegate(string bindver,
-            [MarshalAs(UnmanagedType.LPStr)] StringBuilder err, int errsize);
+        delegate int CheckBindingsCompatibilityDelegate(string bindver);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        delegate IntPtr GetLastErrorDetailsDelegate();
 
         static void CheckVersionCompatibility()
         {
-            var fn = GetDelegateForFunction<CheckBindingsCompatibilityDelegate>(
+            var compatFn = GetDelegateForFunction<CheckBindingsCompatibilityDelegate>(
                 "YOGI_CheckBindingsCompatibility");
+            var errorFn = GetDelegateForFunction<GetLastErrorDetailsDelegate>(
+                "YOGI_GetLastErrorDetails");
 
             // :CODEGEN_BEGIN:
             var bindingsVersion = "0.0.1-alpha";
             // :CODEGEN_END:
 
-            var err = new StringBuilder(256);
-            int res = fn(bindingsVersion, err, err.Capacity);
+            int res = compatFn(bindingsVersion);
             if (res < 0)
             {
-                throw new ExternalException(err.ToString());
+                throw new ExternalException(Marshal.PtrToStringAnsi(errorFn()));
             }
         }
 

@@ -80,11 +80,11 @@ class Library final : LibraryImpl {
     const char* bindings_version = "0.0.1-alpha";
     // :CODEGEN_END:
 
-    auto fn = get_function_address<int (*)(const char*, char*, int)>("YOGI_CheckBindingsCompatibility");
+    auto compat_fn = get_function_address<int (*)(const char*)>("YOGI_CheckBindingsCompatibility");
+    auto error_fn = get_function_address<const char* (*)()>("YOGI_GetLastErrorDetails");
 
-    char err[256] = {0};
-    if (fn(bindings_version, err, sizeof(err)) != 0) {
-      std::cerr << "FATAL: " << err << std::endl;
+    if (compat_fn(bindings_version) != 0) {
+      std::cerr << "FATAL: " << error_fn() << std::endl;
       std::exit(1);
     }
   }
