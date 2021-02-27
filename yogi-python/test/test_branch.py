@@ -235,5 +235,38 @@ def test_await_event_async(mocks: Mocks, branch: yogi.Branch):
 
     mocks.MOCK_BranchAwaitEventAsync(fn)
     branch.await_event_async(yogi.BranchEvents.BRANCH_QUERIED | yogi.BranchEvents.BRANCH_DISCOVERED, callback_fn)
-
     assert called
+
+
+def test_cancel_await_event(mocks: Mocks, branch: yogi.Branch):
+    """Verifies that a wait for branch events operation can be cancelled"""
+    def fn(branch):
+        assert branch == 8888
+        return yogi.ErrorCode.OK
+
+    mocks.MOCK_BranchCancelAwaitEvent(fn)
+    assert branch.cancel_await_event()
+
+    def fn2(branch):
+        assert branch == 8888
+        return yogi.ErrorCode.OPERATION_NOT_RUNNING
+
+    mocks.MOCK_BranchCancelAwaitEvent(fn2)
+    assert not branch.cancel_await_event()
+
+
+def test_cancel_receive_broadcast(mocks: Mocks, branch: yogi.Branch):
+    """Verifies that a receive broadcast operation can be cancelled"""
+    def fn(branch):
+        assert branch == 8888
+        return yogi.ErrorCode.OK
+
+    mocks.MOCK_BranchCancelReceiveBroadcast(fn)
+    assert branch.cancel_receive_broadcast()
+
+    def fn2(branch):
+        assert branch == 8888
+        return yogi.ErrorCode.OPERATION_NOT_RUNNING
+
+    mocks.MOCK_BranchCancelReceiveBroadcast(fn2)
+    assert not branch.cancel_receive_broadcast()

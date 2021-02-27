@@ -27,7 +27,7 @@ from ._configuration import Configuration
 from ._constants import Constants
 from ._context import Context
 from ._enums import BranchEvents, Encoding
-from ._errors import ErrorCode, FailureException, Result, Success, error_code_to_result
+from ._errors import ErrorCode, FailureException, Result, Success, error_code_to_result, false_if_specific_ec_else_raise
 from ._handler import Handler
 from ._json_view import JsonView
 from ._library import yogi_core
@@ -216,6 +216,9 @@ class ConnectionLostEventInfo(BranchEventInfo):
 
     def __init__(self, info_string: str):
         super().__init__(info_string)
+
+
+AwaitEventFn = Callable[[Result, BranchEvents, Result, Optional[BranchEventInfo]], Any]
 
 
 class Branch(Object):
@@ -447,9 +450,7 @@ class Branch(Object):
 
         return branches
 
-    def await_event_async(self, events: BranchEvents,
-                          fn: Callable[[Result, BranchEvents, Result, Optional[BranchEventInfo]], Any],
-                          buffer_size: int = 1024) -> None:
+    def await_event_async(self, events: BranchEvents, fn: AwaitEventFn, buffer_size: int = 1024) -> None:
         """Waits for a branch event to occur.
 
         This function will register the handler fn to be executed once one of
@@ -500,19 +501,18 @@ class Branch(Object):
         with Handler(yogi_core.YOGI_BranchAwaitEventAsync.argtypes[5], wrapped_fn) as handler:
             yogi_core.YOGI_BranchAwaitEventAsync(self._handle, events, None, s, sizeof(s), handler, None)
 
-#     def cancel_await_event(self) -> bool:
-#         """Cancels waiting for a branch event.
-#
-#         Calling this function will cause the handler registerd via
-#         await_event_async() to be called with a cancellation error.
-#
-#         Returns:
-#             True if the wait operation was cancelled successfully.
-#         """
-#         res = yogi.YOGI_BranchCancelAwaitEvent(self._handle)
-#         return false_if_specific_ec_else_raise(res,
-#                                                ErrorCode.OPERATION_NOT_RUNNING)
-#
+    def cancel_await_event(self) -> bool:
+        """Cancels waiting for a branch event.
+
+        Calling this function will cause the handler registerd via
+        await_event_async() to be called with a cancellation error.
+
+        Returns:
+            True if the wait operation was cancelled successfully.
+        """
+        res = yogi_core.YOGI_BranchCancelAwaitEvent(self._handle)
+        return false_if_specific_ec_else_raise(res, ErrorCode.OPERATION_NOT_RUNNING)
+
 #     def send_broadcast(self, payload: Union[PayloadView, JsonView,
 #                                             MsgpackView],
 #                        *, block: bool = True) -> bool:
@@ -672,22 +672,21 @@ class Branch(Object):
 #             yogi.YOGI_BranchReceiveBroadcastAsync(self._handle, uuid_buffer,
 #                                                   encoding, buffer_ptr,
 #                                                   len(buffer), handler, None)
-#
-#     def cancel_receive_broadcast(self) -> bool:
-#         """Cancels a receive broadcast operation.
-#
-#         Calling this function will cause the handler registered via
-#         receive_broadcast_async() to be called with the CANCELED error.
-#
-#         Note: If the receive handler has already been scheduled for execution
-#               this function will return False.
-#
-#         Returns:
-#             True if the operation has been canceled successfully.
-#         """
-#         res = yogi.YOGI_BranchCancelReceiveBroadcast(self._handle)
-#         return false_if_specific_ec_else_raise(res,
-#                                                ErrorCode.OPERATION_NOT_RUNNING)
+
+    def cancel_receive_broadcast(self) -> bool:
+        """Cancels a receive broadcast operation.
+
+        Calling this function will cause the handler registered via
+        receive_broadcast_async() to be called with the CANCELED error.
+
+        Note: If the receive handler has already been scheduled for execution
+              this function will return False.
+
+        Returns:
+            True if the operation has been canceled successfully.
+        """
+        res = yogi_core.YOGI_BranchCancelReceiveBroadcast(self._handle)
+        return false_if_specific_ec_else_raise(res, ErrorCode.OPERATION_NOT_RUNNING)
 
     def __get_info(self) -> LocalBranchInfo:
         s = create_string_buffer(1024)

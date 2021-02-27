@@ -203,7 +203,7 @@ yogi_core.YOGI_BranchAwaitEventAsync.restype = api_result_handler
 yogi_core.YOGI_BranchAwaitEventAsync.argtypes = [c_void_p, c_int, c_void_p, POINTER(
     c_char), c_int, CFUNCTYPE(None, c_int, c_int, c_int, c_void_p), c_void_p]
 
-yogi_core.YOGI_BranchCancelAwaitEvent.restype = api_result_handler
+yogi_core.YOGI_BranchCancelAwaitEvent.restype = c_int
 yogi_core.YOGI_BranchCancelAwaitEvent.argtypes = [c_void_p]
 
 yogi_core.YOGI_BranchSendBroadcast.restype = api_result_handler
