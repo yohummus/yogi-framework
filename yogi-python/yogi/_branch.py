@@ -219,6 +219,7 @@ class ConnectionLostEventInfo(BranchEventInfo):
 
 
 AwaitEventFn = Callable[[Result, BranchEvents, Result, Optional[BranchEventInfo]], Any]
+SendBroadcastFn = Callable[[Result, OperationId], Any]
 
 
 class Branch(Object):
@@ -546,50 +547,43 @@ class Branch(Object):
                                                  1 if block else 0)
         return false_if_specific_ec_else_raise(res, ErrorCode.TX_QUEUE_FULL)
 
-#     def send_broadcast_async(self, payload: Union[PayloadView, JsonView,
-#                                                   MsgpackView],
-#                              fn: Callable[[Result, OperationId], Any],
-#                              *, retry: bool = True) -> OperationId:
-#         """Sends a broadcast message to all connected branches.
-#
-#         Broadcast messages contain arbitrary data encoded as JSON or
-#         MessagePack. As opposed to sending messages via terminals, broadcast
-#         messages don't have to comply with a defined schema for the payload;
-#         any data that can be encoded is valid. This implies that validating the
-#         data is entirely up to the user code.
-#
-#         The handler function fn will be called once the message has been put
-#         into the send queues of all connected branches.
-#
-#         The function returns an ID which uniquely identifies this send
-#         operation until fn has been called. It can be used in a subsequent
-#         cancel_send_broadcast() call to abort the operation.
-#
-#         Args:
-#             payload: Payload to send.
-#             fn:      Handler to call once the operation finishes.
-#             retry:   Retry sending the message if a send queue is full.
-#
-#         Returns:
-#             ID of the send operation.
-#         """
-#         if not isinstance(payload, PayloadView):
-#             payload = PayloadView(payload)
-#
-#         def wrapped_fn(res, oid):
-#             fn(res, OperationId(oid))
-#
-#         with Handler(yogi.YOGI_BranchSendBroadcastAsync.argtypes[5], wrapped_fn
-#                      ) as handler:
-#             res = yogi.YOGI_BranchSendBroadcastAsync(self._handle,
-#                                                      payload.encoding,
-#                                                      payload.data.obj,
-#                                                      payload.size,
-#                                                      1 if retry else 0,
-#                                                      handler, None)
-#
-#         return OperationId(res.value)
-#
+    def send_broadcast_async(self, payload: Union[PayloadView, JsonView, MsgpackView], fn: SendBroadcastFn,
+                             *, retry: bool = True) -> OperationId:
+        """Sends a broadcast message to all connected branches.
+
+        Broadcast messages contain arbitrary data encoded as JSON or
+        MessagePack. As opposed to sending messages via terminals, broadcast
+        messages don't have to comply with a defined schema for the payload;
+        any data that can be encoded is valid. This implies that validating the
+        data is entirely up to the user code.
+
+        The handler function fn will be called once the message has been put
+        into the send queues of all connected branches.
+
+        The function returns an ID which uniquely identifies this send
+        operation until fn has been called. It can be used in a subsequent
+        cancel_send_broadcast() call to abort the operation.
+
+        Args:
+            payload: Payload to send.
+            fn:      Handler to call once the operation finishes.
+            retry:   Retry sending the message if a send queue is full.
+
+        Returns:
+            ID of the send operation.
+        """
+        if not isinstance(payload, PayloadView):
+            payload = PayloadView(payload)
+
+        def wrapped_fn(res, oid):
+            fn(res, OperationId(oid))
+
+        with Handler(yogi_core.YOGI_BranchSendBroadcastAsync.argtypes[5], wrapped_fn) as handler:
+            res = yogi_core.YOGI_BranchSendBroadcastAsync(self._handle, payload.encoding, payload.data.obj,
+                                                          payload.size, 1 if retry else 0, handler, None)
+
+        return OperationId(res.value)
+
 #     def cancel_send_broadcast(self, oid: OperationId) -> bool:
 #         """Cancels a send broadcast operation.
 #

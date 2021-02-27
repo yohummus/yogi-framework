@@ -268,6 +268,49 @@ def test_send_broadcast(mocks: Mocks, branch: yogi.Branch):
     mocks.MOCK_BranchSendBroadcast(fn)
     assert branch.send_broadcast(yogi.JsonView({}), block=True)
 
+    def fn2(branch, enc, data, datasize, block):
+        assert block == 0
+        return yogi.ErrorCode.TX_QUEUE_FULL
+
+    mocks.MOCK_BranchSendBroadcast(fn2)
+    assert not branch.send_broadcast(yogi.JsonView({}), block=False)
+
+
+def test_send_broadcast_async(mocks: Mocks, branch: yogi.Branch):
+    """Verifies that a broadcast can be sent asynchronously"""
+    called = False
+
+    def fn(branch, enc, data, datasize, retry, handler_fn, userarg):
+        assert branch == 8888
+        assert enc == yogi.Encoding.JSON
+        assert c_char_p(data).value == b'{}'
+        assert datasize == 3
+        assert retry == 1
+        assert handler_fn
+        handler_fn(yogi.ErrorCode.OK, 345, userarg)
+        return 111
+
+    def handler_fn(res, oid):
+        assert res == yogi.Success()
+        assert oid.value == 345
+        nonlocal called
+        called = True
+
+    mocks.MOCK_BranchSendBroadcastAsync(fn)
+    assert branch.send_broadcast_async(yogi.JsonView({}), handler_fn, retry=True).value == 111
+    assert called
+
+    def fn2(branch, enc, data, datasize, retry, handler_fn, userarg):
+        assert retry == 0
+        handler_fn(yogi.ErrorCode.BUSY, 345, userarg)
+        return 222
+
+    def handler_fn2(res, oid):
+        assert res.error_code == yogi.ErrorCode.BUSY
+
+    mocks.MOCK_BranchSendBroadcastAsync(fn2)
+    assert branch.send_broadcast_async(yogi.JsonView({}), handler_fn2, retry=False).value == 222
+
 
 def test_cancel_receive_broadcast(mocks: Mocks, branch: yogi.Branch):
     """Verifies that a receive broadcast operation can be cancelled"""
