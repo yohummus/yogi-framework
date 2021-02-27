@@ -94,7 +94,9 @@ def generate_library_py(core_api: munch.Munch) -> None:
                                'YOGI_TimerCancel',
                                'YOGI_SignalSetCancelAwaitSignal',
                                'YOGI_BranchCancelAwaitEvent',
-                               'MOCK_BranchCancelReceiveBroadcast']
+                               'YOGI_BranchCancelReceiveBroadcast',
+                               'YOGI_BranchSendBroadcast',
+                               'YOGI_BranchCancelSendBroadcast']
 
         if restype == 'c_int' and name not in fns_returning_c_int:
             restype = 'api_result_handler'

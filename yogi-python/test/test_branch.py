@@ -20,7 +20,7 @@
 import yogi
 import pytest
 import json
-from ctypes import memmove
+from ctypes import memmove, c_char_p
 from uuid import UUID
 
 from .conftest import Mocks
@@ -253,6 +253,20 @@ def test_cancel_await_event(mocks: Mocks, branch: yogi.Branch):
 
     mocks.MOCK_BranchCancelAwaitEvent(fn2)
     assert not branch.cancel_await_event()
+
+
+def test_send_broadcast(mocks: Mocks, branch: yogi.Branch):
+    """Verifies that a broadcast can be sent synchronously"""
+    def fn(branch, enc, data, datasize, block):
+        assert branch == 8888
+        assert enc == yogi.Encoding.JSON
+        assert c_char_p(data).value == b'{}'
+        assert datasize == 3
+        assert block == 1
+        return yogi.ErrorCode.OK
+
+    mocks.MOCK_BranchSendBroadcast(fn)
+    assert branch.send_broadcast(yogi.JsonView({}), block=True)
 
 
 def test_cancel_receive_broadcast(mocks: Mocks, branch: yogi.Branch):

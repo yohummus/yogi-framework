@@ -513,42 +513,39 @@ class Branch(Object):
         res = yogi_core.YOGI_BranchCancelAwaitEvent(self._handle)
         return false_if_specific_ec_else_raise(res, ErrorCode.OPERATION_NOT_RUNNING)
 
-#     def send_broadcast(self, payload: Union[PayloadView, JsonView,
-#                                             MsgpackView],
-#                        *, block: bool = True) -> bool:
-#         """Sends a broadcast message to all connected branches.
-#
-#         Broadcast messages contain arbitrary data encoded as JSON or
-#         MessagePack. As opposed to sending messages via terminals, broadcast
-#         messages don't have to comply with a defined schema for the payload;
-#         any data that can be encoded is valid. This implies that validating the
-#         data is entirely up to the user code.
-#
-#         Setting the block parameter to False will cause the function to skip
-#         sending the message to branches that have a full send queue. If at
-#         least one branch was skipped, the function will return False. If the
-#         parameter is set to True instead, the function will block until the
-#         message has been put into the send queues of all connected branches.
-#
-#         Attention: Calling this function from within a handler function
-#                    executed through the branch's context with block set to True
-#                    will cause a dead-lock if any send queue is full!
-#
-#         Args:
-#             payload: Payload to send.
-#             block:   Block until message has been put into all send buffers.
-#
-#         Returns:
-#             True if the message was successfully put into all send buffers.
-#         """
-#         if not isinstance(payload, PayloadView):
-#             payload = PayloadView(payload)
-#
-#         res = yogi.YOGI_BranchSendBroadcast(self._handle, payload.encoding,
-#                                             payload.data.obj, payload.size,
-#                                             1 if block else 0)
-#         return false_if_specific_ec_else_raise(res, ErrorCode.TX_QUEUE_FULL)
-#
+    def send_broadcast(self, payload: Union[PayloadView, JsonView, MsgpackView], *, block: bool = True) -> bool:
+        """Sends a broadcast message to all connected branches.
+
+        Broadcast messages contain arbitrary data encoded as JSON or
+        MessagePack. As opposed to sending messages via terminals, broadcast
+        messages don't have to comply with a defined schema for the payload;
+        any data that can be encoded is valid. This implies that validating the
+        data is entirely up to the user code.
+
+        Setting the block parameter to False will cause the function to skip
+        sending the message to branches that have a full send queue. If at
+        least one branch was skipped, the function will return False. If the
+        parameter is set to True instead, the function will block until the
+        message has been put into the send queues of all connected branches.
+
+        Attention: Calling this function from within a handler function
+                   executed through the branch's context with block set to True
+                   will cause a dead-lock if any send queue is full!
+
+        Args:
+            payload: Payload to send.
+            block:   Block until message has been put into all send buffers.
+
+        Returns:
+            True if the message was successfully put into all send buffers.
+        """
+        if not isinstance(payload, PayloadView):
+            payload = PayloadView(payload)
+
+        res = yogi_core.YOGI_BranchSendBroadcast(self._handle, payload.encoding, payload.data.obj, payload.size,
+                                                 1 if block else 0)
+        return false_if_specific_ec_else_raise(res, ErrorCode.TX_QUEUE_FULL)
+
 #     def send_broadcast_async(self, payload: Union[PayloadView, JsonView,
 #                                                   MsgpackView],
 #                              fn: Callable[[Result, OperationId], Any],

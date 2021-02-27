@@ -206,21 +206,21 @@ yogi_core.YOGI_BranchAwaitEventAsync.argtypes = [c_void_p, c_int, c_void_p, POIN
 yogi_core.YOGI_BranchCancelAwaitEvent.restype = c_int
 yogi_core.YOGI_BranchCancelAwaitEvent.argtypes = [c_void_p]
 
-yogi_core.YOGI_BranchSendBroadcast.restype = api_result_handler
+yogi_core.YOGI_BranchSendBroadcast.restype = c_int
 yogi_core.YOGI_BranchSendBroadcast.argtypes = [c_void_p, c_int, c_void_p, c_int, c_int]
 
 yogi_core.YOGI_BranchSendBroadcastAsync.restype = api_result_handler
 yogi_core.YOGI_BranchSendBroadcastAsync.argtypes = [
     c_void_p, c_int, c_void_p, c_int, c_int, CFUNCTYPE(None, c_int, c_int, c_void_p), c_void_p]
 
-yogi_core.YOGI_BranchCancelSendBroadcast.restype = api_result_handler
+yogi_core.YOGI_BranchCancelSendBroadcast.restype = c_int
 yogi_core.YOGI_BranchCancelSendBroadcast.argtypes = [c_void_p, c_int]
 
 yogi_core.YOGI_BranchReceiveBroadcastAsync.restype = api_result_handler
 yogi_core.YOGI_BranchReceiveBroadcastAsync.argtypes = [
     c_void_p, c_void_p, c_int, c_void_p, c_int, CFUNCTYPE(None, c_int, c_int, c_void_p), c_void_p]
 
-yogi_core.YOGI_BranchCancelReceiveBroadcast.restype = api_result_handler
+yogi_core.YOGI_BranchCancelReceiveBroadcast.restype = c_int
 yogi_core.YOGI_BranchCancelReceiveBroadcast.argtypes = [c_void_p]
 
 yogi_core.YOGI_Destroy.restype = api_result_handler
