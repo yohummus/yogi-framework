@@ -45,16 +45,18 @@ except OSError as e:
         'ERROR: Could not load {}. Make sure the library is in your library search path.'.format(lib_filename)) from e
 
 # Check if the bindings version is compatible with the core version
-yogi_core.YOGI_CheckBindingsCompatibility.restype = int
-yogi_core.YOGI_CheckBindingsCompatibility.argtypes = [c_char_p, c_char_p, c_int]
+yogi_core.YOGI_CheckBindingsCompatibility.restype = c_int
+yogi_core.YOGI_CheckBindingsCompatibility.argtypes = [c_char_p]
+
+yogi_core.YOGI_GetLastErrorDetails.restype = c_char_p
+yogi_core.YOGI_GetLastErrorDetails.argtypes = []
 
 # :CODEGEN_BEGIN:
 bindings_version = '0.0.1-alpha'
 # :CODEGEN_END:
 
-err = create_string_buffer(256)
-if yogi_core.YOGI_CheckBindingsCompatibility(bindings_version.encode(), err, sizeof(err)) != 0:
-    raise ImportError(err.value.decode())
+if yogi_core.YOGI_CheckBindingsCompatibility(bindings_version.encode()) != 0:
+    raise ImportError(yogi_core.YOGI_GetLastErrorDetails().decode())
 
 # Setup Yogi Core API function signatures
 # :CODEGEN_BEGIN:
