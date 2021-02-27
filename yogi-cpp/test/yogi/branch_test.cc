@@ -576,7 +576,7 @@ TEST_F(BranchTest, ReceiveBroadcastAsync) {
     EXPECT_EQ(res, yogi::Success());
     EXPECT_NE(source, yogi::Uuid{});
     EXPECT_EQ(payload.size(), 1);
-    EXPECT_EQ(buffer->size(), 1);
+    EXPECT_EQ(buffer->size(), 100);  // kMaxMessagePayloadSize of yogi-core-mock
     called = true;
   };
 
@@ -587,7 +587,7 @@ TEST_F(BranchTest, ReceiveBroadcastAsync) {
     *static_cast<char*>(uuid) = 111;
     EXPECT_EQ(enc, YOGI_ENC_JSON);
     EXPECT_NE(data, nullptr);
-    EXPECT_EQ(datasize, 1);  // kMaxMessagePayloadSize of yogi-core-mock
+    EXPECT_EQ(datasize, 100);  // kMaxMessagePayloadSize of yogi-core-mock
     EXPECT_NE(userarg, nullptr);
     fn(YOGI_OK, 1, userarg);
     return YOGI_OK;
