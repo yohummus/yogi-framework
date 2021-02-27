@@ -50,7 +50,7 @@ int default_GetConstant(void* dest, int constant) {
     case YOGI_CONST_DEFAULT_LOGGER_VERBOSITY: *static_cast<int*>(dest) = 1; break;
     case YOGI_CONST_DEFAULT_LOG_TIME_FORMAT: *static_cast<const char**>(dest) = "foobar"; break;
     case YOGI_CONST_DEFAULT_LOG_FORMAT: *static_cast<const char**>(dest) = "foobar"; break;
-    case YOGI_CONST_MAX_MESSAGE_PAYLOAD_SIZE: *static_cast<int*>(dest) = 1; break;
+    case YOGI_CONST_MAX_MESSAGE_PAYLOAD_SIZE: *static_cast<int*>(dest) = 100; break;
     case YOGI_CONST_DEFAULT_TIME_FORMAT: *static_cast<const char**>(dest) = "foobar"; break;
     case YOGI_CONST_DEFAULT_INF_DURATION_STRING: *static_cast<const char**>(dest) = "foobar"; break;
     case YOGI_CONST_DEFAULT_DURATION_FORMAT: *static_cast<const char**>(dest) = "foobar"; break;

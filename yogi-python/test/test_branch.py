@@ -222,7 +222,7 @@ def test_await_event_async(mocks: Mocks, branch: yogi.Branch):
         handler_fn(yogi.ErrorCode.OK, yogi.BranchEvents.BRANCH_DISCOVERED, yogi.ErrorCode.BUSY, userarg)
         return yogi.ErrorCode.OK
 
-    def callback_fn(res, ev, evres, info):
+    def handler_fn(res, ev, evres, info):
         assert isinstance(res, yogi.Result)
         assert res == yogi.Success()
         assert isinstance(ev, yogi.BranchEvents)
@@ -234,7 +234,7 @@ def test_await_event_async(mocks: Mocks, branch: yogi.Branch):
         called = True
 
     mocks.MOCK_BranchAwaitEventAsync(fn)
-    branch.await_event_async(yogi.BranchEvents.BRANCH_QUERIED | yogi.BranchEvents.BRANCH_DISCOVERED, callback_fn)
+    branch.await_event_async(yogi.BranchEvents.BRANCH_QUERIED | yogi.BranchEvents.BRANCH_DISCOVERED, handler_fn)
     assert called
 
 
@@ -291,7 +291,8 @@ def test_send_broadcast_async(mocks: Mocks, branch: yogi.Branch):
         return 111
 
     def handler_fn(res, oid):
-        assert res == yogi.Success()
+        assert isinstance(res, yogi.Success)
+        assert isinstance(oid, yogi.OperationId)
         assert oid.value == 345
         nonlocal called
         called = True
@@ -330,8 +331,69 @@ def test_cancel_send_broadcast(mocks: Mocks, branch: yogi.Branch):
     assert not branch.cancel_send_broadcast(yogi.OperationId(222))
 
 
+def test_receive_broadcast_async_simple(mocks: Mocks, branch: yogi.Branch):
+    """Verifies that a broadcast can be received asynchronously without a custom receive buffer"""
+    called = False
+
+    def fn(branch, uuid, enc, data, datasize, handler_fn, userarg):
+        assert branch == 8888
+        assert uuid
+        memmove(uuid, b'\x01\x02\x03\x04', 4)
+        assert enc == yogi.Encoding.JSON
+        assert data
+        assert datasize >= 3
+        memmove(data, b'{}', 2)
+        assert handler_fn
+        handler_fn(yogi.ErrorCode.OK, 2, userarg)
+        return yogi.ErrorCode.OK
+
+    def handler_fn(res, uuid, payload):
+        assert isinstance(res, yogi.Success)
+        assert isinstance(uuid, UUID)
+        assert uuid.bytes[:4] == b'\x01\x02\x03\x04'
+        assert isinstance(payload, yogi.PayloadView)
+        assert payload.encoding == yogi.Encoding.JSON
+        assert payload.size == 2
+        assert payload.data == b'{}'
+        nonlocal called
+        called = True
+
+    mocks.MOCK_BranchReceiveBroadcastAsync(fn)
+    branch.receive_broadcast_async(handler_fn, encoding=yogi.Encoding.JSON)
+    assert called
+
+
+def test_receive_broadcast_async_custom_buffer(mocks: Mocks, branch: yogi.Branch):
+    """Verifies that a broadcast can be received asynchronously with a custom receive buffer"""
+    called = False
+
+    def fn(branch, uuid, enc, data, datasize, handler_fn, userarg):
+        assert enc == yogi.Encoding.MSGPACK
+        assert data
+        assert datasize == 50
+        memmove(data, b'\x80', 1)
+        assert handler_fn
+        handler_fn(yogi.ErrorCode.OK, 1, userarg)
+        return yogi.ErrorCode.OK
+
+    def handler_fn(res, uuid, payload):
+        assert isinstance(res, yogi.Success)
+        assert isinstance(payload, yogi.PayloadView)
+        assert payload.encoding == yogi.Encoding.MSGPACK
+        assert payload.size == 1
+        assert payload.data == b'\x80'
+        nonlocal called
+        called = True
+
+    mocks.MOCK_BranchReceiveBroadcastAsync(fn)
+    buffer = bytearray(50)
+    branch.receive_broadcast_async(handler_fn, encoding=yogi.Encoding.MSGPACK, buffer=buffer)
+    assert called
+    assert buffer[:1] == b'\x80'
+
+
 def test_cancel_receive_broadcast(mocks: Mocks, branch: yogi.Branch):
-    """Verifies that a receive broadcast operation can be cancelled"""
+    """Verifies that an asynchronous receive broadcast operation can be cancelled"""
     def fn(branch):
         assert branch == 8888
         return yogi.ErrorCode.OK

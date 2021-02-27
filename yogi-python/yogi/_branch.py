@@ -21,7 +21,7 @@ import json
 import inspect
 from uuid import UUID
 from typing import Any, Callable, Dict, Optional, Union
-from ctypes import c_void_p, c_char, c_char_p, byref, POINTER, create_string_buffer, sizeof
+from ctypes import c_void_p, c_char, byref, create_string_buffer, sizeof
 
 from ._configuration import Configuration
 from ._constants import Constants
@@ -220,6 +220,8 @@ class ConnectionLostEventInfo(BranchEventInfo):
 
 AwaitEventFn = Callable[[Result, BranchEvents, Result, Optional[BranchEventInfo]], Any]
 SendBroadcastFn = Callable[[Result, OperationId], Any]
+ReceiveBroadcastFn = Callable[[Result, UUID, PayloadView, Optional[bytearray]], Any]
+ReceiveBroadcastSimpleFn = Callable[[Result, UUID, PayloadView], Any]
 
 
 class Branch(Object):
@@ -547,8 +549,8 @@ class Branch(Object):
                                                  1 if block else 0)
         return false_if_specific_ec_else_raise(res, ErrorCode.TX_QUEUE_FULL)
 
-    def send_broadcast_async(self, payload: Union[PayloadView, JsonView, MsgpackView], fn: SendBroadcastFn,
-                             *, retry: bool = True) -> OperationId:
+    def send_broadcast_async(self, payload: Union[PayloadView, JsonView, MsgpackView], fn: SendBroadcastFn, *,
+                             retry: bool = True) -> OperationId:
         """Sends a broadcast message to all connected branches.
 
         Broadcast messages contain arbitrary data encoded as JSON or
@@ -605,63 +607,57 @@ class Branch(Object):
         res = yogi_core.YOGI_BranchCancelSendBroadcast(self._handle, oid.value)
         return false_if_specific_ec_else_raise(res, ErrorCode.INVALID_OPERATION_ID)
 
-#     def receive_broadcast_async(self, fn: Callable[[Result, UUID, PayloadView,
-#                                                     Optional[bytearray]], Any],
-#                                 *,
-#                                 encoding: Encoding = Encoding.MSGPACK,
-#                                 buffer: Optional[bytearray] = None
-#                                 ) -> None:
-#         """Receives a broadcast message from any of the connected branches.
-#
-#         Broadcast messages contain arbitrary data encoded as JSON or
-#         MessagePack. As opposed to sending messages via terminals, broadcast
-#         messages don't have to comply with a defined schema for the payload;
-#         any data that can be encoded is valid. This implies that validating the
-#         data is entirely up to the user code.
-#
-#         This function will register fn to be called once a broadcast message
-#         has been received. The payload will be encoded as per encoding.
-#
-#         Attention: If a custom buffer is specified and the received payload
-#                    does not fit into it then fn will be called with the
-#                    BUFFER_TOO_SMALL error and the buffer will contain as
-#                    much received data as possible. In this case, the payload
-#                    view passed to fn will be invalid.
-#
-#         If this function is called while a previous receive operation is still
-#         active then the previous operation will be canceled with the CANCELED
-#         error.
-#
-#         Attention: Broadcast messages do not get queued, i.e. if a branch is
-#                    not actively receiving broadcast messages then they will be
-#                    discarded. To ensure that no messages get missed, call
-#                    receive_broadcast_async() again from within the handler fn.
-#
-#         Args:
-#             fn:       Handler to call for the received broadcast message.
-#             encoding: Encoding to use for the received payload.
-#             buffer:   Custom buffer to use for receiving the payload.
-#         """
-#         if buffer is None:
-#             buffer = bytearray(Constants.MAX_MESSAGE_PAYLOAD_SIZE)
-#
-#         uuid_buffer = create_string_buffer(16)
-#         buffer_ptr = (c_char * len(buffer)).from_buffer(buffer)
-#
-#         def wrapped_fn(res, size):
-#             uuid = UUID(bytes=uuid_buffer.raw)
-#             payload = PayloadView(buffer, size, encoding)
-#
-#             if len(inspect.signature(fn).parameters) == 3:
-#                 fn(res, uuid, payload)
-#             else:
-#                 fn(res, uuid, payload, buffer)
-#
-#         with Handler(yogi.YOGI_BranchReceiveBroadcastAsync.argtypes[5],
-#                      wrapped_fn) as handler:
-#             yogi.YOGI_BranchReceiveBroadcastAsync(self._handle, uuid_buffer,
-#                                                   encoding, buffer_ptr,
-#                                                   len(buffer), handler, None)
+    def receive_broadcast_async(self, fn: Union[ReceiveBroadcastFn, ReceiveBroadcastSimpleFn], *,
+                                encoding: Encoding = Encoding.MSGPACK, buffer: Optional[bytearray] = None) -> None:
+        """Receives a broadcast message from any of the connected branches.
+
+        Broadcast messages contain arbitrary data encoded as JSON or
+        MessagePack. As opposed to sending messages via terminals, broadcast
+        messages don't have to comply with a defined schema for the payload;
+        any data that can be encoded is valid. This implies that validating the
+        data is entirely up to the user code.
+
+        This function will register fn to be called once a broadcast message
+        has been received. The payload will be encoded as per encoding.
+
+        Attention: If a custom buffer is specified and the received payload
+                   does not fit into it then fn will be called with the
+                   BUFFER_TOO_SMALL error and the buffer will contain as
+                   much received data as possible. In this case, the payload
+                   view passed to fn will be invalid.
+
+        If this function is called while a previous receive operation is still
+        active then the previous operation will be canceled with the CANCELED
+        error.
+
+        Attention: Broadcast messages do not get queued, i.e. if a branch is
+                   not actively receiving broadcast messages then they will be
+                   discarded. To ensure that no messages get missed, call
+                   receive_broadcast_async() again from within the handler fn.
+
+        Args:
+            fn:       Handler to call for the received broadcast message.
+            encoding: Encoding to use for the received payload.
+            buffer:   Custom buffer to use for receiving the payload.
+        """
+        if buffer is None:
+            buffer = bytearray(Constants.MAX_MESSAGE_PAYLOAD_SIZE)
+
+        uuid_buffer = create_string_buffer(16)
+        buffer_ptr = (c_char * len(buffer)).from_buffer(buffer)
+
+        def wrapped_fn(res, size):
+            uuid = UUID(bytes=uuid_buffer.raw)
+            payload = PayloadView(buffer, size, encoding)
+
+            if len(inspect.signature(fn).parameters) == 3:
+                fn(res, uuid, payload)
+            else:
+                fn(res, uuid, payload, buffer)
+
+        with Handler(yogi_core.YOGI_BranchReceiveBroadcastAsync.argtypes[5], wrapped_fn) as handler:
+            yogi_core.YOGI_BranchReceiveBroadcastAsync(self._handle, uuid_buffer, encoding, buffer_ptr, len(buffer),
+                                                       handler, None)
 
     def cancel_receive_broadcast(self) -> bool:
         """Cancels a receive broadcast operation.

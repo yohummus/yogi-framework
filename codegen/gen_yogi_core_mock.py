@@ -31,6 +31,7 @@ def generate_default_functions_h(core_api: munch.Munch) -> None:
             'VERSION_MINOR': VERSION_MINOR,
             'VERSION_PATCH': VERSION_PATCH,
             'VERSION_SUFFIX': f'"{VERSION_SUFFIX}"',
+            'MAX_MESSAGE_PAYLOAD_SIZE': 100,
         }.get(name)
 
         if val is None:
