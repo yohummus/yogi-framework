@@ -388,7 +388,7 @@ public static partial class Yogi
 
         // YOGI_BranchSendBroadcast
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate int BranchSendBroadcastDelegate(SafeHandle branch, int enc, IntPtr data, int datasize, int block);
+        public delegate int BranchSendBroadcastDelegate(SafeHandle branch, int enc, byte[] data, int datasize, int block);
 
         public static BranchSendBroadcastDelegate YOGI_BranchSendBroadcast
             = Library.GetDelegateForFunction<BranchSendBroadcastDelegate>("YOGI_BranchSendBroadcast");
@@ -398,7 +398,7 @@ public static partial class Yogi
         public delegate void BranchSendBroadcastAsyncFnDelegate(int res, int oid, IntPtr userarg);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate int BranchSendBroadcastAsyncDelegate(SafeHandle branch, int enc, IntPtr data, int datasize, int retry, BranchSendBroadcastAsyncFnDelegate fn, IntPtr userarg);
+        public delegate int BranchSendBroadcastAsyncDelegate(SafeHandle branch, int enc, byte[] data, int datasize, int retry, BranchSendBroadcastAsyncFnDelegate fn, IntPtr userarg);
 
         public static BranchSendBroadcastAsyncDelegate YOGI_BranchSendBroadcastAsync
             = Library.GetDelegateForFunction<BranchSendBroadcastAsyncDelegate>("YOGI_BranchSendBroadcastAsync");
@@ -415,7 +415,7 @@ public static partial class Yogi
         public delegate void BranchReceiveBroadcastAsyncFnDelegate(int res, int size, IntPtr userarg);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate int BranchReceiveBroadcastAsyncDelegate(SafeHandle branch, IntPtr uuid, int enc, IntPtr data, int datasize, BranchReceiveBroadcastAsyncFnDelegate fn, IntPtr userarg);
+        public delegate int BranchReceiveBroadcastAsyncDelegate(SafeHandle branch, IntPtr uuid, int enc, byte[] data, int datasize, BranchReceiveBroadcastAsyncFnDelegate fn, IntPtr userarg);
 
         public static BranchReceiveBroadcastAsyncDelegate YOGI_BranchReceiveBroadcastAsync
             = Library.GetDelegateForFunction<BranchReceiveBroadcastAsyncDelegate>("YOGI_BranchReceiveBroadcastAsync");

@@ -109,16 +109,6 @@ class BranchInfo:
         return self._info["ghost_mode"]
 
     @property
-    def tx_queue_size(self) -> int:
-        """Size of the send queue for remote branches."""
-        return self._info["tx_queue_size"]
-
-    @property
-    def rx_queue_size(self) -> int:
-        """Size of the receive queue for remote branches."""
-        return self._info["rx_queue_size"]
-
-    @property
     def _info(self) -> Dict[str, Any]:
         if not self._info_lazy:
             self._info_lazy = json.loads(self._info_string)
@@ -144,6 +134,16 @@ class LocalBranchInfo(BranchInfo):
 
     def __init__(self, info_string: str):
         super().__init__(info_string)
+
+    @property
+    def tx_queue_size(self) -> int:
+        """Size of the send queue for remote branches."""
+        return self._info["tx_queue_size"]
+
+    @property
+    def rx_queue_size(self) -> int:
+        """Size of the receive queue for remote branches."""
+        return self._info["rx_queue_size"]
 
     @property
     def advertising_address(self) -> str:
