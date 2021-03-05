@@ -222,12 +222,13 @@ TEST_F(BranchTest, CreateFromConfiguration) {
     return YOGI_OK;
   });
 
-  MOCK_BranchGetInfo([](void* branch, void* uuid, char* json, int jsonsize) {
+  MOCK_BranchGetInfo([](void* branch, void* uuid, const char** json, int* jsonsize) {
     EXPECT_EQ(branch, kPointer);
     EXPECT_NE(uuid, nullptr);
     EXPECT_NE(json, nullptr);
-    EXPECT_GT(jsonsize, 100);
-    strcpy(json, "{}");
+    EXPECT_NE(jsonsize, nullptr);
+    *json     = "{}";
+    *jsonsize = 3;
     return YOGI_OK;
   });
 
@@ -257,12 +258,13 @@ TEST_F(BranchTest, CreateFromJson) {
     return YOGI_OK;
   });
 
-  MOCK_BranchGetInfo([](void* branch, void* uuid, char* json, int jsonsize) {
+  MOCK_BranchGetInfo([](void* branch, void* uuid, const char** json, int* jsonsize) {
     EXPECT_EQ(branch, kPointer);
     EXPECT_NE(uuid, nullptr);
     EXPECT_NE(json, nullptr);
-    EXPECT_GT(jsonsize, 100);
-    strcpy(json, "{}");
+    EXPECT_NE(jsonsize, nullptr);
+    *json     = "{}";
+    *jsonsize = 3;
     return YOGI_OK;
   });
 
@@ -282,12 +284,13 @@ TEST_F(BranchTest, Info) {
     return YOGI_OK;
   });
 
-  MOCK_BranchGetInfo([](void* branch, void* uuid, char* json, int jsonsize) {
+  MOCK_BranchGetInfo([](void* branch, void* uuid, const char** json, int* jsonsize) {
     EXPECT_EQ(branch, kPointer);
     EXPECT_NE(uuid, nullptr);
     EXPECT_NE(json, nullptr);
+    EXPECT_NE(jsonsize, nullptr);
 
-    auto json_str = R"({
+    *json = R"({
       "name":                 "foo",
       "description":          "bar",
       "network_name":         "local",
@@ -306,8 +309,7 @@ TEST_F(BranchTest, Info) {
       "ghost_mode":           true
     })";
 
-    if (jsonsize < static_cast<int>(strlen(json_str))) return YOGI_ERR_BUFFER_TOO_SMALL;
-    strcpy(json, json_str);
+    *jsonsize = std::strlen(*json) + 1;
 
     return YOGI_OK;
   });

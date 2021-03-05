@@ -76,18 +76,16 @@ YOGI_API int YOGI_BranchCreate(void** branch, void* context, void* config, const
   END_CHECKED_API_FUNCTION
 }
 
-YOGI_API int YOGI_BranchGetInfo(void* branch, void* uuid, char* json, int jsonsize) {
+YOGI_API int YOGI_BranchGetInfo(void* branch, void* uuid, const char** json, int* jsonsize) {
   BEGIN_CHECKED_API_FUNCTION
 
   CHECK_PARAM(branch != nullptr);
-  CHECK_PARAM(json == nullptr || jsonsize > 0);
 
   auto brn = ObjectRegister::get<Branch>(branch);
   copy_uuid_to_user_buffer(brn->get_uuid(), uuid);
 
-  if (!copy_string_to_user_buffer(brn->make_info_string(), json, jsonsize)) {
-    throw Error{YOGI_ERR_BUFFER_TOO_SMALL};
-  }
+  auto info_string = brn->make_info_string();
+  set_api_buffer(std::move(info_string), json, jsonsize);
 
   END_CHECKED_API_FUNCTION
 }

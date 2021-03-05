@@ -101,7 +101,8 @@ def test_branch_info(info_cls, mocker):
 
 
 @pytest.mark.parametrize("cfg_type", ["Configuration", "JSON"])
-def test_create(cfg_type, mocks: Mocks, context: yogi.Context, configuration: yogi.Configuration, monkeypatch):
+def test_create(cfg_type, mocks: Mocks, context: yogi.Context, configuration: yogi.Configuration, monkeypatch,
+                hello_bytes: bytes):
     """Verifies that Branch can be instantiated with a given configuration"""
     create_called = False
     get_info_called = False
@@ -122,8 +123,8 @@ def test_create(cfg_type, mocks: Mocks, context: yogi.Context, configuration: yo
         assert branch == 8888
         assert uuid is None
         assert json
-        assert jsonsize >= 3
-        memmove(json, b"{}\0", 3)
+        assert not jsonsize
+        json.contents.value = hello_bytes
         nonlocal get_info_called
         get_info_called = True
         return yogi.ErrorCode.OK
@@ -156,7 +157,7 @@ def test_create(cfg_type, mocks: Mocks, context: yogi.Context, configuration: yo
     assert create_called
     assert get_info_called
 
-    assert str(branch.info) == "{}"
+    assert str(branch.info) == "hello"
 
 
 def test_branch_info_properties(branch: yogi.Branch, mocker):

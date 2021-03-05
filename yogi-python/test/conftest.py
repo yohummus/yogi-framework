@@ -41,8 +41,6 @@ def hello_bytes():
     """Provides a byte array that persists until the test finishes"""
     data = b'hello'
     yield data
-    # The data variable should still be alive here
-
 
 @pytest.fixture
 def context(mocks):
@@ -100,9 +98,9 @@ def timer(mocks, context):
 
 
 @pytest.fixture
-def branch(mocks, context, configuration):
-    """Provides a mocked Branch instance"""
-    info_bytes = json.dumps({
+def branch_info_bytes():
+    """Provides a byte array containing branch information that persists until the test finishes"""
+    data = json.dumps({
         "uuid": "123e4567-e89b-12d3-a456-426655440000",
         "name": "My Branch",
         "description": "Stuff",
@@ -121,13 +119,18 @@ def branch(mocks, context, configuration):
         "advertising_port": 12345,
     }).encode() + b'\0'
 
+    yield data
+
+@pytest.fixture
+def branch(mocks, context, configuration, branch_info_bytes):
+    """Provides a mocked Branch instance"""
+
     def create_fn(branch, context, config, section):
         branch.contents.value = 8888
         return yogi.ErrorCode.OK
 
     def get_info_fn(branch, uuid, json, jsonsize):
-        assert jsonsize >= len(info_bytes)
-        memmove(json, info_bytes, len(info_bytes))
+        json.contents.value = branch_info_bytes
         return yogi.ErrorCode.OK
 
     mocks.MOCK_BranchCreate(create_fn)
@@ -516,7 +519,7 @@ class Mocks:
     def MOCK_BranchGetInfo(self, fn):
         mock_fn = yogi._library.yogi_core.MOCK_BranchGetInfo
         mock_fn.restype = None
-        mock_fn.argtypes = [CFUNCTYPE(c_int, c_void_p, c_void_p, POINTER(c_char), c_int)]
+        mock_fn.argtypes = [CFUNCTYPE(c_int, c_void_p, c_void_p, POINTER(c_char_p), POINTER(c_int))]
         wrapped_fn = mock_fn.argtypes[0](fn)
         self._keepalive.append(wrapped_fn)
         mock_fn(wrapped_fn)

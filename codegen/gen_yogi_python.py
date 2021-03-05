@@ -9,7 +9,7 @@ from .common import generate_conanfile_py
 
 def generate(core_api: munch.Munch) -> None:
     """Replaces the code in yogi-python from the loaded core API YAML file"""
-    generate_common_py(core_api)
+    generate_conftest_py(core_api)
     generate_version_py()
     generate_constants_py(core_api)
     generate_library_py(core_api)
@@ -18,8 +18,8 @@ def generate(core_api: munch.Munch) -> None:
     generate_conanfile_py('yogi-python')
 
 
-def generate_common_py(core_api: munch.Munch) -> None:
-    """Replaces the code in the test/common.py file"""
+def generate_conftest_py(core_api: munch.Munch) -> None:
+    """Replaces the code in the test/conftst.py file"""
     lines = []
     for name, props in core_api.functions.items():
         name_no_prefix = name.replace('YOGI_', '')
@@ -29,14 +29,14 @@ def generate_common_py(core_api: munch.Munch) -> None:
                 mock_fn.restype = None
                 mock_fn.argtypes = [{make_cfunctype_mock_code(core_api, props)}]
                 wrapped_fn = mock_fn.argtypes[0](fn)
-                self.keepalive.append(wrapped_fn)
+                self._keepalive.append(wrapped_fn)
                 mock_fn(wrapped_fn)
         '''.rstrip())
 
         # Fix indentation
         lines += [f'    {x}' if x else '' for x in block.split('\n')]
 
-    replace_block_in_file('yogi-python/test/common.py', lines + [''])
+    replace_block_in_file('yogi-python/test/conftest.py', lines + [''])
 
 
 def generate_version_py() -> None:
