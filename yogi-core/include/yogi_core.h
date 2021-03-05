@@ -1375,10 +1375,9 @@ YOGI_API int YOGI_ConfigurationUpdateFromFile(void* config,
 /*!
  * Dumps a configuration as a JSON-formatted string.
  *
- * If the configuration is larger than the space provided by \p json and
- * \p jsonsize then this function returns #YOGI_ERR_BUFFER_TOO_SMALL, however,
- * \p str will still be populated as much as possible (and null-terminated). In
- * this case, \p json will *not* contain valid JSON data.
+ * \attention
+ *   The generated JSON string \p json is only valid in the calling thread
+ *   and until that thread invokes another Yogi library function.
  *
  * \param[in]  config   The configuration
  * \param[out] json     Pointer to set to the serialized JSON data
