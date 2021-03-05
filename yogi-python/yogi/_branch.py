@@ -21,7 +21,7 @@ import json
 import inspect
 from uuid import UUID
 from typing import Any, Callable, Dict, Optional, Union
-from ctypes import c_void_p, c_char, byref, create_string_buffer, sizeof
+from ctypes import c_void_p, c_char, c_char_p, byref, create_string_buffer, sizeof
 
 from ._configuration import Configuration
 from ._constants import Constants
@@ -675,18 +675,9 @@ class Branch(Object):
         return false_if_specific_ec_else_raise(res, ErrorCode.OPERATION_NOT_RUNNING)
 
     def __get_info(self) -> LocalBranchInfo:
-        s = create_string_buffer(1024)
-        while True:
-            try:
-                yogi_core.YOGI_BranchGetInfo(self._handle, None, s, sizeof(s))
-                break
-            except FailureException as e:
-                if e.failure.error_code is ErrorCode.BUFFER_TOO_SMALL:
-                    s = create_string_buffer(sizeof(s) * 2)
-                else:
-                    raise
-
-        return LocalBranchInfo(s.value.decode("utf-8"))
+        json = c_char_p()
+        yogi_core.YOGI_BranchGetInfo(self._handle, None, json, None)
+        return LocalBranchInfo(json.value.decode("utf-8"))
 
 
 def convert_info_fields(info):

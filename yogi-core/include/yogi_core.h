@@ -1899,8 +1899,8 @@ YOGI_API int YOGI_BranchCreate(void** branch, void* context, void* config,
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-YOGI_API int YOGI_BranchGetInfo(void* branch, void* uuid, char* json,
-                                int jsonsize);
+YOGI_API int YOGI_BranchGetInfo(void* branch, void* uuid, const char** json,
+                                int* jsonsize);
 
 /*!
  * Retrieves information about all connected remote branches.

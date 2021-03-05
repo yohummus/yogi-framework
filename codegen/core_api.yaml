@@ -1048,8 +1048,8 @@ functions:
     args:
       branch: void*
       uuid: void*
-      json: char*
-      jsonsize: int
+      json: const char**
+      jsonsize: int*
 
   YOGI_BranchGetConnectedBranches:
     return_type: int

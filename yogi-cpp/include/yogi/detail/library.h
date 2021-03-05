@@ -81,7 +81,7 @@ class Library final : LibraryImpl {
     // :CODEGEN_END:
 
     auto compat_fn = get_function_address<int (*)(const char*)>("YOGI_CheckBindingsCompatibility");
-    auto error_fn = get_function_address<const char* (*)()>("YOGI_GetLastErrorDetails");
+    auto error_fn  = get_function_address<const char* (*)()>("YOGI_GetLastErrorDetails");
 
     if (compat_fn(bindings_version) != 0) {
       std::cerr << "FATAL: " << error_fn() << std::endl;

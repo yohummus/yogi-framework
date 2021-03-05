@@ -1331,10 +1331,13 @@ class Branch : public ObjectT<Branch> {
 
   LocalBranchInfo query_info() {
     Uuid uuid;
-    auto json = detail::query_string(
-        [&](auto str, auto size) { return detail::YOGI_BranchGetInfo(this->handle(), &uuid, str, size); });
 
-    return LocalBranchInfo(uuid, std::move(json));
+    const char* json;
+    int jsonsize;
+    int res = detail::YOGI_BranchGetInfo(this->handle(), &uuid, &json, &jsonsize);
+    detail::check_error_code(res);
+
+    return LocalBranchInfo(uuid, std::string(json, jsonsize - 1));
   }
 
   template <typename EventInfo, typename CallbackData>

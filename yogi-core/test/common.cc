@@ -403,15 +403,15 @@ void run_context_until_branches_are_connected(void* context, std::initializer_li
 
 uuids::uuid get_branch_uuid(void* branch) {
   uuids::uuid uuid = {0};
-  int res          = YOGI_BranchGetInfo(branch, &uuid, nullptr, 0);
+  int res          = YOGI_BranchGetInfo(branch, &uuid, nullptr, nullptr);
   EXPECT_OK(res);
   EXPECT_NE(uuid, uuids::uuid{});
   return uuid;
 }
 
 nlohmann::json get_branch_info(void* branch) {
-  char str[10000] = {0};
-  int res         = YOGI_BranchGetInfo(branch, nullptr, str, sizeof(str));
+  const char* str;
+  int res = YOGI_BranchGetInfo(branch, nullptr, &str, nullptr);
   EXPECT_OK(res);
   return nlohmann::json::parse(str);
 }

@@ -61,9 +61,9 @@ yogi::BranchPtr Test::create_branch() {
     return YOGI_OK;
   });
 
-  MOCK_BranchGetInfo([](void* branch, void* uuid, char* json, int jsonsize) {
-    EXPECT_GT(jsonsize, 3);
-    strcpy(json, "{}");
+  MOCK_BranchGetInfo([](void* branch, void* uuid, const char** json, int* jsonsize) {
+    *json = "{}";
+    *jsonsize = 3;
     return YOGI_OK;
   });
 
@@ -208,8 +208,8 @@ void (*Test::MOCK_TimerCancel)(int (*fn)(void* timer))
 void (*Test::MOCK_BranchCreate)(int (*fn)(void** branch, void* context, void* config, const char* section))
  = detail::Library::get_function_address<void (*)(int (*fn)(void** branch, void* context, void* config, const char* section))>("MOCK_BranchCreate");
 
-void (*Test::MOCK_BranchGetInfo)(int (*fn)(void* branch, void* uuid, char* json, int jsonsize))
- = detail::Library::get_function_address<void (*)(int (*fn)(void* branch, void* uuid, char* json, int jsonsize))>("MOCK_BranchGetInfo");
+void (*Test::MOCK_BranchGetInfo)(int (*fn)(void* branch, void* uuid, const char** json, int* jsonsize))
+ = detail::Library::get_function_address<void (*)(int (*fn)(void* branch, void* uuid, const char** json, int* jsonsize))>("MOCK_BranchGetInfo");
 
 void (*Test::MOCK_BranchGetConnectedBranches)(int (*fn)(void* branch, void* uuid, char* json, int jsonsize, void (*fn)(int res, void* userarg), void* userarg))
  = detail::Library::get_function_address<void (*)(int (*fn)(void* branch, void* uuid, char* json, int jsonsize, void (*fn)(int res, void* userarg), void* userarg))>("MOCK_BranchGetConnectedBranches");
