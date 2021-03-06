@@ -1860,13 +1860,9 @@ YOGI_API int YOGI_BranchCreate(void** branch, void* context, void* config,
  * Retrieves information about a local branch.
  *
  * This function writes the branch's UUID (16 bytes) in binary form to \p uuid.
- * Any further information is written to \p json in JSON format. The function
- * call fails with the #YOGI_ERR_BUFFER_TOO_SMALL error if the produced JSON
- * string does not fit into \p json, i.e. if \p jsonsize is too small. However,
- * in that case, the first \p jsonsize - 1 characters and a trailing zero will
- * be written to \p json.
- *
- * The produced JSON string is as follows, without any unnecessary whitespace:
+ * The given \p json pointer will be set to a string containing further
+ * information in JSON format. The produced JSON string is as follows, without
+ * any unnecessary whitespace:
  *
  * \code
  *   {
@@ -1888,12 +1884,17 @@ YOGI_API int YOGI_BranchCreate(void** branch, void* context, void* config,
  *   }
  * \endcode
  *
+ * \attention
+ *   The generated JSON string \p json is only valid in the calling thread
+ *   and until that thread invokes another Yogi library function.
+ *
  * \param[in]  branch   The branch handle
  * \param[out] uuid     Pointer to a 16 byte array for storing the UUID (can be
  *                      set to NULL)
- * \param[out] json     Pointer to a char array for storing the information (can
- *                      be set to NULL)
- * \param[in]  jsonsize Maximum number of bytes to write to \p json
+ * \param[out] json     Pointer to a string pointer for retrieving the generated
+ *                      branch information (can be set to NULL)
+ * \param[in]  jsonsize Where to write the size (including the trailing zero) of
+ *                      the generated branch information (can be set to NULL)
  *
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
