@@ -62,7 +62,7 @@ yogi::BranchPtr Test::create_branch() {
   });
 
   MOCK_BranchGetInfo([](void* branch, void* uuid, const char** json, int* jsonsize) {
-    *json = "{}";
+    *json     = "{}";
     *jsonsize = 3;
     return YOGI_OK;
   });
