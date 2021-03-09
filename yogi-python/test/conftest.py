@@ -42,6 +42,7 @@ def hello_bytes():
     data = b'hello'
     yield data
 
+
 @pytest.fixture
 def context(mocks):
     """Provides a mocked Context instance"""
@@ -120,6 +121,7 @@ def branch_info_bytes():
     }).encode() + b'\0'
 
     yield data
+
 
 @pytest.fixture
 def branch(mocks, context, configuration, branch_info_bytes):
