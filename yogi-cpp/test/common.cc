@@ -236,8 +236,8 @@ void (*Test::MOCK_BranchCreate)(int (*fn)(void** branch, void* context, void* co
 void (*Test::MOCK_BranchGetInfo)(int (*fn)(void* branch, void* uuid, const char** json, int* jsonsize))
  = detail::Library::get_function_address<void (*)(int (*fn)(void* branch, void* uuid, const char** json, int* jsonsize))>("MOCK_BranchGetInfo");
 
-void (*Test::MOCK_BranchGetConnectedBranches)(int (*fn)(void* branch, const char** json, int* jsonsize))
- = detail::Library::get_function_address<void (*)(int (*fn)(void* branch, const char** json, int* jsonsize))>("MOCK_BranchGetConnectedBranches");
+void (*Test::MOCK_BranchGetConnectedBranches)(int (*fn)(void* branch, const void** uuids, int* numuuids, const char** json, int* jsonsize))
+ = detail::Library::get_function_address<void (*)(int (*fn)(void* branch, const void** uuids, int* numuuids, const char** json, int* jsonsize))>("MOCK_BranchGetConnectedBranches");
 
 void (*Test::MOCK_BranchAwaitEventAsync)(int (*fn)(void* branch, int events, void* uuid, char* json, int jsonsize, void (*fn)(int res, int ev, int evres, void* userarg), void* userarg))
  = detail::Library::get_function_address<void (*)(int (*fn)(void* branch, int events, void* uuid, char* json, int jsonsize, void (*fn)(int res, int ev, int evres, void* userarg), void* userarg))>("MOCK_BranchAwaitEventAsync");

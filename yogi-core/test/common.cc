@@ -402,7 +402,7 @@ nlohmann::json get_branch_info(void* branch) {
 std::map<uuids::uuid, nlohmann::json> get_connected_branches(void* branch) {
   const char* json;
   int jsonsize;
-  int res = YOGI_BranchGetConnectedBranches(branch, &json, &jsonsize);
+  int res = YOGI_BranchGetConnectedBranches(branch, nullptr, nullptr, &json, &jsonsize);
   EXPECT_OK(res);
   EXPECT_EQ(strlen(json) + 1, jsonsize);
 

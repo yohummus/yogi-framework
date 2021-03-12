@@ -554,7 +554,7 @@ namespace test
 
         // MOCK_BranchGetConnectedBranches
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate int BranchGetConnectedBranchesDelegate(IntPtr branch, ref IntPtr json, ref int jsonsize);
+        public delegate int BranchGetConnectedBranchesDelegate(IntPtr branch, ref IntPtr uuids, ref int numuuids, ref IntPtr json, ref int jsonsize);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void BranchGetConnectedBranchesMockDelegate(BranchGetConnectedBranchesDelegate fn);

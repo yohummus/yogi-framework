@@ -50,7 +50,7 @@ class ConnectionManager : public std::enable_shared_from_this<ConnectionManager>
       BranchEventHandler;
   typedef std::function<void(const Result&, BranchConnectionPtr)> ConnectionChangedHandler;
   typedef std::function<void(const IncomingMessage&, const BranchConnectionPtr&)> MessageReceiveHandler;
-  typedef std::vector<std::string> BranchInfoStringsList;
+  typedef std::vector<std::pair<boost::uuids::uuid, std::string>> BranchInfoStringsList;
   using OperationTag = MessageTransport::OperationTag;
 
   ConnectionManager(ContextPtr context, const nlohmann::json& cfg);

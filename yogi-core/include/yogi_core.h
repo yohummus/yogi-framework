@@ -1905,9 +1905,15 @@ YOGI_API int YOGI_BranchGetInfo(void* branch, void* uuid, const char** json,
 /*!
  * Retrieves information about all connected remote branches.
  *
- * The given \p json pointer will be set to a JSON string containg an array
- * where each element describes a different connected remote branch. The
- * produced JSON string is as follows, without any unnecessary whitespace:
+ * The given \p uuids pointer will be set to a buffer containing the 16-byte
+ * UUIDs of all connected remote branches. The \p numuuids parameter can be
+ * used to determine how many branches are connected and therefore how large
+ * the \p uuids buffer is.
+ *
+ * The \p json pointer will be set to a JSON string containg an array where
+ * each element describes a different connected remote branch. The order of the
+ * branches in the array is the same as the order of their UUIDs in \p uuids.
+ * The produced JSON string is as follows, without any unnecessary whitespace:
  *
  * \code
  *   [
@@ -1931,10 +1937,15 @@ YOGI_API int YOGI_BranchGetInfo(void* branch, void* uuid, const char** json,
  * \endcode
  *
  * \attention
- *   The generated JSON string \p json is only valid in the calling thread
- *   and until that thread invokes another Yogi library function.
+ *   The \p uuids buffer and the generated JSON string \p json are only valid
+ *   in the calling thread and until that thread invokes another Yogi library
+ *   function.
  *
  * \param[in]  branch   The branch handle
+ * \param[out] uuids    Pointer to a buffer pointer for retrieving the UUIDs of
+ *                      the remote branches in binary form (can be set to NULL)
+ * \param[out] numuuids Where to write the number of connected remote branches
+ *                      (can be set to NULL)
  * \param[out] json     Pointer to a string pointer for retrieving the generated
  *                      branch information (can be set to NULL)
  * \param[out] jsonsize Where to write the size (including the trailing zero) of
@@ -1943,7 +1954,8 @@ YOGI_API int YOGI_BranchGetInfo(void* branch, void* uuid, const char** json,
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-YOGI_API int YOGI_BranchGetConnectedBranches(void* branch, const char** json,
+YOGI_API int YOGI_BranchGetConnectedBranches(void* branch, const void** uuids,
+                                             int* numuuids, const char** json,
                                              int* jsonsize);
 
 /*!

@@ -529,7 +529,8 @@ class Mocks:
     def MOCK_BranchGetConnectedBranches(self, fn):
         mock_fn = yogi._library.yogi_core.MOCK_BranchGetConnectedBranches
         mock_fn.restype = None
-        mock_fn.argtypes = [CFUNCTYPE(c_int, c_void_p, POINTER(c_char_p), POINTER(c_int))]
+        mock_fn.argtypes = [CFUNCTYPE(c_int, c_void_p, POINTER(
+            c_void_p), POINTER(c_int), POINTER(c_char_p), POINTER(c_int))]
         wrapped_fn = mock_fn.argtypes[0](fn)
         self._keepalive.append(wrapped_fn)
         mock_fn(wrapped_fn)

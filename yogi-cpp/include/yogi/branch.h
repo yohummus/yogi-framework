@@ -861,7 +861,7 @@ class Branch : public ObjectT<Branch> {
   ///          branch.
   std::unordered_map<Uuid, RemoteBranchInfo> get_connected_branches() const {
     const char* json_str;
-    int res = detail::YOGI_BranchGetConnectedBranches(this->handle(), &json_str, nullptr);
+    int res = detail::YOGI_BranchGetConnectedBranches(this->handle(), nullptr, nullptr, &json_str, nullptr);
     detail::check_error_code(res);
 
     std::unordered_map<Uuid, RemoteBranchInfo> branches;

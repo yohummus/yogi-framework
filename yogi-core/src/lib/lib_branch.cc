@@ -90,18 +90,32 @@ YOGI_API int YOGI_BranchGetInfo(void* branch, void* uuid, const char** json, int
   END_CHECKED_API_FUNCTION
 }
 
-YOGI_API int YOGI_BranchGetConnectedBranches(void* branch, const char** json, int* jsonsize) {
+YOGI_API int YOGI_BranchGetConnectedBranches(void* branch, const void** uuids, int* numuuids, const char** json,
+                                             int* jsonsize) {
   BEGIN_CHECKED_API_FUNCTION
 
   CHECK_PARAM(branch != nullptr);
 
-  auto brn = ObjectRegister::get<Branch>(branch);
+  auto brn          = ObjectRegister::get<Branch>(branch);
+  auto info_strings = brn->make_connected_branches_info_strings();
 
+  // Generate the UUIDs array
+  std::vector<char> uuids_data(info_strings.size() * sizeof(boost::uuids::uuid));
+  for (auto& entry : info_strings) {
+    std::copy_n(entry.first.data, sizeof(boost::uuids::uuid), uuids_data.data());
+  }
+
+  set_api_buffer(std::move(uuids_data), uuids, nullptr);
+  if (numuuids) {
+    *numuuids = static_cast<int>(info_strings.size());
+  }
+
+  // Generate the JSON for the branch information
   std::ostringstream ss;
   ss << "[";
 
-  for (auto& entry : brn->make_connected_branches_info_strings()) {
-    ss << entry << ",";
+  for (auto& entry : info_strings) {
+    ss << entry.second << ",";
   }
 
   auto info_string_array = ss.str();

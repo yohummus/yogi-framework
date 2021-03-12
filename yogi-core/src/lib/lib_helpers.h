@@ -93,3 +93,4 @@ int update_last_error_details(const Result& res);
 const char* get_last_error_details();
 
 void set_api_buffer(std::string&& buffer, const char** data_ptr, int* size_ptr);
+void set_api_buffer(std::vector<char>&& buffer, const void** data_ptr, int* size_ptr);

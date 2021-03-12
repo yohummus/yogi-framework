@@ -42,7 +42,8 @@ const char* get_last_error_details() {
   return last_error_details.c_str();
 }
 
-thread_local std::string api_buffer;
+thread_local std::string api_string_buffer;
+thread_local std::vector<char> api_byte_buffer;
 
 void set_api_buffer(std::string&& buffer, const char** data_ptr, int* size_ptr) {
   if (size_ptr) {
@@ -50,7 +51,18 @@ void set_api_buffer(std::string&& buffer, const char** data_ptr, int* size_ptr) 
   }
 
   if (data_ptr) {
-    api_buffer = std::move(buffer);
-    *data_ptr  = api_buffer.c_str();
+    api_string_buffer = std::move(buffer);
+    *data_ptr         = api_string_buffer.c_str();
+  }
+}
+
+void set_api_buffer(std::vector<char>&& buffer, const void** data_ptr, int* size_ptr) {
+  if (size_ptr) {
+    *size_ptr = static_cast<int>(buffer.size() + 1);
+  }
+
+  if (data_ptr) {
+    api_byte_buffer = std::move(buffer);
+    *data_ptr       = api_byte_buffer.data();
   }
 }

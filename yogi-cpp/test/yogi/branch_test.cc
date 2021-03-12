@@ -374,46 +374,48 @@ TEST_F(BranchTest, Info) {
 }
 
 TEST_F(BranchTest, GetConnectedBranches) {
-  MOCK_BranchGetConnectedBranches([](void* branch, const char** json, int* jsonsize) {
-    EXPECT_EQ(branch, kPointer);
-    EXPECT_NE(json, nullptr);
+  MOCK_BranchGetConnectedBranches(
+      [](void* branch, const void** uuids, int* numuuids, const char** json, int* jsonsize) {
+        EXPECT_EQ(branch, kPointer);
+        EXPECT_NE(json, nullptr);
 
-    *json = R"([{
-      "uuid":                 "123e4567-e89b-12d3-a456-555555555555",
-      "name":                 "first",
-      "description":          "bar",
-      "network_name":         "local",
-      "path":                 "/test",
-      "hostname":             "localhost",
-      "pid":                  12345,
-      "advertising_interval": 5.5,
-      "tcp_server_port":      10000,
-      "start_time":           "foobar",
-      "timeout":              3.5,
-      "ghost_mode":           true,
-      "tcp_server_address":   "1.2.3.4"
-    }, {
-      "uuid":                 "123e4567-e89b-12d3-a456-888888888888",
-      "name":                 "second",
-      "description":          "bar",
-      "network_name":         "local",
-      "path":                 "/test",
-      "hostname":             "localhost",
-      "pid":                  12345,
-      "advertising_interval": 5.5,
-      "tcp_server_port":      10000,
-      "start_time":           "foobar",
-      "timeout":              3.5,
-      "ghost_mode":           true,
-      "tcp_server_address":   "1.2.3.4"
-    }])";
+        // For now, yogi-cpp does not use the following parameter, so we set them to NULL
+        EXPECT_EQ(uuids, nullptr);
+        EXPECT_EQ(numuuids, nullptr);
+        EXPECT_EQ(jsonsize, nullptr);
 
-    if (jsonsize) {
-      *jsonsize = strlen(*json) + 1;
-    }
+        *json = R"([{
+          "uuid":                 "123e4567-e89b-12d3-a456-555555555555",
+          "name":                 "first",
+          "description":          "bar",
+          "network_name":         "local",
+          "path":                 "/test",
+          "hostname":             "localhost",
+          "pid":                  12345,
+          "advertising_interval": 5.5,
+          "tcp_server_port":      10000,
+          "start_time":           "foobar",
+          "timeout":              3.5,
+          "ghost_mode":           true,
+          "tcp_server_address":   "1.2.3.4"
+        }, {
+          "uuid":                 "123e4567-e89b-12d3-a456-888888888888",
+          "name":                 "second",
+          "description":          "bar",
+          "network_name":         "local",
+          "path":                 "/test",
+          "hostname":             "localhost",
+          "pid":                  12345,
+          "advertising_interval": 5.5,
+          "tcp_server_port":      10000,
+          "start_time":           "foobar",
+          "timeout":              3.5,
+          "ghost_mode":           true,
+          "tcp_server_address":   "1.2.3.4"
+        }])";
 
-    return YOGI_OK;
-  });
+        return YOGI_OK;
+      });
 
   auto branch = create_branch();
   auto infos  = branch->get_connected_branches();

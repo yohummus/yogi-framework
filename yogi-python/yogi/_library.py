@@ -198,7 +198,8 @@ yogi_core.YOGI_BranchGetInfo.restype = api_result_handler
 yogi_core.YOGI_BranchGetInfo.argtypes = [c_void_p, c_void_p, POINTER(c_char_p), POINTER(c_int)]
 
 yogi_core.YOGI_BranchGetConnectedBranches.restype = api_result_handler
-yogi_core.YOGI_BranchGetConnectedBranches.argtypes = [c_void_p, POINTER(c_char_p), POINTER(c_int)]
+yogi_core.YOGI_BranchGetConnectedBranches.argtypes = [c_void_p, POINTER(
+    c_void_p), POINTER(c_int), POINTER(c_char_p), POINTER(c_int)]
 
 yogi_core.YOGI_BranchAwaitEventAsync.restype = api_result_handler
 yogi_core.YOGI_BranchAwaitEventAsync.argtypes = [c_void_p, c_int, c_void_p, POINTER(

@@ -1055,6 +1055,8 @@ functions:
     return_type: int
     args:
       branch: void*
+      uuids: const void**
+      numuuids: int*
       json: const char**
       jsonsize: int*
 
@@ -1227,6 +1229,7 @@ type_mappings:
   void*: { py: c_void_p, cs: IntPtr }
   void**: { py: POINTER(c_void_p), cs: ref IntPtr }
   const void*: { py: c_void_p, cs: IntPtr }
+  const void**: { py: POINTER(c_void_p), cs: ref IntPtr }
 
 time_fmt_placeholders:
   "%Y": Four digit year

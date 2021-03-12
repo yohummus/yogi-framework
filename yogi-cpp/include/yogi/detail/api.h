@@ -249,9 +249,10 @@ _YOGI_WEAK_SYMBOL int (*YOGI_BranchGetInfo)(void* branch, void* uuid, const char
         "YOGI_BranchGetInfo");
 
 // YOGI_BranchGetConnectedBranches
-_YOGI_WEAK_SYMBOL int (*YOGI_BranchGetConnectedBranches)(void* branch, const char** json, int* jsonsize) =
-    Library::get_function_address<int (*)(void* branch, const char** json, int* jsonsize)>(
-        "YOGI_BranchGetConnectedBranches");
+_YOGI_WEAK_SYMBOL int (*YOGI_BranchGetConnectedBranches)(void* branch, const void** uuids, int* numuuids,
+                                                         const char** json, int* jsonsize) =
+    Library::get_function_address<int (*)(void* branch, const void** uuids, int* numuuids, const char** json,
+                                          int* jsonsize)>("YOGI_BranchGetConnectedBranches");
 
 // YOGI_BranchAwaitEventAsync
 _YOGI_WEAK_SYMBOL int (*YOGI_BranchAwaitEventAsync)(void* branch, int events, void* uuid, char* json, int jsonsize,
