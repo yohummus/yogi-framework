@@ -233,8 +233,8 @@ void (*Test::MOCK_TimerCancel)(int (*fn)(void* timer))
 void (*Test::MOCK_BranchCreate)(int (*fn)(void** branch, void* context, void* config, const char* section))
  = detail::Library::get_function_address<void (*)(int (*fn)(void** branch, void* context, void* config, const char* section))>("MOCK_BranchCreate");
 
-void (*Test::MOCK_BranchGetInfo)(int (*fn)(void* branch, void* uuid, const char** json, int* jsonsize))
- = detail::Library::get_function_address<void (*)(int (*fn)(void* branch, void* uuid, const char** json, int* jsonsize))>("MOCK_BranchGetInfo");
+void (*Test::MOCK_BranchGetInfo)(int (*fn)(void* branch, const void** uuid, const char** json, int* jsonsize))
+ = detail::Library::get_function_address<void (*)(int (*fn)(void* branch, const void** uuid, const char** json, int* jsonsize))>("MOCK_BranchGetInfo");
 
 void (*Test::MOCK_BranchGetConnectedBranches)(int (*fn)(void* branch, const void** uuids, int* numuuids, const char** json, int* jsonsize))
  = detail::Library::get_function_address<void (*)(int (*fn)(void* branch, const void** uuids, int* numuuids, const char** json, int* jsonsize))>("MOCK_BranchGetConnectedBranches");

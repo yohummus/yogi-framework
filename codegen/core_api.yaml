@@ -1047,7 +1047,7 @@ functions:
     return_type: int
     args:
       branch: void*
-      uuid: void*
+      uuid: const void**
       json: const char**
       jsonsize: int*
 

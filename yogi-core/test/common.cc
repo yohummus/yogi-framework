@@ -385,10 +385,14 @@ void run_context_until_branches_are_connected(void* context, std::initializer_li
 }
 
 uuids::uuid get_branch_uuid(void* branch) {
-  uuids::uuid uuid = {0};
-  int res          = YOGI_BranchGetInfo(branch, &uuid, nullptr, nullptr);
+  const void* uuid_data;
+  int res = YOGI_BranchGetInfo(branch, &uuid_data, nullptr, nullptr);
   EXPECT_OK(res);
+
+  uuids::uuid uuid;
+  std::copy_n(static_cast<const char*>(uuid_data), 16, uuid.begin());
   EXPECT_NE(uuid, uuids::uuid{});
+
   return uuid;
 }
 
@@ -400,18 +404,25 @@ nlohmann::json get_branch_info(void* branch) {
 }
 
 std::map<uuids::uuid, nlohmann::json> get_connected_branches(void* branch) {
+  const void* uuids;
+  int numuuids;
   const char* json;
   int jsonsize;
-  int res = YOGI_BranchGetConnectedBranches(branch, nullptr, nullptr, &json, &jsonsize);
+  int res = YOGI_BranchGetConnectedBranches(branch, &uuids, &numuuids, &json, &jsonsize);
   EXPECT_OK(res);
   EXPECT_EQ(strlen(json) + 1, jsonsize);
 
   std::map<uuids::uuid, nlohmann::json> branches;
   auto info_array = nlohmann::json::parse(json);
+  int idx         = 0;
   for (auto& info : info_array) {
-    auto uuid      = uuids::string_generator{}(info["uuid"].get<std::string>());
+    auto uuid = uuids::string_generator{}(info["uuid"].get<std::string>());
+    EXPECT_EQ(uuid, static_cast<const uuids::uuid*>(uuids)[idx]);
     branches[uuid] = info;
+    ++idx;
   }
+
+  EXPECT_EQ(numuuids, branches.size());
 
   return branches;
 }

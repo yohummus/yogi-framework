@@ -354,7 +354,7 @@ public static partial class Yogi
 
         // YOGI_BranchGetInfo
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate int BranchGetInfoDelegate(SafeHandle branch, IntPtr uuid, ref IntPtr json, ref int jsonsize);
+        public delegate int BranchGetInfoDelegate(SafeHandle branch, ref IntPtr uuid, ref IntPtr json, ref int jsonsize);
 
         public static BranchGetInfoDelegate YOGI_BranchGetInfo
             = Library.GetDelegateForFunction<BranchGetInfoDelegate>("YOGI_BranchGetInfo");

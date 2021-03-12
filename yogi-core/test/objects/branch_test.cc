@@ -108,11 +108,16 @@ TEST_F(BranchTest, GetInfoUuid) {
 }
 
 TEST_F(BranchTest, GetInfoJson) {
-  boost::uuids::uuid uuid;
-  const char* json = nullptr;
-  int jsonsize     = 0;
-  int res          = YOGI_BranchGetInfo(branch_, &uuid, &json, &jsonsize);
+  const void* uuid_data = nullptr;
+  const char* json      = nullptr;
+  int jsonsize          = 0;
+  int res               = YOGI_BranchGetInfo(branch_, &uuid_data, &json, &jsonsize);
   EXPECT_OK(res);
+
+  EXPECT_NE(uuid_data, nullptr);
+  boost::uuids::uuid uuid;
+  std::copy_n(static_cast<const char*>(uuid_data), sizeof(uuid), uuid.data);
+
   EXPECT_NE(json, nullptr);
   EXPECT_GT(jsonsize, 0);
   EXPECT_EQ(json[jsonsize - 1], '\0');

@@ -1859,10 +1859,10 @@ YOGI_API int YOGI_BranchCreate(void** branch, void* context, void* config,
 /*!
  * Retrieves information about a local branch.
  *
- * This function writes the branch's UUID (16 bytes) in binary form to \p uuid.
- * The given \p json pointer will be set to a string containing further
- * information in JSON format. The produced JSON string is as follows, without
- * any unnecessary whitespace:
+ * The given \p uuid pointer will be set to a buffer containing the 16-byte
+ * UUID of the branch. The \p json pointer will be set to a string containing
+ * further information in JSON format. The produced JSON string is as follows,
+ * without any unnecessary whitespace:
  *
  * \code
  *   {
@@ -1885,12 +1885,13 @@ YOGI_API int YOGI_BranchCreate(void** branch, void* context, void* config,
  * \endcode
  *
  * \attention
- *   The generated JSON string \p json is only valid in the calling thread
- *   and until that thread invokes another Yogi library function.
+ *   The \p uuid buffer and the generated JSON string \p json are only valid
+ *   in the calling thread and until that thread invokes another Yogi library
+ *   function.
  *
  * \param[in]  branch   The branch handle
- * \param[out] uuid     Pointer to a 16 byte array for storing the UUID (can be
- *                      set to NULL)
+ * \param[out] uuid     Pointer to a buffer pointer for retrieving the 16-byte
+ *                      UUID of the branch in binary form (can be set to NULL)
  * \param[out] json     Pointer to a string pointer for retrieving the generated
  *                      branch information (can be set to NULL)
  * \param[out] jsonsize Where to write the size (including the trailing zero) of
@@ -1899,8 +1900,8 @@ YOGI_API int YOGI_BranchCreate(void** branch, void* context, void* config,
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-YOGI_API int YOGI_BranchGetInfo(void* branch, void* uuid, const char** json,
-                                int* jsonsize);
+YOGI_API int YOGI_BranchGetInfo(void* branch, const void** uuid,
+                                const char** json, int* jsonsize);
 
 /*!
  * Retrieves information about all connected remote branches.

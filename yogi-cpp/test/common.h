@@ -94,7 +94,7 @@ class Test : public testing::Test {
   static void (*MOCK_TimerStartAsync)(int (*fn)(void* timer, long long duration, void (*fn)(int res, void* userarg), void* userarg));
   static void (*MOCK_TimerCancel)(int (*fn)(void* timer));
   static void (*MOCK_BranchCreate)(int (*fn)(void** branch, void* context, void* config, const char* section));
-  static void (*MOCK_BranchGetInfo)(int (*fn)(void* branch, void* uuid, const char** json, int* jsonsize));
+  static void (*MOCK_BranchGetInfo)(int (*fn)(void* branch, const void** uuid, const char** json, int* jsonsize));
   static void (*MOCK_BranchGetConnectedBranches)(int (*fn)(void* branch, const void** uuids, int* numuuids, const char** json, int* jsonsize));
   static void (*MOCK_BranchAwaitEventAsync)(int (*fn)(void* branch, int events, void* uuid, char* json, int jsonsize, void (*fn)(int res, int ev, int evres, void* userarg), void* userarg));
   static void (*MOCK_BranchCancelAwaitEvent)(int (*fn)(void* branch));

@@ -76,13 +76,13 @@ YOGI_API int YOGI_BranchCreate(void** branch, void* context, void* config, const
   END_CHECKED_API_FUNCTION
 }
 
-YOGI_API int YOGI_BranchGetInfo(void* branch, void* uuid, const char** json, int* jsonsize) {
+YOGI_API int YOGI_BranchGetInfo(void* branch, const void** uuid, const char** json, int* jsonsize) {
   BEGIN_CHECKED_API_FUNCTION
 
   CHECK_PARAM(branch != nullptr);
 
   auto brn = ObjectRegister::get<Branch>(branch);
-  copy_uuid_to_user_buffer(brn->get_uuid(), uuid);
+  set_api_buffer(std::vector<char>(brn->get_uuid().begin(), brn->get_uuid().end()), uuid, nullptr);
 
   auto info_string = brn->make_info_string();
   set_api_buffer(std::move(info_string), json, jsonsize);
@@ -101,8 +101,10 @@ YOGI_API int YOGI_BranchGetConnectedBranches(void* branch, const void** uuids, i
 
   // Generate the UUIDs array
   std::vector<char> uuids_data(info_strings.size() * sizeof(boost::uuids::uuid));
+  size_t offset = 0;
   for (auto& entry : info_strings) {
-    std::copy_n(entry.first.data, sizeof(boost::uuids::uuid), uuids_data.data());
+    std::copy_n(entry.first.data, sizeof(boost::uuids::uuid), uuids_data.data() + offset);
+    offset += sizeof(boost::uuids::uuid);
   }
 
   set_api_buffer(std::move(uuids_data), uuids, nullptr);
