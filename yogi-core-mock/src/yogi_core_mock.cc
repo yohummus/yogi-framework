@@ -857,15 +857,14 @@ YOGI_API void MOCK_BranchGetInfo(decltype(YOGI_BranchGetInfo) fn) {
 // Mock implementation for YOGI_BranchGetConnectedBranches
 static std::function<decltype(YOGI_BranchGetConnectedBranches)> mock_BranchGetConnectedBranches_fn = {};
 
-YOGI_API int YOGI_BranchGetConnectedBranches(void* branch, void* uuid, char* json, int jsonsize,
-                                             void (*fn)(int res, void* userarg), void* userarg) {
+YOGI_API int YOGI_BranchGetConnectedBranches(void* branch, const char** json, int* jsonsize) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_BranchGetConnectedBranches_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_BranchGetConnectedBranches()" << std::endl;
     return YOGI_ERR_UNKNOWN;
   }
 
-  return mock_BranchGetConnectedBranches_fn(branch, uuid, json, jsonsize, fn, userarg);
+  return mock_BranchGetConnectedBranches_fn(branch, json, jsonsize);
 }
 
 YOGI_API void MOCK_BranchGetConnectedBranches(decltype(YOGI_BranchGetConnectedBranches) fn) {

@@ -1893,7 +1893,7 @@ YOGI_API int YOGI_BranchCreate(void** branch, void* context, void* config,
  *                      set to NULL)
  * \param[out] json     Pointer to a string pointer for retrieving the generated
  *                      branch information (can be set to NULL)
- * \param[in]  jsonsize Where to write the size (including the trailing zero) of
+ * \param[out] jsonsize Where to write the size (including the trailing zero) of
  *                      the generated branch information (can be set to NULL)
  *
  * \returns [=0] #YOGI_OK if successful
@@ -1905,57 +1905,46 @@ YOGI_API int YOGI_BranchGetInfo(void* branch, void* uuid, const char** json,
 /*!
  * Retrieves information about all connected remote branches.
  *
- * For each of the connected remote branches, this function will:
- *  -# Write the branch's UUID (16 bytes) in binary form to \p uuid.
- *  -# Generate a JSON string containing further information to \p json.
- *  -# Execute the handler \p fn with #YOGI_OK as first argument if \p jsonsize
- *     is as least as large as the length of the generated JSON string
- *
- * If the produced JSON string for the branch does not fit into \p json, i.e. if
- * \p jsonsize is too small, then \p json will be filled with the first
- * \p jsonsize - 1 characters and a trailing zero and \p fn will be called with
- * the #YOGI_ERR_BUFFER_TOO_SMALL error for that particular branch.
- *
- * This function will return #YOGI_ERR_BUFFER_TOO_SMALL if \p json is not large
- * enough to hold each one of the JSON strings. However, \p fn will still be
- * called for each discovered branch.
- *
- * The produced JSON string is as follows, without any unnecessary whitespace:
+ * The given \p json pointer will be set to a JSON string containg an array
+ * where each element describes a different connected remote branch. The
+ * produced JSON string is as follows, without any unnecessary whitespace:
  *
  * \code
- *   {
- *     "uuid":                 "123e4567-e89b-12d3-a456-426655440000",
- *     "name":                 "Pump Safety Logic",
- *     "description":          "Monitors the pump for safety",
- *     "network_name":         "Hardware Control",
- *     "path":                 "/Cooling System/Pump/Safety",
- *     "hostname":             "beaglebone",
- *     "pid":                  3321,
- *     "tcp_server_address":   "fe80::f086:b106:2c1b:c45",
- *     "tcp_server_port":      43384,
- *     "start_time":           "2018-04-23T18:25:43.511Z",
- *     "timeout":              3.0,
- *     "advertising_interval": 1.0,
- *     "ghost_mode":           false
- *   }
+ *   [
+ *     {
+ *       "uuid":                 "123e4567-e89b-12d3-a456-426655440000",
+ *       "name":                 "Pump Safety Logic",
+ *       "description":          "Monitors the pump for safety",
+ *       "network_name":         "Hardware Control",
+ *       "path":                 "/Cooling System/Pump/Safety",
+ *       "hostname":             "beaglebone",
+ *       "pid":                  3321,
+ *       "tcp_server_address":   "fe80::f086:b106:2c1b:c45",
+ *       "tcp_server_port":      43384,
+ *       "start_time":           "2018-04-23T18:25:43.511Z",
+ *       "timeout":              3.0,
+ *       "advertising_interval": 1.0,
+ *       "ghost_mode":           false
+ *     },
+ *     ...
+ *   ]
  * \endcode
  *
+ * \attention
+ *   The generated JSON string \p json is only valid in the calling thread
+ *   and until that thread invokes another Yogi library function.
+ *
  * \param[in]  branch   The branch handle
- * \param[out] uuid     Pointer to 16 byte array for storing the UUID (can be
- *                      set to NULL)
- * \param[out] json     Pointer to a char array for storing the information (can
- *                      be set to NULL)
- * \param[in]  jsonsize Maximum number of bytes to write to \p json
- * \param[in]  fn       Handler to call for each connected branch
- * \param[in]  userarg  User-specified argument to be passed to \p fn
+ * \param[out] json     Pointer to a string pointer for retrieving the generated
+ *                      branch information (can be set to NULL)
+ * \param[out] jsonsize Where to write the size (including the trailing zero) of
+ *                      the generated branch information (can be set to NULL)
  *
  * \returns [=0] #YOGI_OK if successful
  * \returns [<0] An error code in case of a failure (see \ref EC)
  */
-YOGI_API int YOGI_BranchGetConnectedBranches(void* branch, void* uuid,
-                                             char* json, int jsonsize,
-                                             void (*fn)(int res, void* userarg),
-                                             void* userarg);
+YOGI_API int YOGI_BranchGetConnectedBranches(void* branch, const char** json,
+                                             int* jsonsize);
 
 /*!
  * Wait for a branch event to occur.

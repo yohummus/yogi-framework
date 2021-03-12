@@ -34,6 +34,25 @@ Test::~Test() {
 
 void* const Test::kPointer = reinterpret_cast<void*>(0xDEADBEAFll);
 
+const char* const Test::kBranchInfo = R"({
+    "uuid":                 "123e4567-e89b-12d3-a456-426655440000",
+    "name":                 "foo",
+    "description":          "bar",
+    "network_name":         "local",
+    "path":                 "/test",
+    "hostname":             "localhost",
+    "pid":                  12345,
+    "advertising_interval": 5.5,
+    "tcp_server_port":      10000,
+    "start_time":           "foobar",
+    "timeout":              3.5,
+    "ghost_mode":           true,
+    "advertising_address":  "1.2.3.4",
+    "advertising_port":     5555,
+    "tx_queue_size":        6666,
+    "rx_queue_size":        7777
+  })";
+
 yogi::ContextPtr Test::create_context() {
   MOCK_ContextCreate([](void** context) {
     *context = kPointer;
@@ -62,8 +81,14 @@ yogi::BranchPtr Test::create_branch() {
   });
 
   MOCK_BranchGetInfo([](void* branch, void* uuid, const char** json, int* jsonsize) {
-    *json     = "{}";
-    *jsonsize = 3;
+    *json     = kBranchInfo;
+    *jsonsize = strlen(kBranchInfo) + 1;
+    return YOGI_OK;
+  });
+
+  MOCK_ParseTime([](long long* timestamp, const char* str, const char* timefmt) {
+    EXPECT_NE(timestamp, nullptr);
+    *timestamp = 1234356789123000000ll;
     return YOGI_OK;
   });
 
@@ -211,8 +236,8 @@ void (*Test::MOCK_BranchCreate)(int (*fn)(void** branch, void* context, void* co
 void (*Test::MOCK_BranchGetInfo)(int (*fn)(void* branch, void* uuid, const char** json, int* jsonsize))
  = detail::Library::get_function_address<void (*)(int (*fn)(void* branch, void* uuid, const char** json, int* jsonsize))>("MOCK_BranchGetInfo");
 
-void (*Test::MOCK_BranchGetConnectedBranches)(int (*fn)(void* branch, void* uuid, char* json, int jsonsize, void (*fn)(int res, void* userarg), void* userarg))
- = detail::Library::get_function_address<void (*)(int (*fn)(void* branch, void* uuid, char* json, int jsonsize, void (*fn)(int res, void* userarg), void* userarg))>("MOCK_BranchGetConnectedBranches");
+void (*Test::MOCK_BranchGetConnectedBranches)(int (*fn)(void* branch, const char** json, int* jsonsize))
+ = detail::Library::get_function_address<void (*)(int (*fn)(void* branch, const char** json, int* jsonsize))>("MOCK_BranchGetConnectedBranches");
 
 void (*Test::MOCK_BranchAwaitEventAsync)(int (*fn)(void* branch, int events, void* uuid, char* json, int jsonsize, void (*fn)(int res, int ev, int evres, void* userarg), void* userarg))
  = detail::Library::get_function_address<void (*)(int (*fn)(void* branch, int events, void* uuid, char* json, int jsonsize, void (*fn)(int res, int ev, int evres, void* userarg), void* userarg))>("MOCK_BranchAwaitEventAsync");

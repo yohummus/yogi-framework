@@ -90,31 +90,28 @@ YOGI_API int YOGI_BranchGetInfo(void* branch, void* uuid, const char** json, int
   END_CHECKED_API_FUNCTION
 }
 
-YOGI_API int YOGI_BranchGetConnectedBranches(void* branch, void* uuid, char* json, int jsonsize,
-                                             void (*fn)(int res, void* userarg), void* userarg) {
+YOGI_API int YOGI_BranchGetConnectedBranches(void* branch, const char** json, int* jsonsize) {
   BEGIN_CHECKED_API_FUNCTION
 
   CHECK_PARAM(branch != nullptr);
-  CHECK_PARAM(json == nullptr || jsonsize > 0);
-  CHECK_PARAM(fn != nullptr);
 
   auto brn = ObjectRegister::get<Branch>(branch);
 
-  auto buffer_too_small = false;
+  std::ostringstream ss;
+  ss << "[";
+
   for (auto& entry : brn->make_connected_branches_info_strings()) {
-    copy_uuid_to_user_buffer(entry.first, uuid);
-
-    if (copy_string_to_user_buffer(entry.second, json, jsonsize)) {
-      fn(YOGI_OK, userarg);
-    } else {
-      fn(YOGI_ERR_BUFFER_TOO_SMALL, userarg);
-      buffer_too_small = true;
-    }
+    ss << entry << ",";
   }
 
-  if (buffer_too_small) {
-    throw Error{YOGI_ERR_BUFFER_TOO_SMALL};
+  auto info_string_array = ss.str();
+  if (info_string_array.size() == 1) {
+    info_string_array += ']';
+  } else {
+    info_string_array.back() = ']';
   }
+
+  set_api_buffer(std::move(info_string_array), json, jsonsize);
 
   END_CHECKED_API_FUNCTION
 }

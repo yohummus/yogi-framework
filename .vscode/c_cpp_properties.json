@@ -7,7 +7,7 @@
       "${workspaceFolder}/yogi-core-mock",
       "${workspaceFolder}/yogi-cpp/include",
       "${workspaceFolder}/yogi-cpp",
-      "~/.conan/data/**"
+      "${env:HOME}/.conan/data/**"
     ]
   },
   "configurations": [
@@ -26,7 +26,7 @@
       },
       "defines": [],
       "macFrameworkPath": [
-        "/System/Library/Frameworks"
+        "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"
       ],
       "cppStandard": "c++17",
       "configurationProvider": "ms-vscode.cmake-tools"

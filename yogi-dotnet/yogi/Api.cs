@@ -361,10 +361,7 @@ public static partial class Yogi
 
         // YOGI_BranchGetConnectedBranches
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void BranchGetConnectedBranchesFnDelegate(int res, IntPtr userarg);
-
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate int BranchGetConnectedBranchesDelegate(SafeHandle branch, IntPtr uuid, StringBuilder json, int jsonsize, BranchGetConnectedBranchesFnDelegate fn, IntPtr userarg);
+        public delegate int BranchGetConnectedBranchesDelegate(SafeHandle branch, ref IntPtr json, ref int jsonsize);
 
         public static BranchGetConnectedBranchesDelegate YOGI_BranchGetConnectedBranches
             = Library.GetDelegateForFunction<BranchGetConnectedBranchesDelegate>("YOGI_BranchGetConnectedBranches");

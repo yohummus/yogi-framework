@@ -68,7 +68,7 @@ ConnectionManager::BranchInfoStringsList ConnectionManager::make_connected_branc
   for (auto& entry : connections_) {
     YOGI_ASSERT(entry.second);
     if (entry.second->session_running()) {
-      branches.push_back(std::make_pair(entry.first, entry.second->make_info_string()));
+      branches.push_back(entry.second->make_info_string());
     }
   }
 

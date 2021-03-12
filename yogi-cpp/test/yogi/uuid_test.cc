@@ -24,8 +24,8 @@
 #include <type_traits>
 #include <vector>
 
-yogi::Uuid make_uuid(std::vector<yogi::Uuid::value_type> v) {
-  yogi::Uuid uuid = {};
+Uuid make_uuid(std::vector<Uuid::value_type> v) {
+  Uuid uuid = {};
   for (std::size_t i = 0; i < v.size(); ++i) {
     uuid.data()[16 - v.size() + i] = v[i];
   }
@@ -33,14 +33,14 @@ yogi::Uuid make_uuid(std::vector<yogi::Uuid::value_type> v) {
 }
 
 TEST(UuidTest, Pod) {
-  EXPECT_TRUE(std::is_pod<yogi::Uuid>::value);
-  EXPECT_EQ(sizeof(yogi::Uuid), 16u);
+  EXPECT_TRUE(std::is_pod<Uuid>::value);
+  EXPECT_EQ(sizeof(Uuid), 16u);
 }
 
 TEST(UuidTest, Size) {
-  EXPECT_EQ(sizeof(yogi::Uuid), 16u);
-  EXPECT_EQ(yogi::Uuid::static_size(), 16u);
-  EXPECT_EQ(yogi::Uuid().size(), 16u);
+  EXPECT_EQ(sizeof(Uuid), 16u);
+  EXPECT_EQ(Uuid::static_size(), 16u);
+  EXPECT_EQ(Uuid().size(), 16u);
 }
 
 TEST(UuidTest, Iterators) {
@@ -99,4 +99,10 @@ TEST(UuidTest, ToString) {
       make_uuid({0x6b, 0xa7, 0xb8, 0x10, 0x9d, 0xad, 0x11, 0xd1, 0x80, 0xb4, 0x00, 0xc0, 0x4f, 0xd4, 0x30, 0xc8});
   auto s = uuid.to_string();
   EXPECT_EQ(s, "6ba7b810-9dad-11d1-80b4-00c04fd430c8");
+}
+
+TEST(UuidTest, Parse) {
+  auto uuid = Uuid::parse("123e4567-e89b-12d3-a456-42665544dff3");
+  auto s    = uuid.to_string();
+  EXPECT_EQ(s, "123e4567-e89b-12d3-a456-42665544dff3");
 }

@@ -1055,15 +1055,8 @@ functions:
     return_type: int
     args:
       branch: void*
-      uuid: void*
-      json: char*
-      jsonsize: int
-      fn:
-        return_type: void
-        args:
-          res: int
-          userarg: void*
-      userarg: void*
+      json: const char**
+      jsonsize: int*
 
   YOGI_BranchAwaitEventAsync:
     return_type: int

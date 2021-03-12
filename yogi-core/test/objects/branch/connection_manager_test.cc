@@ -52,8 +52,7 @@ class ConnectionManagerTest : public TestFixture {
       auto msg = multicast.receive().second;
       ASSERT_EQ(msg.size(), 25) << "Unexpected advertising message size";
 
-      boost::uuids::uuid uuid;
-      YOGI_BranchGetInfo(branch_, &uuid, nullptr, 0);
+      auto uuid = get_branch_uuid(branch_);
 
       EXPECT_EQ(msg[0], 'Y');
       EXPECT_EQ(msg[1], 'O');

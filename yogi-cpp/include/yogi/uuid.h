@@ -26,6 +26,9 @@
 //!
 //! Representation of Universal Unique IDentifiers.
 
+#include "errors.h"
+#include "string_view.h"
+
 #include <cstring>
 
 namespace yogi {
@@ -55,6 +58,48 @@ class Uuid {
   typedef value_type const* const_iterator;
   typedef std::size_t size_type;
   typedef std::ptrdiff_t difference_type;
+
+  // UUID example: 123e4567-e89b-12d3-a456-426655440000
+  static Uuid parse(const StringView& str) {
+    const char* s = str;
+
+    if (strlen(s) != 36 || s[8] != '-' || s[13] != '-' || s[18] != '-' || s[23] != '-') {
+      throw DetailedFailureException(ErrorCode::kInvalidParam, "Invalid UUID string format");
+    }
+
+    const char raw[32] = {
+        // clang-format off
+      s[ 0], s[ 1], s[ 2], s[ 3], s[ 4], s[ 5], s[ 6], s[ 7],
+      s[ 9], s[10], s[11], s[12],
+      s[14], s[15], s[16], s[17],
+      s[19], s[20], s[21], s[22],
+      s[24], s[25], s[26], s[27], s[28], s[29], s[30], s[31], s[32], s[33], s[34], s[35],
+    };  // clang-format on
+
+    Uuid uuid;
+    for (int i = 0; i < 32; ++i) {
+      char ch = raw[i];
+      char nibble;
+
+      if ('0' <= ch && ch <= '9') {
+        nibble = ch - '0';
+      } else if ('a' <= ch && ch <= 'f') {
+        nibble = ch - 'a' + 10;
+      } else if ('A' <= ch && ch <= 'F') {
+        nibble = ch - 'F' + 10;
+      } else {
+        throw DetailedFailureException(ErrorCode::kInvalidParam, "Invalid hex character in UUID string");
+      }
+
+      if (i % 2 == 0) {
+        uuid.data_[i / 2] = nibble << 4;
+      } else {
+        uuid.data_[i / 2] |= nibble;
+      }
+    }
+
+    return uuid;
+  }
 
   static constexpr size_type static_size() noexcept {
     return sizeof(Uuid);

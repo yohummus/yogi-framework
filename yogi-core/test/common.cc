@@ -28,6 +28,7 @@
 
 #include <boost/asio.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/uuid/string_generator.hpp>
 
 #include <fstream>
 #include <sstream>
@@ -212,26 +213,8 @@ void FakeBranch::advertise(std::function<void(Buffer*)> msg_changer) {
 }
 
 bool FakeBranch::is_connected_to(void* branch) const {
-  struct Data {
-    uuids::uuid my_uuid;
-    uuids::uuid uuid;
-    bool connected = false;
-  } data;
-
-  data.my_uuid = info_->get_uuid();
-
-  int res = YOGI_BranchGetConnectedBranches(
-      branch, &data.uuid, nullptr, 0,
-      [](int, void* userarg) {
-        auto data = static_cast<Data*>(userarg);
-        if (data->uuid == data->my_uuid) {
-          data->connected = true;
-        }
-      },
-      &data);
-  EXPECT_OK(res);
-
-  return data.connected;
+  auto conn_branches = get_connected_branches(branch);
+  return conn_branches.count(info_->get_uuid());
 }
 
 void FakeBranch::authenticate(std::function<void(Buffer*)> msg_changer) {
@@ -417,22 +400,20 @@ nlohmann::json get_branch_info(void* branch) {
 }
 
 std::map<uuids::uuid, nlohmann::json> get_connected_branches(void* branch) {
-  struct Data {
-    uuids::uuid uuid;
-    char json_str[1000] = {0};
-    std::map<uuids::uuid, nlohmann::json> branches;
-  } data;
-
-  int res = YOGI_BranchGetConnectedBranches(
-      branch, &data.uuid, data.json_str, sizeof(data.json_str),
-      [](int, void* userarg) {
-        auto data                  = static_cast<Data*>(userarg);
-        data->branches[data->uuid] = nlohmann::json::parse(data->json_str);
-      },
-      &data);
+  const char* json;
+  int jsonsize;
+  int res = YOGI_BranchGetConnectedBranches(branch, &json, &jsonsize);
   EXPECT_OK(res);
+  EXPECT_EQ(strlen(json) + 1, jsonsize);
 
-  return data.branches;
+  std::map<uuids::uuid, nlohmann::json> branches;
+  auto info_array = nlohmann::json::parse(json);
+  for (auto& info : info_array) {
+    auto uuid      = uuids::string_generator{}(info["uuid"].get<std::string>());
+    branches[uuid] = info;
+  }
+
+  return branches;
 }
 
 std::string make_version_string(int major, int minor, int patch, const std::string& suffix) {
