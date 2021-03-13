@@ -242,12 +242,13 @@ TEST_F(BranchTest, CreateFromConfiguration) {
     return YOGI_OK;
   });
 
-  MOCK_BranchGetInfo([](void* branch, void* uuid, const char** json, int* jsonsize) {
+  MOCK_BranchGetInfo([](void* branch, const void** uuid, const char** json, int* jsonsize) {
     EXPECT_EQ(branch, kPointer);
     EXPECT_NE(json, nullptr);
     EXPECT_NE(jsonsize, nullptr);
     *json     = kBranchInfo;
     *jsonsize = strlen(kBranchInfo) + 1;
+    EXPECT_EQ(uuid, nullptr);  // Not needed for now
     return YOGI_OK;
   });
 
@@ -283,12 +284,13 @@ TEST_F(BranchTest, CreateFromJson) {
     return YOGI_OK;
   });
 
-  MOCK_BranchGetInfo([](void* branch, void* uuid, const char** json, int* jsonsize) {
+  MOCK_BranchGetInfo([](void* branch, const void** uuid, const char** json, int* jsonsize) {
     EXPECT_EQ(branch, kPointer);
     EXPECT_NE(json, nullptr);
     EXPECT_NE(jsonsize, nullptr);
     *json     = kBranchInfo;
     *jsonsize = strlen(kBranchInfo) + 1;
+    EXPECT_EQ(uuid, nullptr);  // Not needed for now
     return YOGI_OK;
   });
 
@@ -314,7 +316,7 @@ TEST_F(BranchTest, Info) {
     return YOGI_OK;
   });
 
-  MOCK_BranchGetInfo([](void* branch, void* uuid, const char** json, int* jsonsize) {
+  MOCK_BranchGetInfo([](void* branch, const void** uuid, const char** json, int* jsonsize) {
     EXPECT_EQ(branch, kPointer);
     EXPECT_NE(json, nullptr);
     EXPECT_NE(jsonsize, nullptr);
@@ -340,6 +342,8 @@ TEST_F(BranchTest, Info) {
     })";
 
     *jsonsize = std::strlen(*json) + 1;
+
+    EXPECT_EQ(uuid, nullptr);  // Not needed for now
 
     return YOGI_OK;
   });

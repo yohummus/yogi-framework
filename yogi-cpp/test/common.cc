@@ -80,9 +80,10 @@ yogi::BranchPtr Test::create_branch() {
     return YOGI_OK;
   });
 
-  MOCK_BranchGetInfo([](void* branch, void* uuid, const char** json, int* jsonsize) {
+  MOCK_BranchGetInfo([](void* branch, const void** uuid, const char** json, int* jsonsize) {
     *json     = kBranchInfo;
     *jsonsize = strlen(kBranchInfo) + 1;
+    EXPECT_EQ(uuid, nullptr);  // Not needed for now
     return YOGI_OK;
   });
 
