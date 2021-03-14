@@ -27,7 +27,7 @@ from ._configuration import Configuration
 from ._constants import Constants
 from ._context import Context
 from ._enums import BranchEvents, Encoding
-from ._errors import ErrorCode, FailureException, Result, Success, error_code_to_result, false_if_specific_ec_else_raise
+from ._errors import ErrorCode, Result, Success, error_code_to_result, false_if_specific_ec_else_raise
 from ._handler import Handler
 from ._json_view import JsonView
 from ._library import yogi_core
