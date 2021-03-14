@@ -121,7 +121,7 @@ def test_create(cfg_type, mocks: Mocks, context: yogi.Context, configuration: yo
 
     def branch_get_info_fn(branch, uuid, json, jsonsize):
         assert branch == 8888
-        assert uuid is None
+        assert not uuid
         assert json
         assert not jsonsize
         json.contents.value = hello_bytes
@@ -174,28 +174,18 @@ def test_branch_info_properties(branch: yogi.Branch, mocker):
 
 def test_get_connected_branches(mocks: Mocks, branch: yogi.Branch, mocker):
     """Verifies that the Branch class has a method for listing all remote branches that it is currently connected to"""
-    branch_info_bytes_1 = make_branch_info_string("11111111-e89b-12d3-a456-426655440000").encode() + b"\0"
-    branch_info_bytes_2 = make_branch_info_string("22222222-e89b-12d3-a456-426655440000").encode() + b"\0"
+    branch_infos = f'[{make_branch_info_string("11111111-e89b-12d3-a456-426655440000")},' \
+                   f'{make_branch_info_string("22222222-e89b-12d3-a456-426655440000")}]'.encode() + b"\0"
 
-    trigger_error = True
-
-    def fn(branch, uuid, json, jsonsize, handler_fn, userarg):
+    def fn(branch, uuids, numuuids, json, jsonsize):
         assert branch == 8888
-        assert uuid is None
+        assert not uuids     # Not needed
+        assert not numuuids  # Not needed
         assert json
-        assert jsonsize >= len(branch_info_bytes_1)
-        memmove(json, branch_info_bytes_1, len(branch_info_bytes_1))
-        handler_fn(yogi.ErrorCode.OK, userarg)
+        json.contents.value = branch_infos
+        assert not jsonsize  # Not needed
 
-        nonlocal trigger_error
-        if trigger_error:
-            trigger_error = False  # No error next time
-            handler_fn(yogi.ErrorCode.BUFFER_TOO_SMALL, userarg)
-            return yogi.ErrorCode.BUFFER_TOO_SMALL
-        else:
-            memmove(json, branch_info_bytes_2, len(branch_info_bytes_2))
-            handler_fn(yogi.ErrorCode.OK, userarg)
-            return yogi.ErrorCode.OK
+        return yogi.ErrorCode.OK
 
     mocks.MOCK_BranchGetConnectedBranches(fn)
 

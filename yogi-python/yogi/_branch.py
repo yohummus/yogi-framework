@@ -426,30 +426,14 @@ class Branch(Object):
             Dictionary mapping the UUID of each connected remote branch to an
             object containing detailed information.
         """
-        s = create_string_buffer(1024)
-        strings = []
 
-        def append_string(res, userarg):
-            strings.append(s.value.decode("utf-8"))
-
-        c_append_string = yogi_core.YOGI_BranchGetConnectedBranches.argtypes[4](append_string)
-
-        while True:
-            try:
-                strings.clear()
-                yogi_core.YOGI_BranchGetConnectedBranches(self._handle, None, s, sizeof(s), c_append_string, None)
-                break
-            except FailureException as e:
-                if e.failure.error_code is ErrorCode.BUFFER_TOO_SMALL:
-                    strings = []
-                    s = create_string_buffer(sizeof(s) * 2)
-                else:
-                    raise
+        json_str = c_char_p()
+        yogi_core.YOGI_BranchGetConnectedBranches(self._handle, None, None, json_str, None)
 
         branches = {}
-        for string in strings:
-            info = RemoteBranchInfo(string)
-            branches[info.uuid] = info
+        for info in json.loads(json_str.value.decode()):
+            rbi = RemoteBranchInfo(json.dumps(info))
+            branches[rbi.uuid] = rbi
 
         return branches
 
@@ -677,7 +661,7 @@ class Branch(Object):
     def __get_info(self) -> LocalBranchInfo:
         json = c_char_p()
         yogi_core.YOGI_BranchGetInfo(self._handle, None, json, None)
-        return LocalBranchInfo(json.value.decode("utf-8"))
+        return LocalBranchInfo(json.value.decode())
 
 
 def convert_info_fields(info):

@@ -383,7 +383,7 @@ TEST_F(BranchTest, GetConnectedBranches) {
         EXPECT_EQ(branch, kPointer);
         EXPECT_NE(json, nullptr);
 
-        // For now, yogi-cpp does not use the following parameter, so we set them to NULL
+        // For now, yogi-cpp does not use the following parameters, so we set them to NULL
         EXPECT_EQ(uuids, nullptr);
         EXPECT_EQ(numuuids, nullptr);
         EXPECT_EQ(jsonsize, nullptr);
