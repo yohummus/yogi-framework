@@ -454,39 +454,31 @@ class Branch(Object):
         If successful, the event information passed to the handler function fn
         contains at least the UUID of the remote branch.
 
-        In case that the internal buffer for reading the event information is
-        too small, fn will be called with the corresponding error and the
-        event information is lost. You can set the size of this buffer via the
-        bufferSize parameter.
-
         Args:
-            events:      Events to observe.
-            fn:          Handler function to call.
-            buffer_size: Size of the internal buffer for reading the event
-                         information.
+            events: Events to observe.
+            fn:     Handler function to call.
         """
-        s = create_string_buffer(buffer_size)
 
-        def wrapped_fn(res, event, evres):
+        def wrapped_fn(res, event, evres, uuid, json, jsonsize):
             info = None
             if res == Success():
-                string = s.value.decode("utf-8")
+                info_string = json.decode("utf-8")
                 if event == BranchEvents.BRANCH_DISCOVERED:
-                    info = BranchDiscoveredEventInfo(string)
+                    info = BranchDiscoveredEventInfo(info_string)
                 elif event == BranchEvents.BRANCH_QUERIED:
-                    info = BranchQueriedEventInfo(string)
+                    info = BranchQueriedEventInfo(info_string)
                 elif event == BranchEvents.CONNECT_FINISHED:
-                    info = ConnectFinishedEventInfo(string)
+                    info = ConnectFinishedEventInfo(info_string)
                 elif event == BranchEvents.CONNECTION_LOST:
-                    info = ConnectionLostEventInfo(string)
+                    info = ConnectionLostEventInfo(info_string)
                 else:
-                    info = BranchEventInfo(string)
+                    info = BranchEventInfo(info_string)
 
             branch_events = BranchEvents(event)
             fn(res, branch_events, error_code_to_result(evres), info)
 
-        with Handler(yogi_core.YOGI_BranchAwaitEventAsync.argtypes[5], wrapped_fn) as handler:
-            yogi_core.YOGI_BranchAwaitEventAsync(self._handle, events, None, s, sizeof(s), handler, None)
+        with Handler(yogi_core.YOGI_BranchAwaitEventAsync.argtypes[2], wrapped_fn) as handler:
+            yogi_core.YOGI_BranchAwaitEventAsync(self._handle, events, handler, None)
 
     def cancel_await_event(self) -> bool:
         """Cancels waiting for a branch event.

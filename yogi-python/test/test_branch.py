@@ -20,7 +20,7 @@
 import yogi
 import pytest
 import json
-from ctypes import memmove, c_char_p
+from ctypes import memmove, c_char_p, create_string_buffer
 from uuid import UUID
 
 from .conftest import Mocks
@@ -199,18 +199,16 @@ def test_get_connected_branches(mocks: Mocks, branch: yogi.Branch, mocker):
 
 def test_await_event_async(mocks: Mocks, branch: yogi.Branch):
     """Verifies that the Branch class has a method to wait for branch events"""
-    branch_info_bytes = make_branch_info_string().encode() + b"\0"
+    uuid_bytes = create_string_buffer(bytes([123] * 16))
+    branch_info_bytes = create_string_buffer(make_branch_info_string().encode() + b"\0")
     called = False
 
-    def fn(branch, events, uuid, json, jsonsize, handler_fn, userarg):
+    def fn(branch, events, handler_fn, userarg):
         assert branch == 8888
         assert events == yogi.BranchEvents.BRANCH_QUERIED | yogi.BranchEvents.BRANCH_DISCOVERED
-        assert uuid is None
-        assert json
-        assert jsonsize >= len(branch_info_bytes)
-        memmove(json, branch_info_bytes, len(branch_info_bytes))
         assert handler_fn
-        handler_fn(yogi.ErrorCode.OK, yogi.BranchEvents.BRANCH_DISCOVERED, yogi.ErrorCode.BUSY, userarg)
+        handler_fn(yogi.ErrorCode.OK, yogi.BranchEvents.BRANCH_DISCOVERED, yogi.ErrorCode.BUSY, uuid_bytes,
+                   branch_info_bytes, len(branch_info_bytes), userarg)
         return yogi.ErrorCode.OK
 
     def handler_fn(res, ev, evres, info):
