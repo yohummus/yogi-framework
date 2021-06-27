@@ -544,7 +544,7 @@ namespace test
 
         // MOCK_BranchGetInfo
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate int BranchGetInfoDelegate(IntPtr branch, IntPtr uuid, ref IntPtr json, ref int jsonsize);
+        public delegate int BranchGetInfoDelegate(IntPtr branch, ref IntPtr uuid, ref IntPtr json, ref int jsonsize);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void BranchGetInfoMockDelegate(BranchGetInfoDelegate fn);
@@ -554,10 +554,7 @@ namespace test
 
         // MOCK_BranchGetConnectedBranches
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void BranchGetConnectedBranchesFnDelegate(int res, IntPtr userarg);
-
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate int BranchGetConnectedBranchesDelegate(IntPtr branch, IntPtr uuid, StringBuilder json, int jsonsize, BranchGetConnectedBranchesFnDelegate fn, IntPtr userarg);
+        public delegate int BranchGetConnectedBranchesDelegate(IntPtr branch, ref IntPtr uuids, ref int numuuids, ref IntPtr json, ref int jsonsize);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void BranchGetConnectedBranchesMockDelegate(BranchGetConnectedBranchesDelegate fn);
@@ -567,10 +564,10 @@ namespace test
 
         // MOCK_BranchAwaitEventAsync
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void BranchAwaitEventAsyncFnDelegate(int res, int ev, int evres, IntPtr userarg);
+        public delegate void BranchAwaitEventAsyncFnDelegate(int res, int ev, int evres, IntPtr uuid, string json, int jsonsize, IntPtr userarg);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate int BranchAwaitEventAsyncDelegate(IntPtr branch, int events, IntPtr uuid, StringBuilder json, int jsonsize, BranchAwaitEventAsyncFnDelegate fn, IntPtr userarg);
+        public delegate int BranchAwaitEventAsyncDelegate(IntPtr branch, int events, BranchAwaitEventAsyncFnDelegate fn, IntPtr userarg);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void BranchAwaitEventAsyncMockDelegate(BranchAwaitEventAsyncDelegate fn);

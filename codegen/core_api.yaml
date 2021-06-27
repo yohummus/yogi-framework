@@ -1047,7 +1047,7 @@ functions:
     return_type: int
     args:
       branch: void*
-      uuid: void*
+      uuid: const void**
       json: const char**
       jsonsize: int*
 
@@ -1055,30 +1055,25 @@ functions:
     return_type: int
     args:
       branch: void*
-      uuid: void*
-      json: char*
-      jsonsize: int
-      fn:
-        return_type: void
-        args:
-          res: int
-          userarg: void*
-      userarg: void*
+      uuids: const void**
+      numuuids: int*
+      json: const char**
+      jsonsize: int*
 
   YOGI_BranchAwaitEventAsync:
     return_type: int
     args:
       branch: void*
       events: int
-      uuid: void*
-      json: char*
-      jsonsize: int
       fn:
         return_type: void
         args:
           res: int
           ev: int
           evres: int
+          uuid: const void*
+          json: const char*
+          jsonsize: int
           userarg: void*
       userarg: void*
 
@@ -1234,6 +1229,7 @@ type_mappings:
   void*: { py: c_void_p, cs: IntPtr }
   void**: { py: POINTER(c_void_p), cs: ref IntPtr }
   const void*: { py: c_void_p, cs: IntPtr }
+  const void**: { py: POINTER(c_void_p), cs: ref IntPtr }
 
 time_fmt_placeholders:
   "%Y": Four digit year

@@ -52,8 +52,7 @@ class ConnectionManagerTest : public TestFixture {
       auto msg = multicast.receive().second;
       ASSERT_EQ(msg.size(), 25) << "Unexpected advertising message size";
 
-      boost::uuids::uuid uuid;
-      YOGI_BranchGetInfo(branch_, &uuid, nullptr, 0);
+      auto uuid = get_branch_uuid(branch_);
 
       EXPECT_EQ(msg[0], 'Y');
       EXPECT_EQ(msg[1], 'O');
@@ -260,11 +259,14 @@ TEST_F(ConnectionManagerTest, CancelAwaitBranchEvent) {
 
   bool called = false;
   res         = YOGI_BranchAwaitEventAsync(
-      branch_, 0, nullptr, nullptr, 0,
-      [](int res, int event, int ev_res, void* userarg) {
+      branch_, 0,
+      [](int res, int event, int evres, const void* uuid, const char* json, int jsonsize, void* userarg) {
         EXPECT_ERR(res, YOGI_ERR_CANCELED);
         EXPECT_EQ(event, YOGI_BEV_NONE);
-        EXPECT_EQ(ev_res, YOGI_OK);
+        EXPECT_EQ(evres, YOGI_OK);
+        EXPECT_NE(uuid, nullptr);
+        EXPECT_NE(json, nullptr);
+        EXPECT_EQ(jsonsize, 0);
         *static_cast<bool*>(userarg) = true;
       },
       &called);
@@ -282,11 +284,14 @@ TEST_F(ConnectionManagerTest, CancelAwaitBranchEvent) {
 TEST_F(ConnectionManagerTest, AwaitBranchEventOnDestruction) {
   bool called = false;
   int res     = YOGI_BranchAwaitEventAsync(
-      branch_, 0, nullptr, nullptr, 0,
-      [](int res, int event, int ev_res, void* userarg) {
+      branch_, 0,
+      [](int res, int event, int evres, const void* uuid, const char* json, int jsonsize, void* userarg) {
         EXPECT_ERR(res, YOGI_ERR_CANCELED);
         EXPECT_EQ(event, YOGI_BEV_NONE);
-        EXPECT_EQ(ev_res, YOGI_OK);
+        EXPECT_EQ(evres, YOGI_OK);
+        EXPECT_NE(uuid, nullptr);
+        EXPECT_NE(json, nullptr);
+        EXPECT_EQ(jsonsize, 0);
         *static_cast<bool*>(userarg) = true;
       },
       &called);

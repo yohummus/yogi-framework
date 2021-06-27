@@ -63,80 +63,78 @@ class BranchInfo {
   /// Returns the name of the branch.
   ///
   /// \returns The name of the branch.
-  std::string name() const {
-    return json_["name"];
+  const std::string& name() const {
+    return name_;
   }
 
   /// Returns the description of the branch.
   ///
   /// \returns The description of the branch.
-  std::string description() const {
-    return json_["description"];
+  const std::string& description() const {
+    return description_;
   }
 
   /// Returns the name of the network.
   ///
   /// \returns The name of the network.
-  std::string network_name() const {
-    return json_["network_name"];
+  const std::string& network_name() const {
+    return network_name_;
   }
 
   /// Returns the  path of the branch.
   ///
   /// \returns The  path of the branch.
-  std::string path() const {
-    return json_["path"];
+  const std::string& path() const {
+    return path_;
   }
 
   /// Returns the machine's hostname.
   ///
   /// \returns The machine's hostname.
-  std::string hostname() const {
-    return json_["hostname"];
+  const std::string& hostname() const {
+    return hostname_;
   }
 
   /// Returns the ID of the process.
   ///
   /// \returns The ID of the process.
   int pid() const {
-    return json_["pid"];
+    return pid_;
   }
 
   /// Returns the advertising interval.
   ///
   /// \returns The advertising interval.
   Duration advertising_interval() const {
-    float val = json_["advertising_interval"];
-    return val < 0 ? Duration::kInf : Duration::from_seconds(val);
+    return advertising_interval_;
   }
 
   /// Returns the listening port of the TCP server for incoming connections.
   ///
   /// \returns The listening port of the TCP server for incoming connections.
   int tcp_server_port() const {
-    return json_["tcp_server_port"];
+    return tcp_server_port_;
   }
 
   /// Returns the time when the branch was started (UTC time).
   ///
   /// \returns The time when the branch was started (UTC time).
-  Timestamp start_time() const {
-    return Timestamp::parse(static_cast<const std::string&>(json_["start_time"]));
+  const Timestamp& start_time() const {
+    return start_time_;
   }
 
   /// Returns the connection timeout.
   ///
   /// \returns The connection timeout.
-  Duration timeout() const {
-    float val = json_["timeout"];
-    return val < 0 ? Duration::kInf : Duration::from_seconds(val);
+  const Duration& timeout() const {
+    return timeout_;
   }
 
   /// Returns true if the branch is in ghost mode.
   ///
   /// \return True if the branch is in ghost mode.
   bool ghost_mode() const {
-    return json_["ghost_mode"];
+    return ghost_mode_;
   }
 
   /// Returns the branch information as JSON-encoded string.
@@ -149,21 +147,51 @@ class BranchInfo {
   /// Returns the branch information as a JSON object.
   ///
   /// \return Branch information as a JSON object.
-  const Json& to_json() const {
-    return json_;
+  Json to_json() const {
+    return Json::parse(json_str_);
   }
 
  protected:
-  BranchInfo(const Uuid& uuid, std::string&& json_str) : BranchInfo(uuid, Json::parse(json_str), json_str) {
+  BranchInfo() {
   }
 
-  BranchInfo(const Uuid& uuid, Json json, std::string json_str) : uuid_(uuid), json_(json), json_str_(json_str) {
+  BranchInfo(std::string&& json_str) {
+    auto json = Json::parse(json_str);
+    init(std::move(json_str), json);
+  }
+
+  void init(std::string&& json_str, const Json& json) {
+    json_str_             = std::move(json_str);
+    uuid_                 = Uuid::parse(json["uuid"].get<std::string>());
+    name_                 = json["name"];
+    description_          = json["description"];
+    network_name_         = json["network_name"];
+    path_                 = json["path"];
+    hostname_             = json["hostname"];
+    pid_                  = json["pid"].get<int>();
+    float val             = json["advertising_interval"].get<float>();
+    advertising_interval_ = val < 0 ? Duration::kInf : Duration::from_seconds(val);
+    tcp_server_port_      = json["tcp_server_port"].get<int>();
+    start_time_           = Timestamp::parse(json["start_time"].get<std::string>());
+    val                   = json["timeout"].get<float>();
+    timeout_              = val < 0 ? Duration::kInf : Duration::from_seconds(val);
+    ghost_mode_           = json["ghost_mode"].get<bool>();
   }
 
  private:
-  const Uuid uuid_;
-  const Json json_;
-  const std::string json_str_;
+  std::string json_str_;
+  Uuid uuid_;
+  std::string name_;
+  std::string description_;
+  std::string network_name_;
+  std::string path_;
+  std::string hostname_;
+  int pid_;
+  Duration advertising_interval_;
+  int tcp_server_port_;
+  Timestamp start_time_;
+  Duration timeout_;
+  bool ghost_mode_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -177,12 +205,19 @@ class RemoteBranchInfo : public BranchInfo {
   /// Returns the address of the TCP server for incoming connections.
   ///
   /// \returns The address of the TCP server for incoming connections.
-  std::string tcp_server_address() const {
-    return to_json()["tcp_server_address"];
+  const std::string& tcp_server_address() const {
+    return tcp_server_address_;
   }
 
  protected:
-  using BranchInfo::BranchInfo;
+  RemoteBranchInfo(std::string&& json_str) {
+    auto json = Json::parse(json_str);
+    BranchInfo::init(std::move(json_str), json);
+    tcp_server_address_ = json["tcp_server_address"];
+  }
+
+ private:
+  std::string tcp_server_address_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -195,34 +230,46 @@ class LocalBranchInfo : public BranchInfo {
   /// Advertising IP address.
   ///
   /// \returns The advertising IP address.
-  std::string advertising_address() const {
-    return to_json()["advertising_address"];
+  const std::string& advertising_address() const {
+    return advertising_address_;
   }
 
   /// Advertising port.
   ///
   /// \returns The advertising port.
   int advertising_port() const {
-    return to_json()["advertising_port"];
+    return advertising_port_;
   }
 
   /// Size of the send queues for remote branches.
   ///
   /// \returns The size of the send queues.
   int tx_queue_size() const {
-    return to_json()["tx_queue_size"];
+    return tx_queue_size_;
   }
 
   /// Size of the receive queues for remote branches.
   ///
   /// \returns The size of the receive queues.
   int rx_queue_size() const {
-    return to_json()["rx_queue_size"];
+    return rx_queue_size_;
   }
 
  protected:
-  LocalBranchInfo(const Uuid& uuid, std::string&& json_str) : BranchInfo(uuid, std::move(json_str)) {
+  LocalBranchInfo(std::string&& json_str) {
+    auto json = Json::parse(json_str);
+    BranchInfo::init(std::move(json_str), json);
+    advertising_address_ = json["advertising_address"];
+    advertising_port_    = json["advertising_port"].get<int>();
+    tx_queue_size_       = json["tx_queue_size"].get<int>();
+    rx_queue_size_       = json["rx_queue_size"].get<int>();
   }
+
+ private:
+  std::string advertising_address_;
+  int advertising_port_;
+  int tx_queue_size_;
+  int rx_queue_size_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -252,22 +299,27 @@ class BranchEventInfo {
   /// Returns the event information as a JSON object.
   ///
   /// \return Event information as a JSON object.
-  const Json& to_json() const {
-    return json_;
+  Json to_json() const {
+    return Json::parse(json_str_);
   }
 
  protected:
-  BranchEventInfo() : BranchEventInfo({}, "{}") {
+  BranchEventInfo() : uuid_{}, json_str_{"{}"} {
   }
 
-  BranchEventInfo(const Uuid& uuid, std::string&& json_str)
-      : uuid_(uuid), json_(Json::parse(json_str)), json_str_(std::move(json_str)) {
+  BranchEventInfo(std::string&& json_str) {
+    auto json = Json::parse(json_str);
+    init(std::move(json_str), json);
+  }
+
+  void init(std::string&& json_str, const Json& json) {
+    json_str_ = std::move(json_str);
+    uuid_     = Uuid::parse(json["uuid"].get<std::string>());
   }
 
  private:
-  const Uuid uuid_;
-  const Json json_;
-  const std::string json_str_;
+  Uuid uuid_;
+  std::string json_str_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -280,20 +332,28 @@ class BranchDiscoveredEventInfo : public BranchEventInfo {
   /// Returns the address of the TCP server for incoming connections.
   ///
   /// \returns The address of the TCP server for incoming connections.
-  std::string tcp_server_address() const {
-    return to_json()["tcp_server_address"];
+  const std::string& tcp_server_address() const {
+    return tcp_server_address_;
   }
 
   /// Returns the listening port of the TCP server for incoming connections.
   ///
   /// \returns The listening port of the TCP server for incoming connections.
   int tcp_server_port() const {
-    return to_json()["tcp_server_port"];
+    return tcp_server_port_;
   }
 
  protected:
-  BranchDiscoveredEventInfo(const Uuid& uuid, std::string&& json_str) : BranchEventInfo(uuid, std::move(json_str)) {
+  BranchDiscoveredEventInfo(std::string&& json_str) {
+    auto json = Json::parse(json_str);
+    BranchEventInfo::init(std::move(json_str), json);
+    tcp_server_address_ = json["tcp_server_address"];
+    tcp_server_port_    = json["tcp_server_port"].get<int>();
   }
+
+ private:
+  std::string tcp_server_address_;
+  int tcp_server_port_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -306,99 +366,127 @@ class BranchQueriedEventInfo : public BranchEventInfo {
   /// Returns the name of the branch.
   ///
   /// \returns The name of the branch.
-  std::string name() const {
-    return to_json()["name"];
+  const std::string& name() const {
+    return name_;
   }
 
   /// Returns the description of the branch.
   ///
   /// \returns The description of the branch.
-  std::string description() const {
-    return to_json()["description"];
+  const std::string& description() const {
+    return description_;
   }
 
   /// Returns the name of the network.
   ///
   /// \returns The name of the network.
-  std::string network_name() const {
-    return to_json()["network_name"];
+  const std::string& network_name() const {
+    return network_name_;
   }
 
   /// Returns the  path of the branch.
   ///
   /// \returns The  path of the branch.
-  std::string path() const {
-    return to_json()["path"];
+  const std::string& path() const {
+    return path_;
   }
 
   /// Returns the machine's hostname.
   ///
   /// \returns The machine's hostname.
-  std::string hostname() const {
-    return to_json()["hostname"];
+  const std::string& hostname() const {
+    return hostname_;
   }
 
   /// Returns the ID of the process.
   ///
   /// \returns The ID of the process.
   int pid() const {
-    return to_json()["pid"];
+    return pid_;
   }
 
   /// Returns the advertising interval.
   ///
   /// \returns The advertising interval.
   Duration advertising_interval() const {
-    float val = to_json()["advertising_interval"];
-    return val < 0 ? Duration::kInf : Duration::from_seconds(val);
+    return advertising_interval_;
   }
 
   /// Returns the address of the TCP server for incoming connections.
   ///
   /// \returns The address of the TCP server for incoming connections.
-  std::string tcp_server_address() const {
-    return to_json()["tcp_server_address"];
+  const std::string& tcp_server_address() const {
+    return tcp_server_address_;
   }
 
   /// Returns the listening port of the TCP server for incoming connections.
   ///
   /// \returns The listening port of the TCP server for incoming connections.
   int tcp_server_port() const {
-    return to_json()["tcp_server_port"];
+    return tcp_server_port_;
   }
 
   /// Returns the time when the branch was started (UTC time).
   ///
   /// \returns The time when the branch was started (UTC time).
-  Timestamp start_time() const {
-    return Timestamp::parse(static_cast<const std::string&>(to_json()["start_time"]));
+  const Timestamp& start_time() const {
+    return start_time_;
   }
 
   /// Returns the connection timeout.
   ///
   /// \returns The connection timeout.
-  Duration timeout() const {
-    float val = to_json()["timeout"];
-    return val < 0 ? Duration::kInf : Duration::from_seconds(val);
+  const Duration& timeout() const {
+    return timeout_;
   }
 
   /// Returns true if the branch is in ghost mode.
   ///
   /// \return True if the branch is in ghost mode.
   bool ghost_mode() const {
-    return to_json()["ghost_mode"];
+    return ghost_mode_;
   }
 
   /// Converts the event information to a RemoteBranchInfo object.
   ///
   /// \returns The converted RemoteBranchInfo object.
   RemoteBranchInfo to_remote_branch_info() const {
-    return RemoteBranchInfo(uuid(), to_json(), to_string());
+    return RemoteBranchInfo(std::string{to_string()});
   }
 
  protected:
-  BranchQueriedEventInfo(const Uuid& uuid, std::string&& json_str) : BranchEventInfo(uuid, std::move(json_str)) {
+  BranchQueriedEventInfo(std::string&& json_str) {
+    auto json = Json::parse(json_str);
+    BranchEventInfo::init(std::move(json_str), json);
+    name_                 = json["name"];
+    description_          = json["description"];
+    network_name_         = json["network_name"];
+    path_                 = json["path"];
+    hostname_             = json["hostname"];
+    pid_                  = json["pid"];
+    tcp_server_address_   = json["tcp_server_address"];
+    float val             = json["advertising_interval"].get<float>();
+    advertising_interval_ = val < 0 ? Duration::kInf : Duration::from_seconds(val);
+    tcp_server_port_      = json["tcp_server_port"].get<int>();
+    start_time_           = Timestamp::parse(json["start_time"].get<std::string>());
+    val                   = json["timeout"].get<float>();
+    timeout_              = val < 0 ? Duration::kInf : Duration::from_seconds(val);
+    ghost_mode_           = json["ghost_mode"].get<bool>();
   }
+
+ private:
+  std::string name_;
+  std::string description_;
+  std::string network_name_;
+  std::string path_;
+  std::string hostname_;
+  int pid_;
+  std::string tcp_server_address_;
+  Duration advertising_interval_;
+  int tcp_server_port_;
+  Timestamp start_time_;
+  Duration timeout_;
+  bool ghost_mode_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -772,28 +860,18 @@ class Branch : public ObjectT<Branch> {
   ///          RemoteBranchInfo object with detailed information about the
   ///          branch.
   std::unordered_map<Uuid, RemoteBranchInfo> get_connected_branches() const {
-    struct CallbackData {
-      Uuid uuid;
-      const char* str;
-      std::unordered_map<Uuid, RemoteBranchInfo> branches;
-    } data;
+    const char* json_str;
+    int res = detail::YOGI_BranchGetConnectedBranches(this->handle(), nullptr, nullptr, &json_str, nullptr);
+    detail::check_error_code(res);
 
-    detail::query_string([&](auto str, auto size) {
-      data.str = str;
-      data.branches.clear();
+    std::unordered_map<Uuid, RemoteBranchInfo> branches;
 
-      return detail::YOGI_BranchGetConnectedBranches(
-          this->handle(), &data.uuid, str, size,
-          [](int res, void* userarg) {
-            if (res == static_cast<int>(ErrorCode::kOk)) {
-              auto data = static_cast<CallbackData*>(userarg);
-              data->branches.emplace(std::make_pair(data->uuid, RemoteBranchInfo(data->uuid, data->str)));
-            }
-          },
-          &data);
-    });
+    for (auto& json : Json::parse(json_str)) {
+      auto branch = RemoteBranchInfo{json.dump()};
+      branches.insert(std::make_pair(branch.uuid(), branch));
+    }
 
-    return data.branches;
+    return branches;
   }
 
   /// Waits for a branch event to occur.
@@ -807,50 +885,35 @@ class Branch : public ObjectT<Branch> {
   /// If successful, the event information passed to the handler function \p fn
   /// contains at least the UUID of the remote branch.
   ///
-  /// In case that the internal buffer for reading the event information is too
-  /// small, fn will be called with the corresponding error and the event
-  /// information is lost. You can set the size of this buffer via the
-  /// \p buffer_size parameter.
-  ///
-  /// \param events      Events to observe.
-  /// \param fn          Handler function to call.
-  /// \param buffer_size Size of the internal buffer for reading event
-  ///                    information.
-  void await_event_async(BranchEvents events, AwaitEventFn fn, int buffer_size = 1024) {
-    struct CallbackData {
-      AwaitEventFn fn;
-      Uuid uuid;
-      std::vector<char> json;
-    };
-
-    auto data = std::make_unique<CallbackData>();
-    data->fn  = fn;
-    data->json.resize(static_cast<std::size_t>(buffer_size));
+  /// \param events Events to observe.
+  /// \param fn     Handler function to call.
+  void await_event_async(BranchEvents events, AwaitEventFn fn) {
+    auto user_fn = std::make_unique<AwaitEventFn>(fn);
 
     int res = detail::YOGI_BranchAwaitEventAsync(
-        handle(), static_cast<int>(events), &data->uuid, data->json.data(), buffer_size,
-        [](int res, int event, int ev_res, void* userarg) {
-          auto data = std::unique_ptr<CallbackData>(static_cast<CallbackData*>(userarg));
-          if (!data->fn) return;
+        handle(), static_cast<int>(events),
+        [](int res, int event, int evres, const void* uuid, const char* json, int jsonsize, void* userarg) {
+          auto user_fn = std::unique_ptr<AwaitEventFn>(static_cast<AwaitEventFn*>(userarg));
+          if (!*user_fn) return;
 
           auto be = static_cast<BranchEvents>(event);
 
           if (Result(res) && be != BranchEvents::kNone) {
             switch (be) {
               case BranchEvents::kBranchDiscovered:
-                call_await_event_fn<BranchDiscoveredEventInfo>(res, be, ev_res, data);
+                call_await_event_fn<BranchDiscoveredEventInfo>(res, be, evres, json, *user_fn);
                 break;
 
               case BranchEvents::kBranchQueried:
-                call_await_event_fn<BranchQueriedEventInfo>(res, be, ev_res, data);
+                call_await_event_fn<BranchQueriedEventInfo>(res, be, evres, json, *user_fn);
                 break;
 
               case BranchEvents::kConnectFinished:
-                call_await_event_fn<ConnectFinishedEventInfo>(res, be, ev_res, data);
+                call_await_event_fn<ConnectFinishedEventInfo>(res, be, evres, json, *user_fn);
                 break;
 
               case BranchEvents::kConnectionLost:
-                call_await_event_fn<ConnectionLostEventInfo>(res, be, ev_res, data);
+                call_await_event_fn<ConnectionLostEventInfo>(res, be, evres, json, *user_fn);
                 break;
 
               default: {
@@ -859,13 +922,13 @@ class Branch : public ObjectT<Branch> {
               }
             }
           } else {
-            call_await_event_fn<BranchEventInfo>(res, be, ev_res, data);
+            call_await_event_fn<BranchEventInfo>(res, be, evres, json, *user_fn);
           }
         },
-        data.get());
+        user_fn.get());
 
     detail::check_error_code(res);
-    data.release();
+    user_fn.release();
   }
 
   /// Cancels waiting for a branch event.
@@ -1330,27 +1393,23 @@ class Branch : public ObjectT<Branch> {
   }
 
   LocalBranchInfo query_info() {
-    Uuid uuid;
-
     const char* json;
     int jsonsize;
-    int res = detail::YOGI_BranchGetInfo(this->handle(), &uuid, &json, &jsonsize);
+    int res = detail::YOGI_BranchGetInfo(this->handle(), nullptr, &json, &jsonsize);
     detail::check_error_code(res);
 
-    return LocalBranchInfo(uuid, std::string(json, jsonsize - 1));
+    return LocalBranchInfo(std::string(json, jsonsize - 1));
   }
 
-  template <typename EventInfo, typename CallbackData>
-  static void call_await_event_fn(int res, BranchEvents be, int ev_res, CallbackData&& data) {
+  template <typename EventInfo>
+  static void call_await_event_fn(int res, BranchEvents be, int evres, const char* json, const AwaitEventFn& user_fn) {
     detail::with_error_code_to_result(res, [&](const auto& result) {
       if (result) {
-        EventInfo info(data->uuid, data->json.data());
-        detail::with_error_code_to_result(ev_res,
-                                          [&](const auto& ev_result) { data->fn(result, be, ev_result, info); });
+        EventInfo info(json);
+        detail::with_error_code_to_result(evres, [&](const auto& ev_result) { user_fn(result, be, ev_result, info); });
       } else {
         BranchEventInfo info;
-        detail::with_error_code_to_result(ev_res,
-                                          [&](const auto& ev_result) { data->fn(result, be, ev_result, info); });
+        detail::with_error_code_to_result(evres, [&](const auto& ev_result) { user_fn(result, be, ev_result, info); });
       }
     });
   }

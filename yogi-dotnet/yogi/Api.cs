@@ -354,27 +354,24 @@ public static partial class Yogi
 
         // YOGI_BranchGetInfo
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate int BranchGetInfoDelegate(SafeHandle branch, IntPtr uuid, ref IntPtr json, ref int jsonsize);
+        public delegate int BranchGetInfoDelegate(SafeHandle branch, ref IntPtr uuid, ref IntPtr json, ref int jsonsize);
 
         public static BranchGetInfoDelegate YOGI_BranchGetInfo
             = Library.GetDelegateForFunction<BranchGetInfoDelegate>("YOGI_BranchGetInfo");
 
         // YOGI_BranchGetConnectedBranches
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void BranchGetConnectedBranchesFnDelegate(int res, IntPtr userarg);
-
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate int BranchGetConnectedBranchesDelegate(SafeHandle branch, IntPtr uuid, StringBuilder json, int jsonsize, BranchGetConnectedBranchesFnDelegate fn, IntPtr userarg);
+        public delegate int BranchGetConnectedBranchesDelegate(SafeHandle branch, ref IntPtr uuids, ref int numuuids, ref IntPtr json, ref int jsonsize);
 
         public static BranchGetConnectedBranchesDelegate YOGI_BranchGetConnectedBranches
             = Library.GetDelegateForFunction<BranchGetConnectedBranchesDelegate>("YOGI_BranchGetConnectedBranches");
 
         // YOGI_BranchAwaitEventAsync
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void BranchAwaitEventAsyncFnDelegate(int res, int ev, int evres, IntPtr userarg);
+        public delegate void BranchAwaitEventAsyncFnDelegate(int res, int ev, int evres, IntPtr uuid, string json, int jsonsize, IntPtr userarg);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate int BranchAwaitEventAsyncDelegate(SafeHandle branch, int events, IntPtr uuid, StringBuilder json, int jsonsize, BranchAwaitEventAsyncFnDelegate fn, IntPtr userarg);
+        public delegate int BranchAwaitEventAsyncDelegate(SafeHandle branch, int events, BranchAwaitEventAsyncFnDelegate fn, IntPtr userarg);
 
         public static BranchAwaitEventAsyncDelegate YOGI_BranchAwaitEventAsync
             = Library.GetDelegateForFunction<BranchAwaitEventAsyncDelegate>("YOGI_BranchAwaitEventAsync");

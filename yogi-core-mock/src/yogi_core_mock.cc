@@ -839,7 +839,7 @@ YOGI_API void MOCK_BranchCreate(decltype(YOGI_BranchCreate) fn) {
 // Mock implementation for YOGI_BranchGetInfo
 static std::function<decltype(YOGI_BranchGetInfo)> mock_BranchGetInfo_fn = {};
 
-YOGI_API int YOGI_BranchGetInfo(void* branch, void* uuid, const char** json, int* jsonsize) {
+YOGI_API int YOGI_BranchGetInfo(void* branch, const void** uuid, const char** json, int* jsonsize) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_BranchGetInfo_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_BranchGetInfo()" << std::endl;
@@ -857,15 +857,15 @@ YOGI_API void MOCK_BranchGetInfo(decltype(YOGI_BranchGetInfo) fn) {
 // Mock implementation for YOGI_BranchGetConnectedBranches
 static std::function<decltype(YOGI_BranchGetConnectedBranches)> mock_BranchGetConnectedBranches_fn = {};
 
-YOGI_API int YOGI_BranchGetConnectedBranches(void* branch, void* uuid, char* json, int jsonsize,
-                                             void (*fn)(int res, void* userarg), void* userarg) {
+YOGI_API int YOGI_BranchGetConnectedBranches(void* branch, const void** uuids, int* numuuids, const char** json,
+                                             int* jsonsize) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_BranchGetConnectedBranches_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_BranchGetConnectedBranches()" << std::endl;
     return YOGI_ERR_UNKNOWN;
   }
 
-  return mock_BranchGetConnectedBranches_fn(branch, uuid, json, jsonsize, fn, userarg);
+  return mock_BranchGetConnectedBranches_fn(branch, uuids, numuuids, json, jsonsize);
 }
 
 YOGI_API void MOCK_BranchGetConnectedBranches(decltype(YOGI_BranchGetConnectedBranches) fn) {
@@ -876,15 +876,17 @@ YOGI_API void MOCK_BranchGetConnectedBranches(decltype(YOGI_BranchGetConnectedBr
 // Mock implementation for YOGI_BranchAwaitEventAsync
 static std::function<decltype(YOGI_BranchAwaitEventAsync)> mock_BranchAwaitEventAsync_fn = {};
 
-YOGI_API int YOGI_BranchAwaitEventAsync(void* branch, int events, void* uuid, char* json, int jsonsize,
-                                        void (*fn)(int res, int ev, int evres, void* userarg), void* userarg) {
+YOGI_API int YOGI_BranchAwaitEventAsync(void* branch, int events,
+                                        void (*fn)(int res, int ev, int evres, const void* uuid, const char* json,
+                                                   int jsonsize, void* userarg),
+                                        void* userarg) {
   std::lock_guard<std::mutex> lock(global_mock_mutex);
   if (!mock_BranchAwaitEventAsync_fn) {
     std::cout << "WARNING: Unmonitored mock function call: YOGI_BranchAwaitEventAsync()" << std::endl;
     return YOGI_ERR_UNKNOWN;
   }
 
-  return mock_BranchAwaitEventAsync_fn(branch, events, uuid, json, jsonsize, fn, userarg);
+  return mock_BranchAwaitEventAsync_fn(branch, events, fn, userarg);
 }
 
 YOGI_API void MOCK_BranchAwaitEventAsync(decltype(YOGI_BranchAwaitEventAsync) fn) {

@@ -1,11 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # PYTHON_ARGCOMPLETE_OK
 
 import argparse
 import argcomplete
 import sys
 import pathlib
-import os
 import subprocess
 from typing import Any
 
@@ -45,14 +44,14 @@ def parse_cmdline() -> Any:
     subparsers = parser.add_subparsers(dest='command', help='command to execute')
     subparsers.required = True
 
-    cmd_bootstrap = subparsers.add_parser('bootstrap', help='Setup the development environment from scratch')
-    cmd_codegen = subparsers.add_parser('codegen', help='Run code generation for all sub-projects')
-    cmd_build = subparsers.add_parser('build', help='Build all sub-projects')
-    cmd_build_core = subparsers.add_parser('build-core', help='Build yogi-core')
-    cmd_build_mock = subparsers.add_parser('build-mock', help='Build yogi-core-mock')
-    cmd_build_cpp = subparsers.add_parser('build-cpp', help='Build yogi-cpp')
-    cmd_build_py = subparsers.add_parser('build-py', help='Build yogi-python')
-    cmd_build_net = subparsers.add_parser('build-net', help='Build yogi-dotnet')
+    subparsers.add_parser('bootstrap', help='Setup the development environment from scratch')
+    subparsers.add_parser('codegen', help='Run code generation for all sub-projects')
+    subparsers.add_parser('build', help='Build all sub-projects')
+    subparsers.add_parser('build-core', help='Build yogi-core')
+    subparsers.add_parser('build-mock', help='Build yogi-core-mock')
+    subparsers.add_parser('build-cpp', help='Build yogi-cpp')
+    subparsers.add_parser('build-py', help='Build yogi-python')
+    subparsers.add_parser('build-net', help='Build yogi-dotnet')
 
     argcomplete.autocomplete(parser)
     args = parser.parse_args()
@@ -71,4 +70,8 @@ def main() -> None:
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except subprocess.CalledProcessError as e:
+        print(f'ERROR: {e}')
+        sys.exit(1)

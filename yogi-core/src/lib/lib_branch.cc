@@ -76,13 +76,13 @@ YOGI_API int YOGI_BranchCreate(void** branch, void* context, void* config, const
   END_CHECKED_API_FUNCTION
 }
 
-YOGI_API int YOGI_BranchGetInfo(void* branch, void* uuid, const char** json, int* jsonsize) {
+YOGI_API int YOGI_BranchGetInfo(void* branch, const void** uuid, const char** json, int* jsonsize) {
   BEGIN_CHECKED_API_FUNCTION
 
   CHECK_PARAM(branch != nullptr);
 
   auto brn = ObjectRegister::get<Branch>(branch);
-  copy_uuid_to_user_buffer(brn->get_uuid(), uuid);
+  set_api_buffer(std::vector<char>(brn->get_uuid().begin(), brn->get_uuid().end()), uuid, nullptr);
 
   auto info_string = brn->make_info_string();
   set_api_buffer(std::move(info_string), json, jsonsize);
@@ -90,58 +90,62 @@ YOGI_API int YOGI_BranchGetInfo(void* branch, void* uuid, const char** json, int
   END_CHECKED_API_FUNCTION
 }
 
-YOGI_API int YOGI_BranchGetConnectedBranches(void* branch, void* uuid, char* json, int jsonsize,
-                                             void (*fn)(int res, void* userarg), void* userarg) {
+YOGI_API int YOGI_BranchGetConnectedBranches(void* branch, const void** uuids, int* numuuids, const char** json,
+                                             int* jsonsize) {
   BEGIN_CHECKED_API_FUNCTION
 
   CHECK_PARAM(branch != nullptr);
-  CHECK_PARAM(json == nullptr || jsonsize > 0);
-  CHECK_PARAM(fn != nullptr);
 
-  auto brn = ObjectRegister::get<Branch>(branch);
+  auto brn          = ObjectRegister::get<Branch>(branch);
+  auto info_strings = brn->make_connected_branches_info_strings();
 
-  auto buffer_too_small = false;
-  for (auto& entry : brn->make_connected_branches_info_strings()) {
-    copy_uuid_to_user_buffer(entry.first, uuid);
-
-    if (copy_string_to_user_buffer(entry.second, json, jsonsize)) {
-      fn(YOGI_OK, userarg);
-    } else {
-      fn(YOGI_ERR_BUFFER_TOO_SMALL, userarg);
-      buffer_too_small = true;
-    }
+  // Generate the UUIDs array
+  std::vector<char> uuids_data(info_strings.size() * sizeof(boost::uuids::uuid));
+  size_t offset = 0;
+  for (auto& entry : info_strings) {
+    std::copy_n(entry.first.data, sizeof(boost::uuids::uuid), uuids_data.data() + offset);
+    offset += sizeof(boost::uuids::uuid);
   }
 
-  if (buffer_too_small) {
-    throw Error{YOGI_ERR_BUFFER_TOO_SMALL};
+  set_api_buffer(std::move(uuids_data), uuids, nullptr);
+  if (numuuids) {
+    *numuuids = static_cast<int>(info_strings.size());
   }
+
+  // Generate the JSON for the branch information
+  std::ostringstream ss;
+  ss << "[";
+
+  for (auto& entry : info_strings) {
+    ss << entry.second << ",";
+  }
+
+  auto info_string_array = ss.str();
+  if (info_string_array.size() == 1) {
+    info_string_array += ']';
+  } else {
+    info_string_array.back() = ']';
+  }
+
+  set_api_buffer(std::move(info_string_array), json, jsonsize);
 
   END_CHECKED_API_FUNCTION
 }
 
-YOGI_API int YOGI_BranchAwaitEventAsync(void* branch, int events, void* uuid, char* json, int jsonsize,
-                                        void (*fn)(int res, int event, int evres, void* userarg), void* userarg) {
+YOGI_API int YOGI_BranchAwaitEventAsync(void* branch, int events,
+                                        void (*fn)(int res, int event, int evres, const void* uuid, const char* json,
+                                                   int jsonsize, void* userarg),
+                                        void* userarg) {
   BEGIN_CHECKED_API_FUNCTION
 
   CHECK_PARAM(branch != nullptr);
   CHECK_FLAGS(events, YOGI_BEV_ALL);
-  CHECK_PARAM(json == nullptr || jsonsize > 0);
   CHECK_PARAM(fn != nullptr);
 
   auto brn = ObjectRegister::get<Branch>(branch);
 
   brn->await_event_async(events, [=](auto& res, auto event, auto& evres, auto& tmp_uuid, auto& tmp_json) {
-    if (res.is_error()) {
-      fn(res.value(), event, evres.value(), userarg);
-      return;
-    }
-
-    copy_uuid_to_user_buffer(tmp_uuid, uuid);
-    if (copy_string_to_user_buffer(tmp_json, json, jsonsize)) {
-      fn(res.value(), event, evres.value(), userarg);
-    } else {
-      fn(YOGI_ERR_BUFFER_TOO_SMALL, event, evres.value(), userarg);
-    }
+    fn(res.value(), event, evres.value(), &tmp_uuid, tmp_json.c_str(), static_cast<int>(tmp_json.size()), userarg);
   });
 
   END_CHECKED_API_FUNCTION

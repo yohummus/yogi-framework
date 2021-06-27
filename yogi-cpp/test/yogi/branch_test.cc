@@ -46,10 +46,8 @@ MAKE_CTORS_PUBLIC(yogi::ConnectionLostEventInfo, TestConnectionLostEventInfo);
 class BranchTest : public Test {};
 
 TEST_F(BranchTest, BranchInfo) {
-  yogi::Uuid uuid = {};
-  uuid.data()[0]  = 123;
-
   auto json = R"({
+    "uuid":                 "123e4567-e89b-12d3-a456-426655440000",
     "name":                 "foo",
     "description":          "bar",
     "network_name":         "local",
@@ -63,8 +61,6 @@ TEST_F(BranchTest, BranchInfo) {
     "ghost_mode":           true
   })";
 
-  TestBranchInfo info(uuid, json);
-
   MOCK_ParseTime([](long long* timestamp, const char* str, const char* timefmt) {
     EXPECT_NE(timestamp, nullptr);
     EXPECT_STREQ(str, "foobar");
@@ -73,7 +69,9 @@ TEST_F(BranchTest, BranchInfo) {
     return YOGI_OK;
   });
 
-  EXPECT_EQ(info.uuid(), uuid);
+  TestBranchInfo info{json};
+
+  EXPECT_EQ(info.uuid().to_string(), "123e4567-e89b-12d3-a456-426655440000");
   EXPECT_EQ(info.to_string(), json);
   EXPECT_EQ(info.to_json(), yogi::Json::parse(json));
   EXPECT_EQ(info.name(), "foo");
@@ -90,29 +88,59 @@ TEST_F(BranchTest, BranchInfo) {
 }
 
 TEST_F(BranchTest, RemoteBranchInfo) {
-  yogi::Uuid uuid = {};
-  uuid.data()[0]  = 123;
+  MOCK_ParseTime([](long long* timestamp, const char* str, const char* timefmt) {
+    *timestamp = 0;
+    return YOGI_OK;
+  });
 
-  TestRemoteBranchInfo info(uuid, R"({
-    "tcp_server_address": "1.2.3.4"
+  TestRemoteBranchInfo info(R"({
+    "uuid":                 "123e4567-e89b-12d3-a456-426655440000",
+    "name":                 "foo",
+    "description":          "bar",
+    "network_name":         "local",
+    "path":                 "/test",
+    "hostname":             "localhost",
+    "pid":                  12345,
+    "advertising_interval": 5.5,
+    "tcp_server_port":      10000,
+    "start_time":           "foobar",
+    "timeout":              3.5,
+    "ghost_mode":           true,
+
+    "tcp_server_address":   "1.2.3.4"
   })");
 
-  EXPECT_EQ(info.uuid(), uuid);
+  EXPECT_EQ(info.name(), "foo");  // Check that BranchInfo::init() gets called
   EXPECT_EQ(info.tcp_server_address(), "1.2.3.4");
 }
 
 TEST_F(BranchTest, LocalBranchInfo) {
-  yogi::Uuid uuid = {};
-  uuid.data()[0]  = 123;
+  MOCK_ParseTime([](long long* timestamp, const char* str, const char* timefmt) {
+    *timestamp = 0;
+    return YOGI_OK;
+  });
 
-  TestLocalBranchInfo info(uuid, R"({
-    "advertising_address": "1.2.3.4",
-    "advertising_port":    5555,
-    "tx_queue_size":       6666,
-    "rx_queue_size":       7777
+  TestLocalBranchInfo info(R"({
+    "uuid":                 "123e4567-e89b-12d3-a456-426655440000",
+    "name":                 "foo",
+    "description":          "bar",
+    "network_name":         "local",
+    "path":                 "/test",
+    "hostname":             "localhost",
+    "pid":                  12345,
+    "advertising_interval": 5.5,
+    "tcp_server_port":      10000,
+    "start_time":           "foobar",
+    "timeout":              3.5,
+    "ghost_mode":           true,
+
+    "advertising_address":  "1.2.3.4",
+    "advertising_port":     5555,
+    "tx_queue_size":        6666,
+    "rx_queue_size":        7777
   })");
 
-  EXPECT_EQ(info.uuid(), uuid);
+  EXPECT_EQ(info.name(), "foo");  // Check that BranchInfo::init() gets called
   EXPECT_EQ(info.advertising_address(), "1.2.3.4");
   EXPECT_EQ(info.advertising_port(), 5555);
   EXPECT_EQ(info.tx_queue_size(), 6666);
@@ -120,38 +148,42 @@ TEST_F(BranchTest, LocalBranchInfo) {
 }
 
 TEST_F(BranchTest, BranchEventInfo) {
-  yogi::Uuid uuid = {};
-  uuid.data()[0]  = 123;
-
   auto json = R"({
+    "uuid": "123e4567-e89b-12d3-a456-426655440000"
   })";
 
-  TestBranchEventInfo info(uuid, json);
+  TestBranchEventInfo info(json);
 
-  EXPECT_EQ(info.uuid(), uuid);
+  EXPECT_EQ(info.uuid().to_string(), "123e4567-e89b-12d3-a456-426655440000");
   EXPECT_EQ(info.to_string(), json);
   EXPECT_EQ(info.to_json(), yogi::Json::parse(json));
 }
 
 TEST_F(BranchTest, BranchDiscoveredEventInfo) {
-  yogi::Uuid uuid = {};
-  uuid.data()[0]  = 123;
+  TestBranchDiscoveredEventInfo info(R"({
+    "uuid": "123e4567-e89b-12d3-a456-426655440000",
 
-  TestBranchDiscoveredEventInfo info(uuid, R"({
     "tcp_server_address": "1.2.3.4",
     "tcp_server_port":    10000
   })");
 
-  EXPECT_EQ(info.uuid(), uuid);
+  EXPECT_EQ(info.uuid().to_string(), "123e4567-e89b-12d3-a456-426655440000");  // Check BranchEventInfo.init() is called
   EXPECT_EQ(info.tcp_server_address(), "1.2.3.4");
   EXPECT_EQ(info.tcp_server_port(), 10000);
 }
 
 TEST_F(BranchTest, BranchQueriedEventInfo) {
-  yogi::Uuid uuid = {};
-  uuid.data()[0]  = 123;
+  MOCK_ParseTime([](long long* timestamp, const char* str, const char* timefmt) {
+    EXPECT_NE(timestamp, nullptr);
+    EXPECT_STREQ(str, "foobar");
+    EXPECT_EQ(timefmt, nullptr);
+    *timestamp = 1234356789123000000ll;
+    return YOGI_OK;
+  });
 
-  TestBranchQueriedEventInfo info(uuid, R"({
+  TestBranchQueriedEventInfo info(R"({
+    "uuid": "123e4567-e89b-12d3-a456-426655440000",
+
     "name":                 "foo",
     "description":          "bar",
     "network_name":         "local",
@@ -166,15 +198,7 @@ TEST_F(BranchTest, BranchQueriedEventInfo) {
     "ghost_mode":           true
   })");
 
-  MOCK_ParseTime([](long long* timestamp, const char* str, const char* timefmt) {
-    EXPECT_NE(timestamp, nullptr);
-    EXPECT_STREQ(str, "foobar");
-    EXPECT_EQ(timefmt, nullptr);
-    *timestamp = 1234356789123000000ll;
-    return YOGI_OK;
-  });
-
-  EXPECT_EQ(info.uuid(), uuid);
+  EXPECT_EQ(info.uuid().to_string(), "123e4567-e89b-12d3-a456-426655440000");  // Check BranchEventInfo.init() is called
   EXPECT_EQ(info.name(), "foo");
   EXPECT_EQ(info.description(), "bar");
   EXPECT_EQ(info.network_name(), "local");
@@ -190,23 +214,19 @@ TEST_F(BranchTest, BranchQueriedEventInfo) {
 }
 
 TEST_F(BranchTest, ConnectFinishedEventInfo) {
-  yogi::Uuid uuid = {};
-  uuid.data()[0]  = 123;
-
-  TestConnectFinishedEventInfo info(uuid, R"({
+  TestConnectFinishedEventInfo info(R"({
+    "uuid": "123e4567-e89b-12d3-a456-426655440000"
   })");
 
-  EXPECT_EQ(info.uuid(), uuid);
+  EXPECT_EQ(info.uuid().to_string(), "123e4567-e89b-12d3-a456-426655440000");  // Check BranchEventInfo.init() is called
 }
 
 TEST_F(BranchTest, ConnectionLostEventInfo) {
-  yogi::Uuid uuid = {};
-  uuid.data()[0]  = 123;
-
-  TestConnectionLostEventInfo info(uuid, R"({
+  TestConnectionLostEventInfo info(R"({
+    "uuid": "123e4567-e89b-12d3-a456-426655440000"
   })");
 
-  EXPECT_EQ(info.uuid(), uuid);
+  EXPECT_EQ(info.uuid().to_string(), "123e4567-e89b-12d3-a456-426655440000");  // Check BranchEventInfo.init() is called
 }
 
 TEST_F(BranchTest, CreateFromConfiguration) {
@@ -222,13 +242,19 @@ TEST_F(BranchTest, CreateFromConfiguration) {
     return YOGI_OK;
   });
 
-  MOCK_BranchGetInfo([](void* branch, void* uuid, const char** json, int* jsonsize) {
+  MOCK_BranchGetInfo([](void* branch, const void** uuid, const char** json, int* jsonsize) {
     EXPECT_EQ(branch, kPointer);
-    EXPECT_NE(uuid, nullptr);
     EXPECT_NE(json, nullptr);
     EXPECT_NE(jsonsize, nullptr);
-    *json     = "{}";
-    *jsonsize = 3;
+    *json     = kBranchInfo;
+    *jsonsize = strlen(kBranchInfo) + 1;
+    EXPECT_EQ(uuid, nullptr);  // Not needed for now
+    return YOGI_OK;
+  });
+
+  MOCK_ParseTime([](long long* timestamp, const char* str, const char* timefmt) {
+    EXPECT_NE(timestamp, nullptr);
+    *timestamp = 1234356789123000000ll;
     return YOGI_OK;
   });
 
@@ -258,13 +284,19 @@ TEST_F(BranchTest, CreateFromJson) {
     return YOGI_OK;
   });
 
-  MOCK_BranchGetInfo([](void* branch, void* uuid, const char** json, int* jsonsize) {
+  MOCK_BranchGetInfo([](void* branch, const void** uuid, const char** json, int* jsonsize) {
     EXPECT_EQ(branch, kPointer);
-    EXPECT_NE(uuid, nullptr);
     EXPECT_NE(json, nullptr);
     EXPECT_NE(jsonsize, nullptr);
-    *json     = "{}";
-    *jsonsize = 3;
+    *json     = kBranchInfo;
+    *jsonsize = strlen(kBranchInfo) + 1;
+    EXPECT_EQ(uuid, nullptr);  // Not needed for now
+    return YOGI_OK;
+  });
+
+  MOCK_ParseTime([](long long* timestamp, const char* str, const char* timefmt) {
+    EXPECT_NE(timestamp, nullptr);
+    *timestamp = 1234356789123000000ll;
     return YOGI_OK;
   });
 
@@ -284,13 +316,13 @@ TEST_F(BranchTest, Info) {
     return YOGI_OK;
   });
 
-  MOCK_BranchGetInfo([](void* branch, void* uuid, const char** json, int* jsonsize) {
+  MOCK_BranchGetInfo([](void* branch, const void** uuid, const char** json, int* jsonsize) {
     EXPECT_EQ(branch, kPointer);
-    EXPECT_NE(uuid, nullptr);
     EXPECT_NE(json, nullptr);
     EXPECT_NE(jsonsize, nullptr);
 
     *json = R"({
+      "uuid":                 "123e4567-e89b-12d3-a456-426655440000",
       "name":                 "foo",
       "description":          "bar",
       "network_name":         "local",
@@ -311,6 +343,8 @@ TEST_F(BranchTest, Info) {
 
     *jsonsize = std::strlen(*json) + 1;
 
+    EXPECT_EQ(uuid, nullptr);  // Not needed for now
+
     return YOGI_OK;
   });
 
@@ -325,7 +359,7 @@ TEST_F(BranchTest, Info) {
   auto branch = yogi::Branch::create(context, config, "bar");
   EXPECT_EQ(branch->info().name(), "foo");
 
-  EXPECT_NE(branch->uuid(), yogi::Uuid{});
+  EXPECT_EQ(branch->uuid().to_string(), "123e4567-e89b-12d3-a456-426655440000");
   EXPECT_EQ(branch->name(), "foo");
   EXPECT_EQ(branch->description(), "bar");
   EXPECT_EQ(branch->network_name(), "local");
@@ -345,23 +379,44 @@ TEST_F(BranchTest, Info) {
 
 TEST_F(BranchTest, GetConnectedBranches) {
   MOCK_BranchGetConnectedBranches(
-      [](void* branch, void* uuid, char* json, int jsonsize, void (*fn)(int res, void* userarg), void* userarg) {
+      [](void* branch, const void** uuids, int* numuuids, const char** json, int* jsonsize) {
         EXPECT_EQ(branch, kPointer);
-        EXPECT_NE(uuid, nullptr);
         EXPECT_NE(json, nullptr);
-        EXPECT_GT(jsonsize, 100);
-        EXPECT_NE(fn, nullptr);
 
-        auto uuid_data = static_cast<char*>(uuid);
-        memset(uuid_data, 0, 16);
+        // For now, yogi-cpp does not use the following parameters, so we set them to NULL
+        EXPECT_EQ(uuids, nullptr);
+        EXPECT_EQ(numuuids, nullptr);
+        EXPECT_EQ(jsonsize, nullptr);
 
-        uuid_data[0] = 33;
-        strcpy(json, R"({"name": "foo"})");
-        fn(YOGI_OK, userarg);
-
-        uuid_data[0] = 66;
-        strcpy(json, R"({"name": "bar"})");
-        fn(YOGI_OK, userarg);
+        *json = R"([{
+          "uuid":                 "123e4567-e89b-12d3-a456-555555555555",
+          "name":                 "first",
+          "description":          "bar",
+          "network_name":         "local",
+          "path":                 "/test",
+          "hostname":             "localhost",
+          "pid":                  12345,
+          "advertising_interval": 5.5,
+          "tcp_server_port":      10000,
+          "start_time":           "foobar",
+          "timeout":              3.5,
+          "ghost_mode":           true,
+          "tcp_server_address":   "1.2.3.4"
+        }, {
+          "uuid":                 "123e4567-e89b-12d3-a456-888888888888",
+          "name":                 "second",
+          "description":          "bar",
+          "network_name":         "local",
+          "path":                 "/test",
+          "hostname":             "localhost",
+          "pid":                  12345,
+          "advertising_interval": 5.5,
+          "tcp_server_port":      10000,
+          "start_time":           "foobar",
+          "timeout":              3.5,
+          "ghost_mode":           true,
+          "tcp_server_address":   "1.2.3.4"
+        }])";
 
         return YOGI_OK;
       });
@@ -370,39 +425,28 @@ TEST_F(BranchTest, GetConnectedBranches) {
   auto infos  = branch->get_connected_branches();
 
   ASSERT_EQ(infos.size(), 2);
-  yogi::Uuid uuid;
-  memset(uuid.data(), 0, 16);
-
-  uuid.data()[0] = 33;
-  ASSERT_EQ(infos.count(uuid), 1);
-  EXPECT_EQ(infos.at(uuid).name(), "foo");
-
-  uuid.data()[0] = 66;
-  ASSERT_EQ(infos.count(uuid), 1);
-  EXPECT_EQ(infos.at(uuid).name(), "bar");
+  EXPECT_EQ(infos.at(yogi::Uuid::parse("123e4567-e89b-12d3-a456-555555555555")).name(), "first");
+  EXPECT_EQ(infos.at(yogi::Uuid::parse("123e4567-e89b-12d3-a456-888888888888")).name(), "second");
 }
 
 TEST_F(BranchTest, AwaitEventAsync) {
-  static void (*callback_fn)(int res, int ev, int evres, void* userarg);
+  static void (*callback_fn)(int res, int ev, int evres, const void* uuid, const char* json, int jsonsize,
+                             void* userarg);
   static void* callback_userarg;
 
-  MOCK_BranchAwaitEventAsync([](void* branch, int events, void* uuid, char* json, int jsonsize,
-                                void (*fn)(int res, int ev, int evres, void* userarg), void* userarg) {
-    EXPECT_EQ(branch, kPointer);
-    EXPECT_EQ(events, YOGI_BEV_BRANCH_QUERIED);
-    EXPECT_NE(nullptr, uuid);
-    EXPECT_NE(json, nullptr);
-    EXPECT_GT(jsonsize, 100);
-    EXPECT_NE(fn, nullptr);
+  MOCK_BranchAwaitEventAsync(
+      [](void* branch, int events,
+         void (*fn)(int res, int ev, int evres, const void* uuid, const char* json, int jsonsize, void* userarg),
+         void* userarg) {
+        EXPECT_EQ(branch, kPointer);
+        EXPECT_EQ(events, YOGI_BEV_BRANCH_QUERIED);
+        EXPECT_NE(fn, nullptr);
 
-    memset(uuid, 123, 16);
-    strcpy(json, R"({"name": "foo"})");
+        callback_fn      = fn;
+        callback_userarg = userarg;
 
-    callback_fn      = fn;
-    callback_userarg = userarg;
-
-    return YOGI_OK;
-  });
+        return YOGI_OK;
+      });
 
   auto branch = create_branch();
 
@@ -415,8 +459,26 @@ TEST_F(BranchTest, AwaitEventAsync) {
     calls++;
   });
 
+  const char uuid[16] = {123, 123, 123, 123, 123, 123, 123, 123, 123, 123, 123, 123, 123, 123, 123, 123};
+  const char* json    = R"({
+      "uuid":                 "123e4567-e89b-12d3-a456-555555555555",
+      "name":                 "first",
+      "description":          "bar",
+      "network_name":         "local",
+      "path":                 "/test",
+      "hostname":             "localhost",
+      "pid":                  12345,
+      "advertising_interval": 5.5,
+      "tcp_server_port":      10000,
+      "start_time":           "foobar",
+      "timeout":              3.5,
+      "ghost_mode":           true,
+      "tcp_server_address":   "1.2.3.4"
+    })";
+  int jsonsize        = static_cast<int>(strlen(json));
+
   EXPECT_EQ(calls, 0);
-  callback_fn(YOGI_OK, YOGI_BEV_CONNECT_FINISHED, YOGI_ERR_BUSY, callback_userarg);
+  callback_fn(YOGI_OK, YOGI_BEV_CONNECT_FINISHED, YOGI_ERR_BUSY, uuid, json, jsonsize, callback_userarg);
   EXPECT_EQ(calls, 1);
 }
 
