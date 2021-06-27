@@ -255,12 +255,13 @@ _YOGI_WEAK_SYMBOL int (*YOGI_BranchGetConnectedBranches)(void* branch, const voi
                                           int* jsonsize)>("YOGI_BranchGetConnectedBranches");
 
 // YOGI_BranchAwaitEventAsync
-_YOGI_WEAK_SYMBOL int (*YOGI_BranchAwaitEventAsync)(void* branch, int events, void* uuid, char* json, int jsonsize,
-                                                    void (*fn)(int res, int ev, int evres, void* userarg),
-                                                    void* userarg) =
-    Library::get_function_address<int (*)(void* branch, int events, void* uuid, char* json, int jsonsize,
-                                          void (*fn)(int res, int ev, int evres, void* userarg), void* userarg)>(
-        "YOGI_BranchAwaitEventAsync");
+_YOGI_WEAK_SYMBOL int (*YOGI_BranchAwaitEventAsync)(
+    void* branch, int events,
+    void (*fn)(int res, int ev, int evres, const void* uuid, const char* json, int jsonsize, void* userarg),
+    void* userarg) = Library::get_function_address<int (*)(void* branch, int events,
+                                                           void (*fn)(int res, int ev, int evres, const void* uuid,
+                                                                      const char* json, int jsonsize, void* userarg),
+                                                           void* userarg)>("YOGI_BranchAwaitEventAsync");
 
 // YOGI_BranchCancelAwaitEvent
 _YOGI_WEAK_SYMBOL int (*YOGI_BranchCancelAwaitEvent)(void* branch) =

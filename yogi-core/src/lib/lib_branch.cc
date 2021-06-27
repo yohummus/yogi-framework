@@ -132,29 +132,20 @@ YOGI_API int YOGI_BranchGetConnectedBranches(void* branch, const void** uuids, i
   END_CHECKED_API_FUNCTION
 }
 
-YOGI_API int YOGI_BranchAwaitEventAsync(void* branch, int events, void* uuid, char* json, int jsonsize,
-                                        void (*fn)(int res, int event, int evres, void* userarg), void* userarg) {
+YOGI_API int YOGI_BranchAwaitEventAsync(void* branch, int events,
+                                        void (*fn)(int res, int event, int evres, const void* uuid, const char* json,
+                                                   int jsonsize, void* userarg),
+                                        void* userarg) {
   BEGIN_CHECKED_API_FUNCTION
 
   CHECK_PARAM(branch != nullptr);
   CHECK_FLAGS(events, YOGI_BEV_ALL);
-  CHECK_PARAM(json == nullptr || jsonsize > 0);
   CHECK_PARAM(fn != nullptr);
 
   auto brn = ObjectRegister::get<Branch>(branch);
 
   brn->await_event_async(events, [=](auto& res, auto event, auto& evres, auto& tmp_uuid, auto& tmp_json) {
-    if (res.is_error()) {
-      fn(res.value(), event, evres.value(), userarg);
-      return;
-    }
-
-    copy_uuid_to_user_buffer(tmp_uuid, uuid);
-    if (copy_string_to_user_buffer(tmp_json, json, jsonsize)) {
-      fn(res.value(), event, evres.value(), userarg);
-    } else {
-      fn(YOGI_ERR_BUFFER_TOO_SMALL, event, evres.value(), userarg);
-    }
+    fn(res.value(), event, evres.value(), &tmp_uuid, tmp_json.c_str(), static_cast<int>(tmp_json.size()), userarg);
   });
 
   END_CHECKED_API_FUNCTION

@@ -538,8 +538,8 @@ class Mocks:
     def MOCK_BranchAwaitEventAsync(self, fn):
         mock_fn = yogi._library.yogi_core.MOCK_BranchAwaitEventAsync
         mock_fn.restype = None
-        mock_fn.argtypes = [CFUNCTYPE(c_int, c_void_p, c_int, c_void_p, POINTER(
-            c_char), c_int, CFUNCTYPE(None, c_int, c_int, c_int, c_void_p), c_void_p)]
+        mock_fn.argtypes = [CFUNCTYPE(c_int, c_void_p, c_int, CFUNCTYPE(
+            None, c_int, c_int, c_int, c_void_p, c_char_p, c_int, c_void_p), c_void_p)]
         wrapped_fn = mock_fn.argtypes[0](fn)
         self._keepalive.append(wrapped_fn)
         mock_fn(wrapped_fn)

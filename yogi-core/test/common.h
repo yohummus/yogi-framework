@@ -144,19 +144,17 @@ class BranchEventRecorder final {
 
  private:
   void start_await_event();
-  static void callback(int res, int event, int ev_res, void* userarg);
+  static void callback(int res, int ev, int evres, const void* uuid, const char* json, int jsonsize, void* userarg);
 
   struct CallbackData {
     boost::uuids::uuid uuid;
     nlohmann::json json;
     int event;
-    int ev_res;
+    int evres;
   };
 
   void* context_;
   void* branch_;
-  boost::uuids::uuid uuid_;
-  std::vector<char> json_str_;
   std::vector<CallbackData> events_;
 };
 

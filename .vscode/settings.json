@@ -97,7 +97,9 @@
     "shared_mutex": "cpp",
     "stdexcept": "cpp",
     "stop_token": "cpp",
-    "thread": "cpp"
+    "thread": "cpp",
+    "__config": "cpp",
+    "__nullptr": "cpp"
   },
   "python.pythonPath": "/Users/yohummus/Projects/yogi-framework/.venv/bin/python3"
 }

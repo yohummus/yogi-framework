@@ -1065,15 +1065,15 @@ functions:
     args:
       branch: void*
       events: int
-      uuid: void*
-      json: char*
-      jsonsize: int
       fn:
         return_type: void
         args:
           res: int
           ev: int
           evres: int
+          uuid: const void*
+          json: const char*
+          jsonsize: int
           userarg: void*
       userarg: void*
 

@@ -132,15 +132,14 @@ std::pair<ip::address, Buffer> MulticastSocket::receive(const std::chrono::milli
   return {sender_ep.address(), msg};
 }
 
-BranchEventRecorder::BranchEventRecorder(void* context, void* branch)
-    : context_(context), branch_(branch), json_str_(10000) {
+BranchEventRecorder::BranchEventRecorder(void* context, void* branch) : context_(context), branch_(branch) {
   start_await_event();
 }
 
-nlohmann::json BranchEventRecorder::run_context_until(int event, const uuids::uuid& uuid, int ev_res) {
+nlohmann::json BranchEventRecorder::run_context_until(int event, const uuids::uuid& uuid, int evres) {
   while (true) {
     for (auto& entry : events_) {
-      if (entry.uuid == uuid && entry.event == event && entry.ev_res == ev_res) {
+      if (entry.uuid == uuid && entry.event == event && entry.evres == evres) {
         return entry.json;
       }
     }
@@ -158,16 +157,16 @@ nlohmann::json BranchEventRecorder::run_context_until(int event, void* branch, i
 }
 
 void BranchEventRecorder::start_await_event() {
-  int res = YOGI_BranchAwaitEventAsync(branch_, YOGI_BEV_ALL, &uuid_, json_str_.data(),
-                                       static_cast<int>(json_str_.size()), &BranchEventRecorder::callback, this);
+  int res = YOGI_BranchAwaitEventAsync(branch_, YOGI_BEV_ALL, &BranchEventRecorder::callback, this);
   EXPECT_OK(res);
 }
 
-void BranchEventRecorder::callback(int res, int event, int ev_res, void* userarg) {
+void BranchEventRecorder::callback(int res, int ev, int evres, const void* uuid, const char* json, int jsonsize,
+                                   void* userarg) {
   if (res == YOGI_ERR_CANCELED) return;
 
   auto self = static_cast<BranchEventRecorder*>(userarg);
-  self->events_.push_back({self->uuid_, nlohmann::json::parse(self->json_str_.data()), event, ev_res});
+  self->events_.push_back({*static_cast<const boost::uuids::uuid*>(uuid), nlohmann::json::parse(json), ev, evres});
 
   self->start_await_event();
 }
