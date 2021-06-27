@@ -430,20 +430,37 @@ TEST_F(BranchTest, GetConnectedBranches) {
 }
 
 TEST_F(BranchTest, AwaitEventAsync) {
-  static void (*callback_fn)(int res, int ev, int evres, void* userarg);
+  static void (*callback_fn)(int res, int ev, int evres, const void* uuid, const char* json, int jsonsize,
+                             void* userarg);
   static void* callback_userarg;
 
-  MOCK_BranchAwaitEventAsync([](void* branch, int events, void* uuid, char* json, int jsonsize,
-                                void (*fn)(int res, int ev, int evres, void* userarg), void* userarg) {
-    EXPECT_EQ(branch, kPointer);
-    EXPECT_EQ(events, YOGI_BEV_BRANCH_QUERIED);
-    EXPECT_NE(nullptr, uuid);
-    EXPECT_NE(json, nullptr);
-    EXPECT_GT(jsonsize, 100);
-    EXPECT_NE(fn, nullptr);
+  MOCK_BranchAwaitEventAsync(
+      [](void* branch, int events,
+         void (*fn)(int res, int ev, int evres, const void* uuid, const char* json, int jsonsize, void* userarg),
+         void* userarg) {
+        EXPECT_EQ(branch, kPointer);
+        EXPECT_EQ(events, YOGI_BEV_BRANCH_QUERIED);
+        EXPECT_NE(fn, nullptr);
 
-    memset(uuid, 123, 16);
-    strcpy(json, R"({
+        callback_fn      = fn;
+        callback_userarg = userarg;
+
+        return YOGI_OK;
+      });
+
+  auto branch = create_branch();
+
+  int calls = 0;
+  branch->await_event_async(yogi::BranchEvents::kBranchQueried, [&](auto& res, auto event, auto& ev_res, auto& info) {
+    EXPECT_EQ(res, yogi::Success());
+    EXPECT_EQ(event, yogi::BranchEvents::kConnectFinished);
+    EXPECT_EQ(ev_res.error_code(), yogi::ErrorCode::kBusy);
+    EXPECT_NE(dynamic_cast<const yogi::ConnectFinishedEventInfo*>(&info), nullptr);
+    calls++;
+  });
+
+  const char uuid[16] = {123, 123, 123, 123, 123, 123, 123, 123, 123, 123, 123, 123, 123, 123, 123, 123};
+  const char* json    = R"({
       "uuid":                 "123e4567-e89b-12d3-a456-555555555555",
       "name":                 "first",
       "description":          "bar",
@@ -457,27 +474,11 @@ TEST_F(BranchTest, AwaitEventAsync) {
       "timeout":              3.5,
       "ghost_mode":           true,
       "tcp_server_address":   "1.2.3.4"
-    })");
-
-    callback_fn      = fn;
-    callback_userarg = userarg;
-
-    return YOGI_OK;
-  });
-
-  auto branch = create_branch();
-
-  int calls = 0;
-  branch->await_event_async(yogi::BranchEvents::kBranchQueried, [&](auto& res, auto event, auto& ev_res, auto& info) {
-    EXPECT_EQ(res, yogi::Success());
-    EXPECT_EQ(event, yogi::BranchEvents::kConnectFinished);
-    EXPECT_EQ(ev_res.error_code(), yogi::ErrorCode::kBusy);
-    EXPECT_NE(dynamic_cast<const yogi::ConnectFinishedEventInfo*>(&info), nullptr);
-    calls++;
-  });
+    })";
+  int jsonsize        = static_cast<int>(strlen(json));
 
   EXPECT_EQ(calls, 0);
-  callback_fn(YOGI_OK, YOGI_BEV_CONNECT_FINISHED, YOGI_ERR_BUSY, callback_userarg);
+  callback_fn(YOGI_OK, YOGI_BEV_CONNECT_FINISHED, YOGI_ERR_BUSY, uuid, json, jsonsize, callback_userarg);
   EXPECT_EQ(calls, 1);
 }
 

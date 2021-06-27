@@ -885,50 +885,35 @@ class Branch : public ObjectT<Branch> {
   /// If successful, the event information passed to the handler function \p fn
   /// contains at least the UUID of the remote branch.
   ///
-  /// In case that the internal buffer for reading the event information is too
-  /// small, fn will be called with the corresponding error and the event
-  /// information is lost. You can set the size of this buffer via the
-  /// \p buffer_size parameter.
-  ///
-  /// \param events      Events to observe.
-  /// \param fn          Handler function to call.
-  /// \param buffer_size Size of the internal buffer for reading event
-  ///                    information.
-  void await_event_async(BranchEvents events, AwaitEventFn fn, int buffer_size = 1024) {
-    struct CallbackData {
-      AwaitEventFn fn;
-      Uuid uuid;
-      std::vector<char> json;
-    };
-
-    auto data = std::make_unique<CallbackData>();
-    data->fn  = fn;
-    data->json.resize(static_cast<std::size_t>(buffer_size));
+  /// \param events Events to observe.
+  /// \param fn     Handler function to call.
+  void await_event_async(BranchEvents events, AwaitEventFn fn) {
+    auto user_fn = std::make_unique<AwaitEventFn>(fn);
 
     int res = detail::YOGI_BranchAwaitEventAsync(
-        handle(), static_cast<int>(events), &data->uuid, data->json.data(), buffer_size,
-        [](int res, int event, int ev_res, void* userarg) {
-          auto data = std::unique_ptr<CallbackData>(static_cast<CallbackData*>(userarg));
-          if (!data->fn) return;
+        handle(), static_cast<int>(events),
+        [](int res, int event, int evres, const void* uuid, const char* json, int jsonsize, void* userarg) {
+          auto user_fn = std::unique_ptr<AwaitEventFn>(static_cast<AwaitEventFn*>(userarg));
+          if (!*user_fn) return;
 
           auto be = static_cast<BranchEvents>(event);
 
           if (Result(res) && be != BranchEvents::kNone) {
             switch (be) {
               case BranchEvents::kBranchDiscovered:
-                call_await_event_fn<BranchDiscoveredEventInfo>(res, be, ev_res, data);
+                call_await_event_fn<BranchDiscoveredEventInfo>(res, be, evres, json, *user_fn);
                 break;
 
               case BranchEvents::kBranchQueried:
-                call_await_event_fn<BranchQueriedEventInfo>(res, be, ev_res, data);
+                call_await_event_fn<BranchQueriedEventInfo>(res, be, evres, json, *user_fn);
                 break;
 
               case BranchEvents::kConnectFinished:
-                call_await_event_fn<ConnectFinishedEventInfo>(res, be, ev_res, data);
+                call_await_event_fn<ConnectFinishedEventInfo>(res, be, evres, json, *user_fn);
                 break;
 
               case BranchEvents::kConnectionLost:
-                call_await_event_fn<ConnectionLostEventInfo>(res, be, ev_res, data);
+                call_await_event_fn<ConnectionLostEventInfo>(res, be, evres, json, *user_fn);
                 break;
 
               default: {
@@ -937,13 +922,13 @@ class Branch : public ObjectT<Branch> {
               }
             }
           } else {
-            call_await_event_fn<BranchEventInfo>(res, be, ev_res, data);
+            call_await_event_fn<BranchEventInfo>(res, be, evres, json, *user_fn);
           }
         },
-        data.get());
+        user_fn.get());
 
     detail::check_error_code(res);
-    data.release();
+    user_fn.release();
   }
 
   /// Cancels waiting for a branch event.
@@ -1416,17 +1401,15 @@ class Branch : public ObjectT<Branch> {
     return LocalBranchInfo(std::string(json, jsonsize - 1));
   }
 
-  template <typename EventInfo, typename CallbackData>
-  static void call_await_event_fn(int res, BranchEvents be, int ev_res, CallbackData&& data) {
+  template <typename EventInfo>
+  static void call_await_event_fn(int res, BranchEvents be, int evres, const char* json, const AwaitEventFn& user_fn) {
     detail::with_error_code_to_result(res, [&](const auto& result) {
       if (result) {
-        EventInfo info(data->json.data());
-        detail::with_error_code_to_result(ev_res,
-                                          [&](const auto& ev_result) { data->fn(result, be, ev_result, info); });
+        EventInfo info(json);
+        detail::with_error_code_to_result(evres, [&](const auto& ev_result) { user_fn(result, be, ev_result, info); });
       } else {
         BranchEventInfo info;
-        detail::with_error_code_to_result(ev_res,
-                                          [&](const auto& ev_result) { data->fn(result, be, ev_result, info); });
+        detail::with_error_code_to_result(evres, [&](const auto& ev_result) { user_fn(result, be, ev_result, info); });
       }
     });
   }
