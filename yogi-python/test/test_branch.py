@@ -83,13 +83,13 @@ def test_branch_info(info_cls, mocker):
         assert info.start_time.milliseconds == 123
         assert info.timeout == float("inf")
         assert info.ghost_mode is False
-        assert info.tx_queue_size == 2000
-        assert info.rx_queue_size == 3000
 
     if isinstance(info, yogi.RemoteBranchInfo):
         assert info.tcp_server_address == "192.168.1.1"
 
     if isinstance(info, yogi.LocalBranchInfo):
+        assert info.tx_queue_size == 2000
+        assert info.rx_queue_size == 3000
         assert info.advertising_address == "239.255.0.1"
         assert info.advertising_port == 12345
 

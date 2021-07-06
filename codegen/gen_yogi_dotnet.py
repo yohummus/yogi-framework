@@ -175,6 +175,10 @@ def make_api_fn_delegates_code(core_api: munch.Munch, fn_name: str, props: munch
                 arg_type = 'ref IntPtr'
             elif fn_name == 'YOGI_ConfigurationUpdateFromJson' and arg_name == 'json':
                 arg_type = 'byte[]'
+            elif fn_name in ['YOGI_BranchSendBroadcast',
+                             'YOGI_BranchSendBroadcastAsync',
+                             'YOGI_BranchReceiveBroadcastAsync'] and arg_name == 'data':
+                arg_type = 'byte[]'
             elif fn_name != 'YOGI_Destroy' and c_type == 'void*' and arg_name not in ['userarg', 'sigarg', 'uuid',
                                                                                       'data']:
                 arg_type = 'SafeHandle'
